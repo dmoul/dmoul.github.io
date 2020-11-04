@@ -1,0 +1,425 @@
+---
+title: "Mean Population Elevation in the Continental USA"
+author: "Daniel Moul"
+date: "2020-10-23"
+output: 
+  html_document: default
+always_allow_html: true
+---
+
+<br>
+
+The continental United States has vast flat plains and long mountain ranges. But what do people experience? They don't live at the the extreme highest and lowest elevations. One way to answer this question is find the average elevation of the population of the USA. We can approximate the answer by doing the following:
+
+1. Calculate the mean elevation of each county based on the elevations of a set of populated places in each county
+1. Get the population of each county
+1. Calculate a weighted mean elevation for the country based on the above
+
+```{r include=FALSE}
+library(tidyverse)
+library(readr)
+library(janitor)
+library(jsonlite)
+library(lubridate)
+library(knitr)
+library(kableExtra)
+library(glue)
+library(scales)
+library(sf)
+library(tigris)
+
+# remotes::install_github("hrbrmstr/hrbrthemes")
+# hrbrthemes::import_roboto_condensed() 
+# hrbrthemes::import_plex_sans()
+library(hrbrthemes)
+
+
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE,
+                      fig.retina = 3)
+options(tigris_use_cache = TRUE,
+        dplyr.summarise.inform = FALSE)
+
+# for histograms
+theme_set(theme_ipsum_ps())
+#theme_set(theme_light(base_size = 14))
+my_plot_caption <- "By Daniel Moul"
+
+```
+
+```{r include=FALSE}
+us_not_states <- tribble(
+  ~statefp,                 ~statename, 
+   69,                       "Commonwealth of the Northern Mariana Islands",
+   66,                        "Guam",
+   78,                        "United States Virgin Islands",
+   60,                        "American Samoa",
+   11,                        "District of Columbia",
+   72,                        "Puerto Rico",
+   78,                        "U.S. Virgin Islands",
+   64,                        "FSM More islands",
+   68,                        "MH - more islands?",
+   69,                        "Northern Mariana Islands",
+   70,                        "More islands",
+   74,                        "U.S. Minor Outlying Islands",
+   76,                        "Federated States of Micronesia"
+ ) %>%
+  mutate(statefp = as.character(statefp)) %>%
+  arrange(statefp)
+
+state_names <- tigris::states(cb = FALSE, class = "sf") %>% # inclues region and div when cb=FALSE
+  as.data.frame() %>%
+  select(region = REGION, 
+         division = DIVISION, 
+         statefp = STATEFP, 
+         statename = NAME, 
+         aland = ALAND, 
+         awater = AWATER, 
+         intptlat = INTPTLAT, 
+         intptlon = INTPTLON) %>%
+  anti_join(us_not_states, by = "statename") %>%
+  arrange(statefp)
+
+us_states48_20m <- tigris::states(cb = TRUE, resolution = "20m", class = "sf") %>%
+  clean_names() %>%
+  rename(statename = name) %>%
+  anti_join(us_not_states, by = "statename") %>%
+  arrange(statefp) %>% 
+  filter( !statename %in% c("Alaska", "Hawaii") ) # continental US only
+
+# for map
+us_counties48_borders <- tigris::counties(state = state_names$statename, 
+                                  cb = TRUE, 
+                                  resolution = "20m", 
+                                  class = "sf") %>%
+  clean_names() %>%
+  left_join(., 
+            state_names %>% select(statefp, statename),
+            by = c("statefp")) %>%
+  anti_join(., us_not_states, by = "statename") %>%
+  filter( !statename %in% c("Alaska", "Hawaii") )  
+
+```
+
+```{r include=FALSE}
+fname <- "./data/POP_PLACES_20191101.txt"
+
+d_raw <- read_delim(fname, delim = "|") %>%
+  clean_names()
+
+```
+
+```{r}
+d_populated_places <- d_raw %>%
+  select(-starts_with("source_")) %>%
+  filter(!is.na(elev_in_m)) %>%
+  mutate(date_created = mdy(date_created),
+         date_edited = mdy(date_edited)
+  )
+
+d <- d_populated_places %>%
+  group_by(state_alpha, state_numeric, county_name, county_numeric) %>%
+  summarize(n_poplulated_places = n(),
+            mean_elev_in_m = mean(elev_in_m, na.rm = TRUE),
+            mean_elev_in_ft = mean(elev_in_ft, na.rm = TRUE)
+            ) %>%
+  ungroup() %>%
+  anti_join(., us_not_states, by = c("state_numeric" = "statefp"))
+
+```
+
+<br>
+
+## 1. Calculate mean elevation of each county
+
+We can approximate the mean elevation of each county using the 'populated places' data set from the USGS [Populated Places](https://geonames.usgs.gov/docs/stategaz/POP_PLACES.zip) topical gazetteer from GNIS.  Most counties have more than 10 populated places, and we can average them to get an approximation for the mean elevation of the county.
+
+```{r}
+d %>%
+  # filter(state_alpha == "AL") %>%
+  # head(10) %>%
+  sample_n(10) %>%
+  arrange(state_alpha, county_name) %>%
+  kable(caption = "Example data from USGS 'Populated Places' data set with calculated mean elevation per county",
+        digits = 0) %>%
+  kable_styling(position = "center", full_width = FALSE, 
+                bootstrap_options = c("striped", "condensed", "responsive"))
+
+```
+
+<br>
+
+```{r out.width="100%"}
+d %>%
+  filter(mean_elev_in_ft >= 1) %>%
+  ggplot(aes(mean_elev_in_ft)) +
+  geom_histogram(bins = 50) + 
+  scale_x_log10(labels = label_number_si(), breaks = 10^(0:4)) +
+  labs(title = "County mean elevation",
+       x = "Mean elevation in feet log10",
+       y = "Number of counties",
+       caption = my_plot_caption)
+```
+
+<br>
+
+## 2. Get population by county
+
+I downloaded county-level population estimates from ACS 2014-2018 via the Census Bureau's Planning Database at https://www.census.gov/topics/research/guidance/planning-databases.2020.html
+
+<br>
+
+```{r}
+# data from 
+# * https://api.census.gov/data/2010/dec/sf1/examples.html
+# * https://api.census.gov/data/2010/dec/sf1?get=P001001,NAME&for=county:*&in=state:*
+
+# pop_county_raw <- fromJSON('./data/P001001.2010.sf1.json') %>%
+#   as.data.frame()
+# names(pop_county_raw) <- pop_county_raw[1, ]
+# 
+# pop_county <- pop_county_raw %>%
+#   filter(!state == "state") %>%
+#   rename(population = P001001,
+#          county_name = NAME) %>%
+#   mutate(population = as.numeric(population),
+#          state = str_pad(state, width = 2, side = "left", pad = "0")
+#          )
+
+# Better yet, get more current county population estimates from https://www.census.gov/topics/research/guidance/planning-databases.2020.html
+
+pop_county_raw <- read_csv('./data/2020-special-pdb/pdb2020stcov2_us.csv') %>%
+  clean_names()
+
+pop_county <- pop_county_raw %>%
+  filter(geog_level == "County") %>%
+  select(#population = tot_population_cen_2010,
+         population = tot_population_acs_14_18, #ACS 2014-2018 estimates are likely to be more accurate/current
+         county_name, state, county) %>%
+  anti_join(., 
+            us_not_states, 
+            by = c("state" = "statefp")) %>%
+  # setting the small number of missing values to zero is good enough for our purposes
+  replace_na(list(population = 0))
+
+```
+
+```{r eval=FALSE}
+# noncensus included counties; now getting it from tigris, but it doesn't include population
+# tigris is mostly about the shape files, which is not what this section is about
+c <- counties()
+
+c2 <- c %>%
+  # select(state_numeric = STATEFP,
+  #        county_numeric = COUNTYFP,
+  #        #population # need to get this somewhere else
+  #        ) %>%
+  mutate(state_numeric = as.character(.$data$STATEFP),
+         county_numeric = as.character(.$data$COUNTYFP))
+```
+
+```{r}
+d2 <- left_join(d, 
+                pop_county %>% select(-county_name), 
+                by = c("state_numeric" = "state", "county_numeric" = "county")) %>%
+  filter(!is.na(county_name)) %>%
+  replace_na(list(population = 1)) # better to underweight with pop=1 than leave these out 
+                                   # (most are non-state districts that will be filtered out)
+
+```
+
+```{r out.width="100%"}
+pop_county %>%
+  ggplot(aes(population)) +
+  geom_histogram(bins = 50) + 
+  scale_x_log10(labels = label_number_si(), breaks = 10^(1:7)) + #comma_format()
+  labs(title = glue("US Counties: population distribution (2010 census)"),
+       x = "Population log10",
+       y = "Number of counties",
+       caption = my_plot_caption)
+```
+
+<br>
+
+```{r}
+mean_pop_elevation <- weighted.mean(x = d2$mean_elev_in_ft, w = d2$population)
+mean_county_elevation <- mean(d2$mean_elev_in_ft) 
+
+```
+
+## 3. The answer
+
+The average elevation of the population of the USA is `r round(mean_pop_elevation, 0)` ft, which is a weighted mean based on county population. Compare that to the simple average of county elevation: `r round(mean_county_elevation, 0)` ft. It seems reasonable to me that weighted mean is lower elevation than the simple mean, since there are more people near the coasts in higher-density counties than in the middle of the country and in mountainous areas.
+
+Note that counties in Alaska and Hawaii were included when calculating the mean, however they are not included in the plot below.
+
+<br>
+
+```{r include=FALSE}
+
+# add elevation columns
+us_counties48 <- left_join(us_counties48_borders, 
+                           d2 %>% select(statefp = state_numeric,
+                                         countyfp = county_numeric,
+                                         mean_elev_in_m,
+                                         mean_elev_in_ft,
+                                         n_poplulated_places),
+                           by = c("statefp", "countyfp")
+)
+
+my_map_caption <- "By Daniel Moul\nSources: USGS `Populated Places` topical gazetteer from GNIS,\ncensus.gov, and {tigris} R package"
+my_crs <- 2163 # for continental USA (originally used 4326)
+#my_crs_nc <- 2264 # from http://spatialreference.org/ref/?search=carolina
+my_break_colors <- c("#99d8c9", "#FFFEC8", "#EED88C", "#E1B759", 
+                     "#EC8E43", "#EA491D", "#BD1A2F", 
+                     "#AB1130", "#590C25")
+my_break_values <- c(-1, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 11000)
+elev_categories <- cut(us_counties48$mean_elev_in_ft, breaks = my_break_values,
+                  include.lowest = TRUE, dig.lab=10)
+```
+
+```{r out.width="100%"}
+
+us_counties48 %>%
+  ggplot() +
+  geom_sf(aes(fill = elev_categories), color = "darkgrey", size = 0.1) + # draw county boarders and fill colors
+  geom_sf(data = st_geometry(us_states48_20m),
+          fill = NA, color = "slategrey", alpha = 1.0, size = 0.3) + # draw state borders too
+  coord_sf(crs = my_crs) +
+  scale_fill_manual(values = my_break_colors) +
+  theme(plot.title.position = "plot",
+        plot.margin = unit(c(10, 0, 5, 0), "mm")) +
+  labs(title = "Population mean elevation in the continental US",
+       subtitle = glue("County-level mean elevations based on USGS 'populated places' data"),
+       x = "", y = "",
+       fill = "Elevation (ft)",
+       caption = my_map_caption)
+
+```
+
+<br>
+
+Most people live in the green counties (below 1000 ft elevation).
+
+<br>
+
+```{r out.width="100%"}
+d2 %>%
+  filter(population > 0) %>%
+  ggplot(aes(population, mean_elev_in_ft)) +
+  geom_hex() +
+  scale_y_continuous(labels = label_number_si(accuracy = 1),
+                     breaks = 0:5 * 2000) +
+  scale_x_log10(labels = label_number_si()) +
+  scale_fill_continuous(trans = "log10",
+                        low = "darkgrey", high =  "#FFFEC8") + # "#E1B759" "steelblue" "132B43"   "#99d8c9"
+  annotation_logticks(sides = "b", alpha = 0.4, size = 0.3) +
+  theme(panel.grid.minor = element_blank(),
+        ) +
+  labs(title = "Mean elevation by county population",
+       subtitle = glue("Continental 48 states; {comma(nrow(distinct(d2, county_numeric, state_numeric)))} counties"),
+       y = "County mean elevation (ft)",
+       x = "County population (log10 scale)",
+       fill = "n counties\n(log10 scale)",
+       caption = my_plot_caption)
+
+```
+
+<br>
+
+```{r}
+# elevation variation by state
+
+d_variation <- d %>%
+  mutate(mean_elev_in_ft_scaled = scale(mean_elev_in_ft, center = FALSE)) %>%
+  group_by(state_alpha, state_numeric) %>%
+  summarize(across(starts_with("mean_elev_in"), 
+                   list(mean = mean, median = median, min = min, max = max, sd = sd), 
+                   .names = "{fn}_{col}")
+            ) %>%
+  mutate(range_mean_in_ft = max_mean_elev_in_ft - min_mean_elev_in_ft,
+         pct_range_in_ft = range_mean_in_ft / max_mean_elev_in_ft) %>%
+  ungroup()
+  
+```
+
+<br>
+
+Three states (AZ, CA, CO) have a range of more than a mile in elevation between the lowest and highest mean county elevations.
+
+<br>
+
+```{r out.width="100%"}
+d_variation %>%
+  select(state_alpha, ends_with(c("_in_ft", "in_ft_scaled"))) %>%
+  pivot_longer(cols = ends_with(c("_in_ft", "in_ft_scaled")),
+               names_to = "metric", 
+               values_to = "value") %>%
+  filter(!str_detect(metric, "scaled|pct")) %>% # take them out for now
+  ggplot(aes(value)) +
+  geom_histogram(bins = 10) + 
+  facet_wrap(~metric, scales = "free_x") +
+  theme(strip.text = element_text(size = 10)) +
+  labs(title = "Metrics re: mean county population elevation",
+       subtitle = "By state",
+       y = "Number of states",
+       caption = my_plot_caption)
+
+```
+
+<br>
+
+## 4. Notes
+
+```{r}
+ptc_of_counties = nrow(d %>% filter(n_poplulated_places >= 10)) / nrow(d)
+
+```
+
+Can we rely on the population mean elevation calculated based on "populated places?" Yes, because (1) `r round(100 * ptc_of_counties, 0)`% of the counties have more than 10 populated places ; and (2) those with less are mostly sparsely populated ranching and farming areas in a band from Texas to North Dakota where it's relatively flat. 
+
+<br>
+
+```{r out.width="100%"}
+
+
+d %>%
+  ggplot(aes(n_poplulated_places)) +
+  geom_histogram(bins = 25) + 
+  scale_x_log10(labels = label_number_si(), breaks = 10^(0:3)) + #
+  labs(title = glue("{round(100 * ptc_of_counties, 0)}%", 
+                    " of counties have 10 or more populated places \nused to calculate mean county elevation"),
+       x = "Number of populated places",
+       y = "Number of counties",
+       caption = my_plot_caption)
+
+```
+
+<br>
+
+```{r out.width="100%"}
+n_pop_places_categories <- cut(us_counties48$n_poplulated_places, breaks = c(1, 10, 25, 100, 250, 1000, 3700),
+                  include.lowest = TRUE, dig.lab=10)
+
+us_counties48 %>%
+ggplot() +
+  geom_sf(aes(fill = n_pop_places_categories), color = "darkgrey", size = 0.1) + # draw county boarders and fill colors
+  geom_sf(data = st_geometry(us_states48_20m), fill = NA, color = "slategrey", alpha = 1.0, size = 0.3) + # draw state borders too
+  coord_sf(crs = my_crs) +
+  scale_fill_manual(values = my_break_colors) +
+  theme(plot.title.position = "plot",
+        plot.margin = unit(c(10, 0, 5, 0), "mm")) +
+  labs(title = "Number of populated places in each county",
+       subtitle = glue("Used to calculate county-level population mean elevations"),
+       x = "", y = "",
+       fill = "Num places",
+       caption = my_map_caption)
+```
+
+<br>
+<br>
+
+---
+
+By Daniel Moul (heydanielmoul via gmail)
+
+![CC-BY](https://i.creativecommons.org/l/by/4.0/88x31.png) This work is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/)
