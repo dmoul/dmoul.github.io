@@ -1,0 +1,464 @@
+---
+title: "Cistercian and Franciscan Monasteries in Europe"
+subtitle: "Opened in the years between 1000 and 1600"
+author: Daniel Moul
+date: "2020-08-01"
+output:
+  html_document: default
+---
+
+<br>
+
+For nearly a thousand years the Cistercian and Franciscan religious orders have been active in Europe. When and where were monasteries opened? When did they close? To answer these questions, I'll use data compiled by Serra Boranbay and Carmine Guerriero and brought to my attention in Jeremy Singer-Vine's newsletter *Data is Plural*. This data set includes European monasteries of these two orders founded in the years 1000-1600. Monasteries that opened later or beyond Europe are not included.
+
+```{r setup, include=FALSE}
+
+library(readxl)
+library(dplyr)
+library(janitor)
+library(tidyr)
+library(ggplot2)
+library(stringr)
+library(glue)
+library(tibble)
+library(forcats)
+library(ggtext)
+library(gt)
+library(patchwork)
+library(hrbrthemes)
+
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(rgeos)
+
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE, error=TRUE,
+                      dev="svg") # SVG for smaller figures with crisper lines; requires XQuartz on macOS
+theme_set(theme_ipsum_ps())
+my_caption <- "@danielmoul"
+
+```
+
+```{r}
+d <- bind_rows(
+  read_xlsx('./data/1-s2.0-S2352340919310868-mmc2.xlsx', sheet = "Cistercians") %>%
+    mutate(Latitude = as.numeric(Latitude),
+           order = "Cistercians"),
+  read_xlsx('./data/1-s2.0-S2352340919310868-mmc2.xlsx', sheet = "Franciscans") %>%
+    mutate(order = "Franciscans",
+           Ending = NA) # all ending dates are 2011, which cannot be correct
+) %>%
+  clean_names() %>%
+  select(-starts_with("x")) %>%
+  filter(!is.na(country),
+         !is.na(longitude)) %>%
+  # get rid of non-breaking space ASCII 160 at end of some strings
+  mutate(
+    monastery = str_to_title(monastery),
+    monastery = str_remove(monastery, "\u00A0"),
+    city = str_to_title(city),
+    city = str_remove(city, "\u00A0"),
+    country = str_remove(country, "\u00A0"),
+    administrative_region = str_remove(administrative_region, "\u00A0"),
+    historical_region = str_to_title(historical_region)
+  ) %>%
+  rename(lat = latitude,
+         lon = longitude) %>%
+  mutate(
+    lat = as.numeric(lat),
+    lon = as.numeric(lon),
+    duration = ending - starting,
+    country = trimws(country)
+  ) %>%
+  # get rid of monasteries with duplicate names; 
+  # if name and long lat are the same, then keep only the one with longest duration
+  # the others were probably satellites, re-openings, or errors in the data
+  arrange(monastery, desc(duration)) %>%
+  distinct(monastery, lat, lon, .keep_all = TRUE) %>%
+  st_as_sf(coords = c("lon", "lat"),
+           crs = "WGS84") %>%
+  mutate(country = if_else(country == "United Kingdom",
+                           "UK",
+                           country),
+         # only useful for Cistercians
+         still_open = if_else(ending == 2011,
+                              "Still open in 2011",
+                              "Closed before 2011")
+         )
+
+```
+
+```{r fig.height=3.5}
+# Following the example at https://geocompr.robinlovelace.net/reproj-geo-data.html
+# change coordinate system to LAEA Europe (EPSG:3035)
+# check out https://epsg.io
+epsg3035 <- "+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs"
+
+europe = ne_countries(continent = "europe", scale = "medium", returnclass = "sf") %>%
+  filter(!name %in% c("Russia", #"Sweden", "Finland", "Norway",
+                      "Estonia", "Latvia", "Lithuania", "Belarus", "Ukraine", "Moldova",
+                      "Romania", "Bulgaria", "Greece", "North Macedonia",
+                      "Albania", "Kosovo", "Montenegro", "Serbia", "Bosnia and Herzegonvina", "Croatia"),
+         !str_detect(name, "Macedonia|Bosnia")
+         )
+```
+
+<br>
+
+## Openings
+
+The Order of Cistercian was founded in 1098, branching from the Benedictines. The boom in opening Cistercian monasteries occurred during the twelfth and thirteenth centuries. The Franciscans, a group of related religious orders, was founded in 1209 and continued opening new monasteries into the 16th century. Since the data set includes Franciscan monasteries opened prior to 1209, presumably these older monasteries joined the Franciscans at a later date.
+
+```{r out.width="100%"}
+europe %>%
+  st_crop(xmin = -12, xmax = 25, ymin = 35, ymax = 59) %>%
+ggplot() +
+  geom_sf(color = "grey80") +
+  geom_sf(data = d,
+          aes(color = starting),
+          size = 0.5,
+          alpha = 0.4
+          ) +
+  coord_sf(crs = epsg3035) +
+  scale_color_viridis_c(direction = 1) +
+  facet_wrap(~order) +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        legend.position = "right") +
+  labs(title = "Monasteries: year founded",
+       subtitle = glue("Opened between {min(d$starting)} and {max(d$starting)}."),
+       color = "Year opened",
+       caption = my_caption
+       )
+
+```
+
+The geographic dispersal of the movement to open monasteries is more visible when looking at historical administrative regions colored by median opening date of the monasteries in each region.
+
+```{r}
+historical <- d %>%
+  group_by(country, historical_region, order) %>%
+  summarize(n = n(),
+            # starting_min = min(starting),
+            # starting_max= max(starting),
+            # starting_mean = mean(starting),
+            # ending_min = min(ending, na.rm = TRUE),
+            # ending_max = max(ending, na.rm = TRUE),
+            # ending_mean = mean(ending, na.rm = TRUE),
+            # duration_min = min(duration, na.rm = TRUE),
+            # duration_max = max(duration, na.rm = TRUE),
+            # duration_mean = mean(duration, na.rm = TRUE),
+            starting_median = median(starting, na.rm = TRUE)
+            # ending_median = median(ending, na.rm = TRUE),
+            # duration_median = median(duration, na.rm = TRUE),
+            ) %>%
+  ungroup()
+
+historical_centroid = st_centroid(historical)
+
+historical_region <- historical %>%
+  st_convex_hull()
+
+```
+
+```{r out.width="100%"}
+europe %>%
+  st_crop(xmin = -12, xmax = 25, ymin = 35, ymax = 59) %>%
+ggplot() +
+  geom_sf(color = "grey80") +
+  geom_sf(data = d,
+          color = "black",
+          alpha = 0.3,
+          size = 0.5
+          ) +
+  geom_sf(data = historical_centroid,
+          color = "red",
+          alpha = 0.6, shape = 3
+          ) +
+  geom_sf(data = historical_region,
+          aes(color = starting_median,
+              fill = starting_median),
+          alpha = 0.3,
+          ) +
+  coord_sf(crs = epsg3035) +
+  scale_color_viridis_c(direction = 1) +
+  scale_fill_viridis_c(direction = 1) +
+  facet_wrap(~order) +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  guides(color = "none") +
+  labs(title = "Monasteries: historical regions",
+       subtitle = glue("Median regional opening between {round(min(historical_region$starting_median), 0)}",
+       " and {round(max(historical_region$starting_median), 0)}.",
+       "\nRegion boundaries have been calculated--not based on historical maps.",
+       "\nRed crosses are regional centroids."),
+       fill = "Median\nstart year",
+       caption = my_caption
+       )
+
+```
+<br>
+
+## Duration operating
+
+Many Cistercian monasteries operated well over 500 years, the longest-running mainly were located in states in which the Protestant Reformation was not culturally or politically dominant.
+
+```{r out.width="100%"}
+europe %>%
+  st_crop(xmin = -12, xmax = 25, ymin = 35, ymax = 59) %>%
+ggplot() +
+  geom_sf(color = "grey80") +
+  geom_sf(data = d %>% filter(order == "Cistercians"),
+          aes(color = duration),
+          size = 0.5,
+          alpha = 0.4
+          ) +
+  coord_sf(crs = epsg3035) +
+  scale_color_viridis_c(direction = -1,
+                        breaks = 300 * 0:3) +
+  facet_wrap(~ still_open) +
+  theme(axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        legend.position = "right") +
+  labs(title = "Cistercian monasteries",
+       subtitle = glue("Opened {min(d$starting)} - {max(d$starting)}.",
+                       " Some still operating through {max(d$ending, na.rm=TRUE)}."),
+       color = "Years\noperating"
+       #caption = my_caption
+       )
+
+```
+
+```{r}
+d_for_plot <- d %>%
+  rename(starting_year = starting,
+         ending_year = ending,
+         years_operating = duration) %>%
+  add_count(country) %>%
+  pivot_longer(cols = c("starting_year", "ending_year", "years_operating"),
+               names_to = "metric",
+               values_to = "value") %>%
+  mutate(metric = factor(metric, levels = c("starting_year", "ending_year", "years_operating")),
+         country = fct_lump_min(country, 100),
+         country = fct_lump(country, 5),
+         country = fct_reorder(country, desc(n))
+  ) %>%
+  mutate(event_year = case_when(
+    metric == "starting_year"  ~ value,
+    metric == "ending_year"    ~ value,
+    TRUE                       ~ NA_real_
+  ),
+  event = case_when(
+    metric == "starting_year"  ~ 1,
+    metric == "ending_year" & value == 2011  ~ 0, # last year in data set; assume it doesn't indicate closure
+    metric == "ending_year"    ~ -1,
+    TRUE                       ~ NA_real_
+  )
+  ) %>%
+  arrange(event_year) %>%
+  group_by(country) %>%
+  mutate(n_operating = cumsum(event)) %>%
+  ungroup()
+
+d_for_plot_cistercian <- d %>%
+  filter(order == "Cistercians") %>%
+  rename(starting_year = starting,
+         ending_year = ending,
+         years_operating = duration) %>%
+  add_count(country) %>%
+  pivot_longer(cols = c("starting_year", "ending_year", "years_operating"),
+               names_to = "metric",
+               values_to = "value") %>%
+  mutate(metric = factor(metric, levels = c("starting_year", "ending_year", "years_operating")),
+         country = fct_lump_min(country, 100),
+         country = fct_reorder(country, desc(n))
+  ) %>%
+  mutate(event_year = case_when(
+    metric == "starting_year"  ~ value,
+    metric == "ending_year"    ~ value,
+    TRUE                       ~ NA_real_
+  ),
+  event = case_when(
+    metric == "starting_year"  ~ 1,
+    metric == "ending_year" & value == 2011  ~ 0, # last year in data set; assume it doesn't indicate closure
+    metric == "ending_year"    ~ -1,
+    TRUE                       ~ NA_real_
+  )
+  ) %>%
+  arrange(event_year) %>%
+  group_by(country) %>%
+  mutate(n_operating = cumsum(event)) %>%
+  ungroup()
+
+d_for_plot_franciscans <- d %>%
+  filter(order == "Franciscans") %>%
+  rename(starting_year = starting,
+         ending_year = ending,
+         years_operating = duration) %>%
+  add_count(country) %>%
+  pivot_longer(cols = c("starting_year", "ending_year", "years_operating"),
+               names_to = "metric",
+               values_to = "value") %>%
+  mutate(metric = factor(metric, levels = c("starting_year", "ending_year", "years_operating")),
+         country = fct_lump_min(country, 100),
+         country = fct_reorder(country, desc(n))
+  ) %>%
+  mutate(event_year = case_when(
+    metric == "starting_year"  ~ value,
+    metric == "ending_year"    ~ value,
+    TRUE                       ~ NA_real_
+  ),
+  event = case_when(
+    metric == "starting_year"  ~ 1,
+    metric == "ending_year" & value == 2011  ~ 0, # last year in data set; assume it doesn't indicate closure
+    metric == "ending_year"    ~ -1,
+    TRUE                       ~ NA_real_
+  )
+  ) %>%
+  arrange(event_year) %>%
+  group_by(country) %>%
+  mutate(n_operating = cumsum(event)) %>%
+  ungroup()
+
+```
+
+The Cistercian opening boom tapered off by 1300; after that most newly founded Cistercian monasteries were outside the core western European Catholic countries. The Franciscans had two major pushes: one in the 12th and 13th centuries, and one in the 15th (pre-reformation).
+
+```{r out.width="100%", fig.height=7}
+p1 <- d_for_plot %>%
+  filter(metric %in% c("starting_year")) %>%
+  ggplot(aes(value, fill = order)) +
+  geom_histogram(binwidth = 50, alpha = 0.7) + 
+  scale_x_continuous(breaks = seq(1000, 2000, by = 200),
+                     guide = guide_axis(n.dodge = 2)) +
+  scale_y_continuous(breaks = 100 * 0:3) +
+  scale_fill_brewer(palette = "Accent") + 
+  facet_grid(country ~ order) +
+  theme(legend.position = "none") +
+  theme(strip.text.x = element_text(size = rel(0.65)),
+        strip.text.y = element_text(size = rel(0.5)),
+        panel.grid.minor.y = element_blank()
+        ) +
+  labs(title = "Opening years",
+       x = NULL,
+       y = "Number of monasteries",
+       caption = NULL)
+
+p2 <- d_for_plot %>%
+  filter(metric %in% c("ending_year"),
+         order == "Cistercians",
+         event_year != 2011) %>% # assume those operating in 2011 are still open
+  ggplot(aes(value, fill = order)) +
+  geom_histogram(binwidth = 50, alpha = 0.7) + 
+  scale_x_continuous(breaks = seq(1000, 2000, by = 200),
+                     guide = guide_axis(n.dodge = 2)) +
+  scale_y_continuous(breaks = 100 * 0:3) +
+  scale_fill_brewer(palette = "Accent") + 
+  facet_grid(country ~ order) +
+  theme(legend.position = "none") +
+  theme(strip.text.x = element_text(size = rel(0.65)),
+        strip.text.y = element_text(size = rel(0.5)),
+        panel.grid.minor.y = element_blank()
+        ) +
+  labs(title = "Closing years",
+       x = NULL,
+       y = NULL,
+       caption = NULL)
+
+p1 + p2
+
+```
+
+<br>
+
+## Closings
+
+The decline was gradual over long periods of time with short-duration cataclysmic political events wiping out most monasteries. Presumably, these were the result of the Roman Church aligning itself with political movements that lost power, and those in power seeing the religious orders as too powerful, too wealthy, or antithetical to Protestant sensibilities. Since I lack closing dates for Franciscan monasteries, I look at only Cistercian closings below.
+
+```{r out.width="70%", fig.height=9}
+
+closures <- tribble(
+  ~start_year, ~end_year, ~y_value, ~country, ~label,
+  1524, 1581, 175, "Germany", "States adopt<br>Reformation",
+  1524, 1610, 200, "Other", "Other states<br>adopt Reformation",
+  1536, 1541, 175, "UK", "Dissolution of<br>English monasteries",
+  1789, 1790, 150, "France", "Dissolution of<br>French religious orders",
+  1802, 1814, 175, "Germany", "German mediatization",
+  1835, 1837, 175, "Spain", "Spanish confiscations<br>by Mendizabal"
+)
+# See https://en.wikipedia.org/wiki/List_of_states_by_the_date_of_adoption_of_the_Reformation
+# See https://en.wikipedia.org/wiki/Suppression_of_monasteries
+
+d2 <- inner_join(d_for_plot_cistercian %>% 
+                   mutate(country_for_join = as.character(country)),
+                 closures,
+                 by = c("country_for_join" = "country")
+                 ) %>%
+  distinct(label, .keep_all = TRUE) %>%
+  select(start_year, end_year, y_value, country, label)
+
+n_at_2011 <- d_for_plot_cistercian %>%
+  filter(event_year == 2011,
+         n_operating > 0) %>%
+  group_by(country) %>%
+  filter(n_operating == min(n_operating)) %>%
+  ungroup() %>%
+  nrow()
+
+d_for_plot_cistercian %>%
+  filter(!metric %in% c("years_operating")) %>%
+  ggplot() +
+  geom_rect(data = d2,
+            aes(xmin = start_year, xmax = end_year, ymin = 0, ymax = 250),
+            size = 0.25, color = "grey85", fill = "grey85",
+            show.legend = TRUE
+  ) +
+  geom_line(aes(event_year, n_operating, color = metric, lty = metric),
+            alpha = 0.7, size = 2, show.legend = FALSE) +
+  geom_richtext(data = d2,
+             aes(x = (start_year + end_year) / 2, y = y_value, label = label),
+            size = 3) + 
+  scale_color_brewer(palette = "Accent") + 
+  scale_x_continuous(breaks = seq(1000, 2000, by = 200) ) +
+  scale_y_continuous(breaks = seq(0, 300, by = 100) ) +
+  facet_grid(country ~ .) +
+  theme(legend.position = "none") +
+  theme(strip.text.y = element_text(size = rel(0.75)),
+        panel.grid.minor.y = element_blank()) +
+  labs(title = "Rise and decline of Cistercian monasteries",
+       subtitle = glue("European countries with at least 100 monasteries.", 
+                       "\nAs of 2011, {n_at_2011} continue operating."),
+       x = NULL,
+       y = "Number of operating monasteries",
+       caption = my_caption)
+
+```
+
+## Sources and limitations
+
+The data for these plots comes from *A novel dataset on a culture of cooperation and inclusive political institutions in 90 European historical regions observed between 1000 and 1600* by Serra Boranbay and Carmine Guerriero. 2352-3409/© 2019 The Author(s). Published by Elsevier Inc. This is an open access article under the CC BY-NC-ND license (http://creativecommons.org/licenses/by-nc-nd/4.0/). https://doi.org/10.1016/j.dib.2019.104731
+
+Data is Plural newsletter 2019.11.27 edition by Jeremy Singer-Vine. Click [here]( http://mail01.tinyletterapp.com/data-is-plural/data-is-plural-2020-07-15-edition/17497722-tinyletter.com/data-is-plural?c=ff36a4dc-f6ae-4c3a-ab19-b5dd03050c60) to subscribe.
+
+Wikipedia entries: [Cistercians](https://en.wikipedia.org/wiki/Cistercians) and [Franciscans](https://en.wikipedia.org/wiki/Franciscans)
+
+It's possible that there are errors and omissions in the data. The data set covers the years 1000-1600. Monasteries opened later or beyond Europe are not included.
+
+## For current information
+
+Both orders have spread around the world and remain active. See the orders' websites for more information: 
+
+* Cistercians: [ocist.org](http://www.ocist.org/ocist/en/) and [cistopedia.org](https://www.cistopedia.org)
+* Franciscans: [franciscan.org](https://www.franciscan.org)
+
+<br>
+<br>
+
+---
+
+By Daniel Moul (heydanielmoul via gmail)
+
+![CC-BY](https://i.creativecommons.org/l/by/4.0/88x31.png) This work is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/)
