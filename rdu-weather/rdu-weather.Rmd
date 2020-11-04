@@ -1,0 +1,687 @@
+---
+title: "Weather at RDU over the last ten years"
+author: "Daniel Moul"
+date: "2020-07-11"
+output:
+  html_document: default
+  df_print: paged
+
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(forcats)
+library(glue)
+library(ggrepel)
+library(janitor)
+library(ggridges)
+library(patchwork)
+library(here)
+
+theme_set(theme_light()) # ggplot theme
+knitr::opts_chunk$set(echo=FALSE, warning=FALSE, message=FALSE, error=TRUE)
+my_caption <- "Sources: ncdc.noaa.gov & weather.gov | @danielmoul"
+
+```
+
+```{r get-rdu-daily}
+# Get RDU temperature and precipitation data from NOAA.
+rdu_daily_raw <- read_csv(here('rdu-weather/data', 'raw/rdu-daily/2190102-daily.csv'))
+
+leap_days <- tibble(date = paste0(min(year(rdu_daily_raw$DATE)):max((year(rdu_daily_raw$DATE))), "-02-29"),
+             precip = 0.0,
+             temp_min = NA,
+             temp_max = NA,
+             day_of_year = 60 # always leap day
+             )
+
+rdu_daily_tmp <- rdu_daily_raw %>%
+  select(date = DATE, 
+         precip = PRCP,
+         temp_max = TMAX,
+         temp_min = TMIN
+  ) %>%
+  filter(date < max(date)) %>% # last day lacks data
+  mutate(day_of_year = yday(date),
+         #year = as_factor(as.character(year(date))) # joins are easier if we wait to make this a factor until later
+         year = year(date)
+         ) %>%
+  group_by(year) %>%
+  mutate(precip_ytd = cumsum(precip)) %>%
+  ungroup()
+  
+```
+
+```{r get-rdu-records}
+# Get RDU temperature and precipitation records
+# from https://www.weather.gov/rah/rdutemperaturerecords
+
+rdu_records_raw <- read_csv(here('rdu-weather/data', "raw/rdu-daily/rdu-records.csv"),
+                            skip = 1,
+                            comment = "#") %>%
+  clean_names
+                          
+rdu_records_wide <- rdu_records_raw %>%
+  rename(month_day = day) %>%
+  mutate(month = str_extract(month_day, "\\d+"),  # Day is of the form mm/dd
+         day = str_extract(month_day, "\\d+$"),
+         day_of_year = row_number()
+  )
+
+rdu_records <- rdu_records_wide %>%
+  pivot_longer(cols = c(starts_with("rec")), # starts_with("year")),
+               names_to = "record",
+               values_to = "value") %>%
+  pivot_longer(cols = c(starts_with("year")), # starts_with("year")),
+               names_to = "year_metric",
+               values_to = "year") %>%
+  filter(str_detect(year_metric, record)) %>%
+  select(month, day, day_of_year, record, value, year)
+  
+temp_records <- rdu_records %>%
+  filter(record %in% c("rec_min", "rec_max")) %>%
+  select(day_of_year, record, value, year) %>%
+  mutate(decade = 10 * year %/% 10,
+         record = factor(record, levels = c("rec_min", "rec_max")))
+
+```
+
+```{r define-rdu-record-temps}
+
+record_temps_rdu <- tibble(crossing(year = min(year(rdu_daily_tmp$date)):max(year(rdu_daily_tmp$date)),
+                                    day_of_year = 1:366)) %>% 
+  left_join(.,
+            rdu_records %>%
+              filter(record %in% c("rec_min", "rec_max")) %>%
+              select(day_of_year, record, value) %>%
+              pivot_wider(names_from = "record", values_from = value) %>%
+              rename(temp_min = rec_min,
+                     temp_max = rec_max),
+            by = c("day_of_year")
+  ) %>%
+  left_join(.,
+            rdu_daily_tmp %>% select(day_of_year, temp_min_rdu = temp_min, temp_max_rdu = temp_max, year),
+            by = c("day_of_year", "year")) %>%
+  mutate(
+    new_max = temp_max < temp_max_rdu,
+    new_min = temp_min > temp_min_rdu,
+    new_max = na_if(new_max, FALSE),
+    new_min = na_if(new_min, FALSE)
+  ) %>%
+  mutate(year = factor(year))
+  
+```
+
+```{r get-rdu-climate-normals}
+
+if(!file.exists(here('rdu-weather/data', 'processed/precip-normals.txt'))) {
+  precip_normals <- read_table("ftp://ftp.ncdc.noaa.gov/pub/data/normals/1981-2010/products/precipitation/ytd-prcp-normal.txt",
+                               col_names = c("station_id", "month", paste(1:31))) 
+  write_csv(precip_normals, here('rdu-weather/data', 'processed/precip-normals.txt'))
+} else {
+  precip_normals <- read_csv(here('rdu-weather/data', 'processed/precip-normals.txt'))
+}
+
+normal_precip_rdu <- precip_normals %>%
+  filter(station_id == 'USW00013722') %>%  # RDU airport
+  pivot_longer(cols = `1`:`31`, names_to = "day", values_to = "precip_ytd") %>%
+  filter(!precip_ytd == "-8888") %>% # invalid date (e.g, Feb 30 and 31)
+  mutate(precip_ytd = if_else(precip_ytd == "-9999",
+                              NA_character_,
+                              precip_ytd),
+         precip_ytd = parse_number(precip_ytd) / 100 # convert to inches
+         #
+  ) %>%
+  fill(precip_ytd, .direction = "down")
+
+if(!file.exists(here('rdu-weather/data', 'processed/tmax-normals.txt'))) {
+  # get it from ftp://ftp.ncdc.noaa.gov/pub/data/normals/1981-2010/products/temperature/
+  tmax_normals <- read_table("ftp://ftp.ncdc.noaa.gov/pub/data/normals/1981-2010/products/temperature/dly-tmax-normal.txt",
+                               col_names = c("station_id", "month", paste(1:31)))
+  write_csv(tmax_normals, here('data-rdu-weather', 'processed/tmax-normals.txt'))
+} else {
+  tmax_normals = read_csv(here('rdu-weather/data', 'processed/tmax-normals.txt'))
+}
+
+normal_tmax_rdu <- tmax_normals %>%
+  filter(station_id == 'USW00013722') %>%  # RDU airport
+  pivot_longer(cols = `1`:`31`, names_to = "day", values_to = "temp_max") %>%
+  filter(!temp_max == "-8888") %>% # invalid date (e.g, Feb 30 and 31)
+  mutate(temp_max = if_else(temp_max == "-9999",
+                              NA_character_,
+                              temp_max),
+         temp_max = parse_number(temp_max) / 10 # convert to F
+         #
+  )
+
+if(!file.exists(here('rdu-weather/data', 'processed/tmin-normals.txt'))) {
+  # get it from ftp://ftp.ncdc.noaa.gov/pub/data/normals/1981-2010/products/temperature/
+  tmin_normals <- read_table("ftp://ftp.ncdc.noaa.gov/pub/data/normals/1981-2010/products/temperature/dly-tmin-normal.txt",
+                               col_names = c("station_id", "month", paste(1:31)))
+  write_csv(tmin_normals, here('data-rdu-weather', 'processed/tmin-normals.txt'))
+} else {
+  tmin_normals = read_csv(here('rdu-weather/data', 'processed/tmin-normals.txt'))
+}
+
+normal_tmin_rdu <- tmin_normals %>%
+  filter(station_id == 'USW00013722') %>%  # RDU airport
+  pivot_longer(cols = `1`:`31`, names_to = "day", values_to = "temp_min") %>%
+  filter(!temp_min == "-8888") %>% # invalid date (e.g, Feb 30 and 31)
+  mutate(temp_min = if_else(temp_min == "-9999",
+                              NA_character_,
+                              temp_min),
+         temp_min = parse_number(temp_min) / 10 # convert to F
+         #
+  )
+
+```
+
+```{r get-rdu-ytd-normals}
+# min/max ytd precipitation
+
+rdu_norm_ytd_raw <- read_csv(here('rdu-weather/data', "raw/climate-normals/rdu/2190343.csv"),
+                             guess_max = 11000) %>%
+  select(station_id = STATION,
+         date = DATE,
+         precip = PRCP,
+         temp_min = TMIN,
+         temp_max = TMAX) %>%
+  mutate(month = month(date),
+         day = day(date),
+         year = year(date),
+         date = as.character(date),
+  )
+
+leap_days <- tibble(
+  date = paste0(min(year(rdu_norm_ytd_raw$date)):max((year(rdu_norm_ytd_raw$date))), "-02-29"),
+  precip = 0.0,
+  temp_min = NA,
+  temp_max = NA,
+  day_of_year = 60, # always leap day
+  year = min(year(rdu_norm_ytd_raw$date)):max((year(rdu_norm_ytd_raw$date)))
+) %>%
+  filter(year %% 4 != 0) # keep only non-lead years
+
+rdu_norm_ytd <- bind_rows(rdu_norm_ytd_raw, leap_days) %>%
+  arrange(date) %>%
+  group_by(year) %>%
+  mutate(day_of_year = row_number()) %>%
+  ungroup() %>%
+  fill(., c("station_id", starts_with("temp"), "month"), .direction = "down") %>%
+  mutate(day = ifelse(is.na(day),
+                       29, # placeholder for years without leap day
+                       day)) %>%
+  group_by(year) %>%
+  mutate(precip_ytd = cumsum(precip)) %>%
+  ungroup() %>%
+  group_by(day_of_year) %>%
+  mutate(precip_std = sd(precip),
+         temp_min_std = sd(temp_min),
+         temp_max_std = sd(temp_max),
+         precip_ytd_std = sd(precip_ytd)) %>%
+  ungroup()
+
+rdu_normal_std <- rdu_norm_ytd %>%
+  select(day_of_year, ends_with("_std")) %>%
+  distinct(day_of_year, .keep_all = TRUE)
+
+```
+
+```{r define-rdu-normals}
+
+normals_rdu <- 
+  left_join(normal_tmin_rdu,
+            normal_tmax_rdu,
+            by = c("station_id", "month", "day")) %>%
+  left_join(.,
+            normal_precip_rdu,
+            by = c("station_id", "month", "day")) %>%
+  mutate(day_of_year = yday(ymd(paste("2000-", month, "-", day)))) %>% # year doesn't matter as long as it's a leap year
+  left_join(.,
+            rdu_normal_std,
+            by = "day_of_year") %>%
+  mutate(precip_25 = qnorm(0.25, mean = .$precip_ytd, sd = .$precip_ytd_std),
+         precip_25 = if_else(precip_25 < 0, 0, precip_25),
+         precip_75 = qnorm(0.75, mean = .$precip_ytd, sd = .$precip_ytd_std),
+         precip_75 = if_else(precip_75 < 0, 0, precip_75),
+         precip_10 = qnorm(0.10, mean = .$precip_ytd, sd = .$precip_ytd_std),
+         precip_10 = if_else(precip_10 < 0, 0, precip_10),
+         precip_90 = qnorm(0.90, mean = .$precip_ytd, sd = .$precip_ytd_std),
+         precip_90 = if_else(precip_90 < 0, 0, precip_90),
+         precip_01 = qnorm(0.01, mean = .$precip_ytd, sd = .$precip_ytd_std),
+         precip_01 = if_else(precip_01 < 0, 0, precip_01),
+         precip_99 = qnorm(0.99, mean = .$precip_ytd, sd = .$precip_ytd_std),
+         precip_99 = if_else(precip_99 < 0, 0, precip_99)
+         )
+
+```
+
+```{r define-rdu-daily}
+rdu_daily <- rdu_daily_tmp %>%
+  left_join(.,
+            normals_rdu %>%
+              select(day_of_year,
+                     temp_min_normal = temp_min,
+                     temp_max_normal = temp_max),
+            by = "day_of_year") %>%
+  mutate(temp_min_below_normal = (temp_min < temp_min_normal),
+         temp_max_above_normal = (temp_max > temp_max_normal)
+         ) %>%
+  mutate(year = factor(year))
+
+```
+
+<br>
+
+What can we learn about the weather in NC triangle the over the last decade? Let's look at 30-year normals, record amounts, and actual amounts. Since Raleigh Durham International Airport (RDU) is in the middle of North Carolina's Technology Triangle, and we have excellent, consistent weather records take at the airport, we can use this data as a good proxy to answer these questions for Raleigh, Durham, and Chapel Hill--in fact, for the whole triange region.
+
+
+From *NOAA’S 1981–2010 U.S. CLIMATE NORMALS: An Overview*
+
+> Climate normals are typically defined as 30-yr averages of meteorological conditions, such as air temperature, precipitation, etc. They are arguably the most fundamental attributes of the climate of a given locale. In fact, the terms normal and climatology are often used interchangeably. As a measure of central tendency, climate normals characterize the background state about which anomalous conditions and even extremes are allowed to operate. They can be used to determine what crops to plant, what clothes to pack for an extended trip, the rates a power company can charge its customers, where and when to schedule an outdoor wedding, and countless other applications.
+
+<br>
+
+## Temperature
+
+The dark grey band are the 30-year normals. The light grey band indicates record highs and lows. The colored regions are daily records. Points indicate new record highs and lows.
+
+<br>
+
+```{r rdu-temp-highs-lows}
+              
+ggplot() +
+  geom_ribbon(aes(x = day_of_year, ymin = temp_min, ymax = temp_max), fill = "grey90",
+              data = record_temps_rdu) +
+  geom_ribbon(aes(x = day_of_year, ymin = temp_min, ymax = temp_max), fill = "grey80",
+              data = normals_rdu) +
+  geom_ribbon(aes(x = day_of_year, ymin = temp_min, ymax = temp_max, fill = year),
+              show.legend = FALSE,
+              data = rdu_daily) +
+  geom_point(aes(x = day_of_year, y= temp_max_rdu, color = year),
+             size = 1.5, alpha = 0.6,
+             show.legend = FALSE,
+             data = filter(record_temps_rdu, new_max)) +
+  geom_point(aes(x = day_of_year, y= temp_min_rdu, color = year),
+             size = 1.5, alpha = 0.6,
+             show.legend = FALSE,
+             data = filter(record_temps_rdu, new_min)) +
+  scale_x_continuous(breaks= NULL) +
+  #scale_color_brewer(palette = "Paired", direction = -1) +
+  #scale_fill_brewer(palette = "Paired", direction = -1) +
+  facet_wrap(~ year, ncol = 5) +
+  labs(title = "High and low temperatures at RDU",
+       subtitle = glue("With records and 30-year normals (1981-2010)",
+                       "\n{sum(record_temps_rdu$new_max, na.rm = TRUE)} new highs", 
+                       " and {sum(record_temps_rdu$new_min, na.rm = TRUE)} new lows",
+                       " ({min(as.Date(rdu_daily_tmp$date))} to {max(as.Date(rdu_daily_tmp$date))})"),
+       x = "",
+       y = "Degrees F",
+       caption = my_caption)
+
+```
+<br>
+
+Normals smooth out the variation that is common in our weather. Over the last decode there have been many more days above average temperature than below average. The dotted line indicates half the year.
+
+<br>
+
+```{r rdu-days-above-below-normal}
+rdu_daily %>%
+  select(day_of_year, year, temp_min_below_normal, temp_max_above_normal) %>%
+  group_by(year) %>%
+  summarize(below_normal = sum(temp_min_below_normal),
+            above_normal = sum(temp_max_above_normal)
+  ) %>%
+  pivot_longer(cols = c("below_normal", "above_normal"),
+               names_to = "names",
+               values_to = "values") %>%
+  ungroup() %>% 
+  filter(as.numeric(as.character(year)) < 2020) %>% # don't include part of current year
+  ggplot(aes(year, values, color = names, group = names)) +
+  geom_hline(yintercept = 365 / 2, linetype = "dashed", alpha = 0.6) +
+  geom_line(alpha = 0.7, size = 2) +
+  geom_point(alpha = 0.7, size = 3, show.legend = FALSE) +
+  scale_color_brewer(palette = "Set1", direction = 1) +
+  expand_limits(y = 0) +
+  theme(legend.position = "bottom") +
+  labs(title = "Number of days each year temperature at RDU was above or below normal",
+       x = "",
+       y = "",
+       caption = my_caption)
+```
+
+<br>
+
+We see high and low records spread apparently randomly throughout the year. There was an unusually large number of record lows from the 1960s to early 1980s. Since then there has been an unusually large number of record highs.
+
+<br>
+
+```{r rdu-records-scatter}
+temp_records %>%
+  ggplot(aes(year, day_of_year, color = record)) +
+  scale_color_brewer(palette = "Set1", direction = -1) +
+  geom_point(alpha = 0.7, size = 2) +
+  theme(legend.position = "bottom") +
+  labs(title = "Current temperature records at RDU",
+       subtitle = glue("Set between {min(temp_records$year)} and {max(temp_records$year)};",
+                       " one record for each day of the year"),
+       x = "",
+       y = "Day of the year",
+       color = "Record",
+       caption = my_caption)
+```
+
+<br>
+
+When ordered temperature instead of day of year on the Y axis, we again see the spread of highs and lows, a record high in winter is a lot colder than a record high in summer).
+
+<br>
+
+```{r rdu-records-highs-lows-scatter}
+temp_records %>%
+  ggplot(aes(year, value, color = record)) +
+  scale_color_brewer(palette = "Set1", direction = -1) +
+  geom_point(alpha = 0.7, size = 2) +
+  theme(legend.position = "bottom") +
+  labs(title = "Current temperature records at RDU",
+       subtitle = glue("Set between {min(temp_records$year)} and {max(temp_records$year)};",
+                       " one record for each day of the year"),
+       x = "",
+       y = "Degrees F",
+       color = "Record",
+       caption = my_caption)
+
+```
+
+<br>
+
+We see the same decadal dynamic if we count current records by decade.
+
+<br>
+
+```{r rdu-number-temp-records-by-decade}
+
+temp_records %>%
+  group_by(decade, record) %>%
+  summarize(n = n()) %>%
+  ungroup() %>%
+  ggplot(aes(decade, n, color = record)) + #, group = record
+  geom_line(alpha = 0.7, size = 2) +
+  geom_point(alpha = 0.7, size = 3) +
+  scale_color_brewer(palette = "Set1", direction = -1) +
+  expand_limits(y = 0) +
+  theme(legend.position = "none") +
+  labs(title = "Number of current temperature records at RDU - by decade",
+       subtitle = glue("From {min(temp_records$year)} to {max(temp_records$year)}"),
+       x = "",
+       y = "",
+       caption = my_caption)
+
+```
+
+<br>
+
+## Precipitation
+
+<br>
+
+It's been much wetter than normal this last decade, and we see a pattern in which the first couple of months are extra-dry, then by the end of spring the the area is above normal precipitation. Only 2011 and 2012 experienced extended periods that were dryer than normal. In 2018 Hurricane Florence pushed the yearly precipitation above the 99th percentile.
+
+<br>
+
+```{r rdu-ytd-precip}
+labels_for_plot <- rdu_daily_tmp %>%
+  filter(day_of_year %in% c(365)) %>% # close enough, even for lead years
+  select(day_of_year, precip_ytd, year) %>%
+  mutate(year = factor(year))
+
+normals_rdu %>%
+  ggplot() +
+  geom_ribbon(aes(x = day_of_year, ymin = precip_01, ymax = precip_99), fill = "grey94") +
+  geom_ribbon(aes(x = day_of_year, ymin = precip_10, ymax = precip_90), fill = "grey87") +
+  geom_ribbon(aes(x = day_of_year, ymin = precip_25, ymax = precip_75), fill = "grey80") +
+  geom_line(aes(x = day_of_year, y = precip_ytd),
+            size = 2, alpha = 0.3) +
+  geom_line(aes(x = day_of_year, y = precip_ytd, color = year, group = year),
+            show.legend = FALSE, alpha = 0.8,
+            data = rdu_daily_tmp %>% mutate(year = factor(year))) +
+  geom_point(aes(x = day_of_year, y = precip_ytd, color = year, group = year),
+            size = 3, alpha = 0.8,
+            show.legend = FALSE,
+            data = rdu_daily_tmp %>% filter(date == max(date)) %>% mutate(year = factor(year))) +
+  geom_text_repel(aes(x = day_of_year, y = precip_ytd, label = year, color = year),
+                  size = 3, direction = "y", nudge_x = 5, hjust = 0,
+                  segment.color = "grey", segment.alpha =  0.3,
+                  show.legend = FALSE,
+                  data = labels_for_plot) +
+  annotate("text", x = 275, y = 5, label = "1-99% percentile", size = 3, hjust = 0, color = "grey50") + 
+  annotate(
+    geom = "curve", x = 272, y = 5, xend = 240, yend = 17.5,  color = "grey50",
+    curvature = -0.3, arrow = arrow(length = unit(2, "mm"))
+  ) +
+  annotate("text", x = 300, y = 10, label = "10-90% percentile", size = 3, hjust = 0, color = "grey50") + 
+  annotate(
+    geom = "curve", x = 297, y = 10, xend = 260, yend = 25,  color = "grey50",
+    curvature = -0.3, arrow = arrow(length = unit(2, "mm"))
+  ) +
+  annotate("text", x = 325, y = 15, label = "25-75% percentile", size = 3, hjust = 0, color = "grey50") + 
+  annotate(
+    geom = "curve", x = 322, y = 15, xend = 285, yend = 31, color = "grey50",
+    curvature = -0.3, arrow = arrow(length = unit(2, "mm"))
+  ) +
+  annotate("text", x = 350, y = 20, label = "30-yr normal", size = 3, hjust = 0, color = "grey50") + 
+  annotate(
+    geom = "curve", x = 347, y = 20, xend = 310, yend = 37, color = "grey50",
+    curvature = -0.3, arrow = arrow(length = unit(2, "mm"))
+  ) +
+  scale_x_continuous(breaks= c(0, 91, 183, 274, 366)) +
+  scale_color_brewer(palette = "Paired", direction = -1) +
+  coord_cartesian(expand=F) +
+  expand_limits(x = 390, y = max(labels_for_plot$precip_ytd)+ 5) +
+  #facet_wrap(~ year) +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        panel.grid.minor = element_blank()) +
+  labs(title = "Precipitation at RDU",
+       subtitle = glue("With 30-year YTD normals (1981-2010) and percentile bands",
+                       "\nFrom {min(as.numeric(as.character(rdu_daily_tmp$year)))} through {max(rdu_daily_tmp$date)}"),
+       x = "Day of the year",
+       y = "Precipitation (in)",
+       caption = my_caption)
+
+```
+
+<br>
+
+Rainfall histogram, considering only days when there was precipitation.
+
+```{r rdu-precip-histogram-by-year}
+rdu_daily %>%
+  #mutate(precip = precip + 0.05) %>%
+  filter(year(date) < 2020,
+         precip > 0) %>%
+  ggplot(aes(precip, fill = year)) +
+  geom_histogram(binwidth = 0.1) +
+  #scale_x_log10(breaks = c(0, 0.03, 0.1, 0.32, 1, 3.16, 10)) +
+  scale_fill_brewer(palette =  "Paired",  direction = -1) + #"RdBu",
+  facet_wrap(~year, ncol = 3) +
+  theme(legend.position = "none") +
+  labs(title = "Precipitation at RDU",
+       #subtitle = glue("Between {min(year(rdu_daily$date))} and {max(year(rdu_daily$date))}"),
+       x = "precip inches",
+       y = "count"
+       )
+```
+
+<br>
+
+Density plots provide a smoothed view. The most common weekly rainfall is quite small, and very large rain events are very rare. In the following right-hand plot the X axis is on the $log_{10}$ scale, which makes visible the density curve between zero and one inch of rain--the most common amounts.
+
+<br>
+
+```{r rdu-precip-density-by-year}
+
+p1 <- rdu_daily %>%
+  filter(year(date) < 2020,
+         precip > 0) %>%
+  ggplot(aes(precip, year)) +
+  geom_density_ridges(rel_min_height=0.01,
+                      fill = "steelblue", alpha = 0.9) +
+  scale_x_continuous(breaks = 0:floor(max(rdu_daily$precip)) + 1, limits = c(0, NA)) +
+  scale_y_discrete(expand = c(0.001, 0)) +
+  labs(title = "Density plot: precipitation at RDU",
+       #subtitle = glue("Between {min(temp_records$year)} and {max(temp_records$year)};"),
+       y = "",
+       x = "precip inches"
+       )
+
+p2 <- rdu_daily %>%
+  filter(year(date) < 2020,
+         precip > 0) %>%
+  ggplot(aes(precip, year)) +
+  geom_density_ridges(rel_min_height=0.01,
+                      fill = "steelblue", alpha = 0.9) +
+  scale_x_log10(breaks = c(0.01, 0.03, 0.1, 0.32, 1, 3.16, 10), limits = c(0.01, 10)) +
+  scale_y_discrete(expand = c(0.001, 0)) +
+  theme(axis.text.y = element_blank()) +
+  labs(title = "Density plot: precipitation at RDU",
+       #subtitle = glue("Between {min(temp_records$year)} and {max(temp_records$year)};"),
+       y = "",
+       x = "precip log10 inches"
+       )
+
+p1 + p2
+  
+```
+
+<br>
+
+Counting the number of days at least so much rain fell at RDU. We see a trend over the decade: an increase in the number of days wth rain.
+
+<br>
+
+```{r rdu-rain-events}
+
+big_rain_days <- rdu_daily %>%
+  #filter(year(date) == 2019) %>%
+  mutate(half_inch_day = (precip >= 0.5),
+         quarter_inch_day = (precip >= 0.25),
+         inch_day = (precip >= 1.0),
+         some_rain_day = (precip > 0),
+         no_rain_day = (precip < .001)
+  ) %>%
+  group_by(year) %>%
+  summarize(no_rain_days = sum(no_rain_day),
+            some_rain_days = sum(some_rain_day),
+            quarter_inch_days = sum(quarter_inch_day),
+            half_inch_days = sum(half_inch_day),
+            inch_days = sum(inch_day)
+            ) %>%
+  ungroup() %>%
+  pivot_longer(cols = ends_with("_days"), names_to = "metric", values_to = "n") %>%
+  mutate(year = as.numeric(as.character(year)),
+         metric = fct_reorder(metric, n)
+         )
+
+my_breaks <- min(big_rain_days$year):max(big_rain_days$year)
+
+big_rain_days %>% #view()
+  filter(year < 2020) %>%
+  ggplot(aes(year, n, color = metric)) + #, color = metric, 
+  geom_line(alpha = 0.3, size = 2) + #, color = "steelblue") +
+  geom_point(alpha = 0.8, size = 3) + #, color = "steelblue") +
+  scale_x_continuous(breaks = my_breaks) +
+  #theme_light() +
+  scale_color_brewer(palette = "Paired", direction = -1) +
+  guides(colour = guide_legend(reverse=T)) +
+  labs(title = "Number of rain events",
+       #subtitle = "Days with at least 0.5 and 1.0 inch of rain at RDU",
+       #subtitle = glue("From {min(temp_records$year)} to {max(temp_records$year)}"),
+       x = "",
+       y = "",
+       caption = my_caption)
+
+```
+
+<br>
+
+Since the late 1980s there have a been an unusual number of days with 4+ inches that set records.
+
+<br>
+
+```{r rdu-current-precip-records-scatter}
+rdu_records %>%
+  filter(record == "rec_pcpn") %>%
+  ggplot(aes(year, value, size = value)) +
+  geom_point(alpha = 0.8, color = "steelblue") +
+  labs(title = "Current precipitation records at RDU",
+       subtitle = glue("Set between {min(temp_records$year)} and {max(temp_records$year)};",
+                       " one record for each day of the year"),
+       x = "",
+       y = "Inches",
+       size = "Inches",
+       caption = my_caption)
+
+```
+
+<br>
+
+However if we count the number of current records by decade, recent decades do not seem extraordinary in this respect.
+
+<br>
+
+```{r rdu-current-precip-records-by-decade}
+  
+rdu_records %>%
+  filter(record == "rec_pcpn") %>%
+  mutate(decade = 10 * year %/% 10) %>%
+  count(decade) %>%
+  ggplot(aes(decade, n)) +
+  geom_line(alpha = 0.3, size = 2, color = "steelblue") +
+  geom_point(alpha = 0.8, size = 3, color = "steelblue") +
+  labs(title = "Number of current precipitation records at RDU - by decade",
+       subtitle = glue("From {min(temp_records$year)} to {max(temp_records$year)}"),
+       x = "",
+       y = "",
+       caption = my_caption)
+
+```
+<br>
+
+## Notes and sources
+
+Inspiration, patterns and a little code reuse:
+
+* https://johndjohnson.info/post/how-to-build-a-tufte-style-weather-graph-in-r-using-ggplot2/ 
+* https://johndjohnson.info/post/retrieving-precipitation-data-from-noaa/
+
+<br>
+
+Data sources
+
+* NOAA Local Climatological Data: https://www.ncdc.noaa.gov/cdo-web/datatools/lcd
+* Normals:
+    - https://www.ncdc.noaa.gov/data-access/land-based-station-data/land-based-datasets/climate-normals/1981-2010-normals-data
+    - ftp://ftp.ncdc.noaa.gov/pub/data/normals/1981-2010/
+    - http://ftp.ncdc.noaa.gov/pub/data/normals/1981-2010/products/precipitation/ytd-prcp-normal.txt
+* Documentation describing methodology for calculating normals:
+    - ftp://ftp.ncdc.noaa.gov/pub/data/normals/1981-2010/documentation/1981-2010-normals-overview.pdf
+    - ftp://ftp.ncdc.noaa.gov/pub/data/normals/1981-2010/documentation/precipitation-methodology.pdf
+    - ftp://ftp.ncdc.noaa.gov/pub/data/normals/1981-2010/documentation/temperature-methodology.pdf
+    - ftp://ftp.ncdc.noaa.gov/pub/data/normals/1981-2010/documentation/daily-temperature-normals-methodology.pdf
+* Daily summaries: https://www.ncdc.noaa.gov/cdo-web/datasets/GHCND/stations/GHCND:USW00013722/detail
+    - RDU: 1981-2010 to calculate standard deviation of YTD precipitation
+    - RDU: 2011-2020-06-18 daily summaries
+* Temperature and precipitation records for RDU
+    - https://www.weather.gov/rah/rdutemperaturerecords
+    
+<br>
+<br>
+
+---
+
+By Daniel Moul (heydanielmoul via gmail)
+
+![CC-BY](https://i.creativecommons.org/l/by/4.0/88x31.png) This work is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/)
