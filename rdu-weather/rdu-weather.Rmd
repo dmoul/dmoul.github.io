@@ -274,10 +274,10 @@ rdu_daily <- rdu_daily_tmp %>%
 
 <br>
 
-What can we learn about the weather in NC triangle the over the last decade? Let's look at 30-year normals, record amounts, and actual amounts. Since Raleigh Durham International Airport (RDU) is in the middle of North Carolina's Technology Triangle, and we have excellent, consistent weather records take at the airport, we can use this data as a good proxy to answer these questions for Raleigh, Durham, and Chapel Hill--in fact, for the whole triange region.
+What can we learn about the weather in North Carolina triangle area the over the last decade? Let's look at 30-year normals, record amounts, and actual amounts. Since Raleigh Durham International Airport (RDU) is in the middle of NC's technology triangle, and we have excellent, consistent weather records taken at the airport, we can use this data as a good proxy to answer these questions for Raleigh, Durham, and Chapel Hill--in fact, for the whole triangle region.
 
 
-From *NOAA’S 1981–2010 U.S. CLIMATE NORMALS: An Overview*
+First, what are "normals" anyway? From *NOAA’S 1981–2010 U.S. CLIMATE NORMALS: An Overview*
 
 > Climate normals are typically defined as 30-yr averages of meteorological conditions, such as air temperature, precipitation, etc. They are arguably the most fundamental attributes of the climate of a given locale. In fact, the terms normal and climatology are often used interchangeably. As a measure of central tendency, climate normals characterize the background state about which anomalous conditions and even extremes are allowed to operate. They can be used to determine what crops to plant, what clothes to pack for an extended trip, the rates a power company can charge its customers, where and when to schedule an outdoor wedding, and countless other applications.
 
@@ -285,7 +285,7 @@ From *NOAA’S 1981–2010 U.S. CLIMATE NORMALS: An Overview*
 
 ## Temperature
 
-The dark grey band are the 30-year normals. The light grey band indicates record highs and lows. The colored regions are daily records. Points indicate new record highs and lows.
+The dark gray bands are the 30-year normals. The outer edges of the light gray bands indicate record highs and lows. The colored lines are daily data. Colored dots indicate new record highs and lows.
 
 <br>
 
