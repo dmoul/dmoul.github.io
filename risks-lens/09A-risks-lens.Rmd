@@ -1,0 +1,894 @@
+<!-- 09A-risk-lenst.Rmd -->
+<!-- # part 1 -->
+
+# Part 1: The lens
+
+```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
+
+source(here::here("scripts", "risk-analysis-setup.R"))
+
+```
+
+```{r get-unigrams-all}
+if(file.exists(fname_unigrams_all_title)) {
+  d_unigrams_all <- read_rds(fname_unigrams_all_title) %>%
+    rename(ngram = lemma) %>%
+    mutate(issue_year = year(issue_date)) %>%
+    filter(issue_date <= ymd(paste0(last_full_year, "-12-31")),
+           !ngram %in% c(uninteresting_words, people, places, media), ##,
+           str_detect(ngram, "[a-z]|747|787|737|767") # get rid of number-only unigrams
+           ) %>%
+    # TODO: this shouldn't be necessary - but it is
+    filter(issue_year >= 1985)
+} else {
+  warning(glue("Error: {fname_unigrams_all_title} not found"))
+}
+
+```
+
+```{r get-unigrams-basic, eval=FALSE}
+if(file.exists(fname_unigrams_basic_title)) {
+  d_unigrams_basic <- read_rds(fname_unigrams_basic_title) %>%
+    rename(ngram = lemma) %>%
+    mutate(issue_year = year(issue_date)) %>%
+    filter(issue_date <= ymd(paste0(last_full_year, "-12-31")),
+           !ngram %in% c(uninteresting_words, people, companies, places, media)
+           ) %>%
+    # TODO: this shouldn't be necessary - but it is
+    filter(issue_year >= 1985)
+} else {
+  warning(glue("Error: {fname_unigrams_basic_title} not found"))
+}
+
+```
+
+```{r get-unigrams-places, eval=FALSE}
+if(file.exists(fname_unigrams_places_title)) {
+  d_unigrams_places <- read_rds(fname_unigrams_places_title) %>%
+    rename(ngram = lemma) %>%
+    mutate(issue_year = year(issue_date)) %>%
+    filter(issue_date <= ymd(paste0(last_full_year, "-12-31")),
+           !ngram %in% c(uninteresting_words, people, companies, places, media)
+           ) %>%
+    # TODO: this shouldn't be necessary - but it is
+    filter(issue_year >= 1985)
+} else {
+  warning(glue("Error: {fname_unigrams_places_title} not found"))
+}
+
+```
+
+```{r get-bigrams, eval=TRUE}
+if(file.exists(fname_bigrams_title)) {
+  d_bigrams <- read_rds(fname_bigrams_title) %>%
+    mutate(issue_year = year(issue_date)) %>%
+    filter(issue_date <= ymd(paste0(last_full_year, "-12-31")),
+           !ngram %in% c(uninteresting_words, people, companies, places, media)
+           ) %>%
+    # TODO: this shouldn't be necessary - but it is
+    filter(issue_year >= 1985)
+} else {
+  warning(glue("Error: {fname_bigrams_title} not found"))
+}
+
+```
+
+```{r get-nounphrases, eval=TRUE}
+if(file.exists(fname_nounphrases_title)) {  
+  d_nounphrases <- read_rds(fname_nounphrases_title) %>%
+    mutate(issue_year = year(issue_date)) %>%
+    filter(issue_date <= ymd(paste0(last_full_year, "-12-31")),
+           !ngram %in% c(uninteresting_words, people, companies, places, media)
+           ) %>%
+    # TODO: this shouldn't be necessary - but it is
+    filter(issue_year >= 1985)
+} else {
+  warning(glue("Error: {fname_nounphrases_title} not found"))
+}
+
+```
+
+```{r get-nounphrases-body, eval=TRUE}
+if(file.exists(fname_nounphrases_body)) {  
+  d_nounphrases_body <- read_rds(fname_nounphrases_body) %>%
+    filter(n > 4) %>%
+    mutate(issue_year = year(issue_date)) %>%
+    filter(issue_date <= ymd(paste0(last_full_year, "-12-31")),
+           !ngram %in% c(uninteresting_words, people, companies, places, media),
+           !str_detect(ngram, "^â")
+           ) %>%
+    # TODO: this shouldn't be necessary - but it is
+    filter(issue_year >= 1985)
+} else {
+  warning(glue("Error: {fname_nounphrases_body} not found"))
+}
+
+```
+
+```{r get-lemmas-body}
+if(file.exists(fname_lemmas_body)) {  
+  d_lemmas_body <- read_rds(fname_lemmas_body) %>%
+    filter(n > 4) %>%
+    mutate(issue_year = year(issue_date)) %>%
+    rename(ngram = lemma) %>%
+    filter(issue_date <= ymd(paste0(last_full_year, "-12-31")),
+           !ngram %in% c(uninteresting_words, people, companies, places, media)
+           ) %>%
+    # TODO: this shouldn't be necessary - but it is
+    filter(issue_year >= 1985)
+} else {
+  warning(glue("Error: {fname_lemmas_body} not found"))
+}
+
+```
+
+```{r define-median-issues-submissions}
+
+volume_issues_subjects <- d_unigrams_all %>%
+  distinct(volume, issue, subject) %>%
+  group_by(volume, issue) %>%
+  summarize(n_submissions = n()) %>%
+  ungroup()
+
+median_submissions <- median(volume_issues_subjects$n_submissions)
+
+median_issues <- volume_issues_subjects %>%
+  arrange(volume, desc(issue)) %>%
+  distinct(volume, .keep_all = TRUE) %>%
+  pull(issue) %>%
+  median()
+
+d_lemmas_title_words_only <- d_unigrams_all %>%
+  filter(str_detect(ngram, "^[a-z]")) %>%
+  distinct(ngram, .keep_all = TRUE)
+
+n_title_words <- sum(d_lemmas_title_words_only$n)
+n_distinct_title_words <- nrow(d_lemmas_title_words_only)
+  
+d_lemmas_body_words_only <- d_lemmas_body %>%
+  filter(str_detect(ngram, "^[a-z]")) %>%
+  distinct(ngram, .keep_all = TRUE)
+  
+n_body_words <- sum(d_lemmas_body_words_only$n)
+n_distinct_body_words <- nrow(d_lemmas_body_words_only)
+
+```
+
+Over the last 35 years technology has changed a lot: the rise of mobile phones, the internet, the ever-wider use of software in planes, automobiles--and it seems--everything else; web- and mobile-native companies; increasing worries about privacy and data breaches; machine learning, and verbal interfaces to applications. All with new attack vectors and failure modes.
+
+During this time people have been discussing the risks arising from these technologies and their application in the Forum on Risks to the Public in Computers and Related Systems, which was started in 1985 as the comp.risks USENET newsgroup, sponsored by the Association for Computing Machines ([ACM](https://www.acm.org)) until 2018, and moderated by [Peter G. Neumann](http://www.csl.sri.com/users/neumann/neumann.html) since its inception. 
+
+Much has remained constant, including the observation that failures occur, and we can learn from them. This is one of the primary purposes of the Forum, which is available today as the [RISKS Digest](https://catless.ncl.ac.uk/Risks/) and through email and newsfeed subscriptions. Its "front door" website is www.risks.org.
+
+
+## Hot topics and perennial favorites
+
+Some risks come and go: remember Y2K? Others including security and privacy seem fresh every year. One way to discove the ebb and flow of topics is to count the occurrences of words in the subject titles of submissions to the RISKS Forum. These titles are natural summaries of much longer text in the bodies of the submissions.
+
+Part 1 of this analysis does exactly that, looking at the `r d_unigrams_all %>% distinct(volume) %>% nrow()` RISKS Digest volumes published between `r min(d_unigrams_all$issue_date)` to `r max(d_unigrams_all$issue_date)`. The volumes include `r d_unigrams_all %>% distinct(volume, issue, subject) %>% nrow() %>% comma()` submission titles in `r d_unigrams_all %>% distinct(volume, issue) %>% nrow() %>% comma()` issues. There are median `r median_issues` issues in a volume and median `r median_submissions` subjects in an issue. Submissions include more than `r comma(n_title_words + n_body_words)` words (`r comma(n_title_words)` in titles, `r comma(n_body_words)` in the bodies of messages).
+
+I parsed the volume summary pages, for example: https://catless.ncl.ac.uk/Risks/29/index, using the popular text analysis library `spaCy` (actually the [`spacyr` wrapper](https://cran.r-project.org/web/packages/spacyr/vignettes/using_spacyr.html) by Kenneth Benoit and Akitaka Matsuo) to covert words to their base form ("lemmas"). I use  lemmas as one-word n-grams (aka "unigrams"), count their occurrence in certain time periods, and visualize the results below, making some observations along the way.
+
+Note that the results are sensitive to data cleaning steps and various assumptions, including which words (like "risk",  "computer", "software" and "system") I consider too common and therefore filter out. See [Limitations and other notes].
+
+<br>
+
+## Visualizations and discussion
+
+```{r define-gram-plot-functions}
+
+do_top_words_plot <- function(df = NULL, 
+                              gram = "words", 
+                              max_words = n_words, 
+                              log_odds_min = 6,
+                              which_plots = c(1:7),
+                              use_pct = FALSE,
+                              df_source = "titles") {
+  
+  # test
+  # df = d_unigrams_all
+  # gram = "words"
+  # max_words = n_words
+  # log_odds_min = 6
+  # # which_plots = c(1, 2) #c(4:5)
+  # which_plots <- 4
+  # use_pct <- TRUE
+  # df_source <- "titles"
+  
+  # test
+  # df = d_bigrams
+  # gram = "bigrams"
+  # max_words = n_words
+  # #log_odds_min = 3.5
+  # log_odds_min = 2.0
+  # which_plots = c(6)
+  
+  # test
+  # df = d_nounphrases %>%
+  #   filter(n_words == 2) %>% # should be 2
+  #   filter(year(issue_date) >= 1985) # TODO: this shouldn't be necessary - remove after fixing 1970-01-01 issue dates
+  # gram = "bigram nounphrases"
+  # max_words = n_words
+  # #log_odds_min = 3.5
+  # log_odds_min = 2.0
+  # which_plots = c(4)
+  
+  # test
+  # df <- d_nounphrases_body
+  # gram <- "Nounphrase unigrams"
+  # max_words <- n_words
+  
+  ## Adjusting for differing size of unigrams, bigrams, trigrams for some plot elements
+  rel_size <- case_when(
+    str_detect(gram, "bigrams")  ~ 1.0,
+    TRUE                         ~ 1.0
+  )
+    
+  number_of_words <- case_when(
+    str_detect(gram, "bigrams")   ~ floor(max_words * 0.5),
+    TRUE                          ~ max_words
+  )
+  
+  my_source <- case_when(
+    df_source == "titles"     ~ "subject titles",
+    df_source == "bodies"     ~ "subject bodies",
+    TRUE                      ~ "n-grams"
+  )
+  
+  df <- df %>%
+    mutate(word_wrapped = str_replace_all(ngram, " ", "<br>"))
+
+  if (use_pct) {
+    top_n_words_5_year_periods <- df %>%
+      mutate(time_period = 5 * (year(issue_date) %/% 5)) %>%
+      mutate(time_period = paste0(time_period, "-", pmin(time_period + 4, year(today()))),
+             time_period = factor(time_period)
+             ) %>%
+      group_by(time_period) %>%
+      mutate(n_time_period = n()) %>%
+      ungroup() %>%
+      group_by(time_period, ngram) %>%
+      mutate(
+        n_ngram_time_period = n(),
+        pct_time_period = n_ngram_time_period / n_time_period
+        ) %>%
+      ungroup() %>%
+      arrange(time_period, desc(pct_time_period)) %>%
+      distinct(time_period, ngram, .keep_all = TRUE) %>%
+      group_by(time_period) %>%
+      mutate(rank = row_number()) %>%
+      ungroup() %>%
+      group_by(ngram) %>%
+      mutate(is_top_word = case_when(
+        any(rank <= 5)    ~ "top5",
+        any(rank <= 10)   ~ "top10",
+        TRUE              ~ "no"),
+        is_top_word = factor(is_top_word, levels = c("no", "top10", "top5"))
+      ) %>%
+      ungroup() %>%
+      # now make it column-replaceable with d_unigrams_all
+      mutate(n = pct_time_period)
+    
+    top_n_words_last_10_years <- df %>%
+      mutate(time_period = year(issue_date)) %>%
+      filter(time_period >= 2010) %>%
+      mutate(time_period = as.factor(time_period)) %>%
+      mutate(n_time_period = n()) %>%
+      group_by(ngram) %>%
+      mutate(pct_time_period = n() / n_time_period) %>%
+      ungroup() %>%
+      arrange(time_period, desc(pct_time_period)) %>%
+      distinct(time_period, ngram, .keep_all = TRUE) %>%
+      group_by(time_period) %>%
+      mutate(rank = row_number()) %>%
+      ungroup() %>%
+      group_by(ngram) %>%
+      mutate(is_top_word = case_when(
+        any(rank <= 5)    ~ "top5",
+        any(rank <= 10)   ~ "top10",
+        TRUE              ~ "no"),
+        is_top_word = factor(is_top_word, levels = c("no", "top10", "top5"))
+      ) %>%
+      ungroup() %>%
+      # now make it column-replaceable with d_unigrams_all
+      mutate(n = pct_time_period)
+  } else {
+    top_n_words_5_year_periods <- df %>%
+      mutate(time_period = 5 * (year(issue_date) %/% 5)) %>%
+      mutate(time_period = paste0(time_period, "-", pmin(time_period + 4, year(today()))),
+             time_period = factor(time_period)
+             ) %>%
+      group_by(time_period) %>%
+      count(ngram, word_wrapped, sort = TRUE) %>%
+      ungroup() %>%
+      group_by(time_period) %>%
+      arrange(time_period, desc(n)) %>%
+      mutate(rank = row_number()) %>%
+      ungroup() %>%
+      group_by(ngram, word_wrapped) %>%
+      mutate(is_top_word = case_when(
+        any(rank <= 5)    ~ "top5",
+        any(rank <= 10)   ~ "top10",
+        TRUE              ~ "no"),
+        is_top_word = factor(is_top_word, levels = c("no", "top10", "top5"))
+      ) %>%
+      ungroup()
+    
+    top_n_words_last_10_years <- df %>%
+      mutate(time_period = year(issue_date)) %>%
+      filter(time_period >= 2010) %>%
+      mutate(time_period = as.factor(time_period)) %>%
+      group_by(time_period) %>%
+      count(ngram, word_wrapped, sort = TRUE) %>%
+      arrange(desc(n)) %>%
+      ungroup() %>%
+      group_by(time_period) %>%
+      arrange(time_period, desc(n)) %>%
+      mutate(rank = row_number()) %>%
+      ungroup() %>%
+      group_by(ngram, word_wrapped) %>%
+      mutate(is_top_word = case_when(
+        any(rank <= 5)    ~ "top5",
+        any(rank <= 10)   ~ "top10",
+        TRUE              ~ "no"),
+        is_top_word = factor(is_top_word, levels = c("no", "top10", "top5"))
+      ) %>%
+      ungroup()
+  }
+  
+  
+  if(1 %in% which_plots) {
+    
+    p1 <- top_n_words_5_year_periods %>%
+      filter(rank <= number_of_words) %>%
+      ggplot(aes(n, reorder_within(word_wrapped, n, time_period))) +
+      geom_col(fill = "steelblue", alpha = 0.6, show.legend = FALSE) +
+      facet_wrap(~time_period, scales = "free",
+                 ncol = ifelse(str_detect(gram, "tri"),
+                                3,
+                                4)
+                 ) +
+      scale_y_reordered() +
+      scale_x_continuous(expand = c(0,0),
+                         labels = label_number_si(),
+                         guide = guide_axis(n.dodge = 2)
+                         ) +
+      theme(panel.grid.major.y = element_blank(),
+            panel.grid.minor.y = element_blank(),
+            axis.text.y = element_markdown(),) +
+      labs(title = glue("RISKS Digest: Top {number_of_words} {gram}\nin each 5-year period"),
+           subtitle = glue("{gram} most common in {my_source}"),
+           x = "",
+           y = "",
+           caption = my_caption)
+    
+    print(p1)
+    
+    if (params$save_figures) {
+      ggsave(here(output_path, 
+                  paste0("risks-digest-top-words-5-year-barchart-", gram, "-", 
+                         format(Sys.time(), "%Y-%m-%d-%H%M%S"), fname_ext_plot)
+      ), 
+      height = 8, width = 10, units = "in"
+      )
+    }
+  }
+  
+  if(2 %in% which_plots) {
+    
+    p2 <- top_n_words_5_year_periods %>%
+      filter(rank <= number_of_words) %>%
+      complete(time_period, word_wrapped) %>% # needed to skip lines between words for periods words not in ranked list
+      na.omit() %>%
+      ggplot() +
+      geom_line(aes(x = time_period, y = rank, group = word_wrapped), 
+                size = 0.5, linetype = 2, alpha = 0.2) +
+      geom_richtext(aes(x = time_period, y = rank, label = word_wrapped, color = is_top_word), 
+                size = 3, 
+                lineheight = 0.0001) +
+      scale_y_reverse(breaks = c(5 * 1:10)) +
+      scale_x_discrete(limits = c(unique(as.character(top_n_words_5_year_periods$time_period))),
+                       position = "top") +
+      scale_color_manual(values = c("#4d4d4d", "#0571b0", "firebrick")) +
+      theme(legend.position = "none",
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            axis.text.y = element_markdown(),
+            ) +
+      labs(title = glue("RISKS Digest: Top {number_of_words} ranked {gram}", 
+                        "\n in each five-year period 1985-{max(year(df$issue_date))}"),
+           subtitle = glue("{gram} most common in {my_source}"),
+           x = "",
+           y = "Rank",
+           caption = my_caption)
+    
+    print(p2)
+    
+    if (params$save_figures) {
+      ggsave(here(output_path, 
+                  paste0("risks-digest-top-words-5-year-rank-", gram, "-", 
+                         format(Sys.time(), "%Y-%m-%d-%H%M%S"), fname_ext_plot)
+      ), 
+      height = 8, width = 12, units = "in"
+      )
+    }
+  }
+  
+  if(3 %in% which_plots) {  
+    
+    p3 <- top_n_words_last_10_years %>%
+      filter(rank <= number_of_words) %>%
+      complete(time_period, word_wrapped) %>% # needed to skip lines between words for periods words not in ranked list
+      na.omit() %>%
+      ggplot() +
+      geom_line(aes(x = time_period, y = rank, group = word_wrapped), 
+                size = 0.5, linetype = 2, alpha = 0.2, na.rm = TRUE) +
+      geom_richtext(aes(x = time_period, y = rank, label = word_wrapped, color = is_top_word), 
+                size = 3 * rel_size, 
+                lineheight = 0.0001, na.rm = TRUE) +
+      scale_y_reverse(breaks = c(5 * 1:10)) +
+      scale_x_discrete(limits = c(unique(as.character(top_n_words_last_10_years$time_period))),
+                       position = "top") +
+      scale_color_manual(values = c("#4d4d4d", "#0571b0", "firebrick")) +
+      theme(legend.position = "none",
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            axis.text.y = element_markdown(),
+            ) +
+      labs(title = glue("RISKS Digest: Top {number_of_words} ranked {gram}", 
+                        "\n in each five-year period 2010-{max(year(df$issue_date))}"),
+           subtitle = glue("{gram} most common in {my_source}"),
+           x = "",
+           y = "Rank",
+           caption = my_caption)
+    
+    print(p3)
+    
+    if (params$save_figures) {
+      ggsave(here(output_path, 
+                  paste0("risks-digest-top-words-last-10-years-", gram, "-", 
+                         format(Sys.time(), "%Y-%m-%d-%H%M%S"), fname_ext_plot)
+      ), 
+      height = 8, width = 12, units = "in"
+      )
+    }
+  }
+  
+  if(4 %in% which_plots) {  
+    
+    p4_data_for_plot <- top_n_words_5_year_periods %>%
+      filter(rank <= number_of_words)
+    
+    y_label <- ifelse(use_pct,
+                      "Portion of all period mentions (log10 scale)",
+                      "Mentions (log10 scale)")
+    
+    p4 <- p4_data_for_plot %>%
+      ggplot() +
+      geom_line(aes(x = time_period, y = n, group = ngram), 
+                size = 0.5, linetype = 2, alpha = 0.2, na.rm = TRUE) +
+      geom_point(aes(x = time_period, y = n, group = ngram), 
+                 size = 3, color = "steelblue", alpha = 0.5, na.rm = TRUE) +
+      geom_text_repel(aes(x = time_period, y = n, label = ngram, group = ngram, size = n),
+                      #size = 3,
+                      segment.colour = "blue", segment.alpha = 0.8,
+                      na.rm = TRUE) +
+      scale_x_discrete(limits = c(unique(as.character(top_n_words_5_year_periods$time_period))),
+                       position = "top") +
+      scale_y_log10() +
+      scale_size(range = c(3, 6)) +
+      scale_color_manual(values = c("#4d4d4d", "#0571b0")) +
+      theme(legend.position = "none",
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank()
+            ) +
+      labs(title = glue("RISKS Digest: Top {number_of_words} {gram} in each period"),
+           subtitle = glue("{gram} most common in {my_source}",
+                           "\nlarger text occurs more often"),
+           x = "",
+           y = y_label,
+           caption = my_caption)
+    
+    print(p4)
+    
+    if (params$save_figures) {
+      ggsave(here(output_path, 
+                  paste0("risks-digest-top-words-5-year-mentions-", gram, "-", 
+                         format(Sys.time(), "%Y-%m-%d-%H%M%S"), fname_ext_plot)
+      ), 
+      height = 8, width = 10, units = "in"
+      )
+    }
+  }
+  
+  if(5 %in% which_plots) {  
+    ###### Add log odds here ######
+    # we want to know which bigrams are most unique to each time period
+    # following the examples at 
+    # https://github.com/juliasilge/tidylo
+    # https://juliasilge.com/blog/introducing-tidylo/
+    # https://medium.com/@TSchnoebelen/i-dare-say-you-will-never-use-tf-idf-again-4918408b2310
+    # https://yalagiants.netlify.com/2019/07/log-odds-ratio-vs-tf-idf-vs-weighted-log-odds/
+    
+    word_log_odds <- top_n_words_5_year_periods %>%
+      bind_log_odds(time_period, ngram, n) %>%
+      group_by(time_period) %>%
+      arrange(time_period, desc(log_odds_weighted)) %>%
+      mutate(rank = row_number()) %>%
+      ungroup() %>%
+      filter(log_odds_weighted >= log_odds_min) %>%
+      filter(rank <= number_of_words)
+      
+    p5 <- word_log_odds %>%
+      ggplot() +
+      geom_point(aes(x = time_period, y = log_odds_weighted, group = ngram), #was geom_point
+                 size = 3, 
+                 color = "steelblue", alpha = 0.8) +
+      geom_text_repel(aes(x = time_period, y = log_odds_weighted, label = ngram, group = ngram, size = n),
+                      #size = 3,
+                      segment.colour = "blue", segment.alpha = 0.8,
+                      na.rm = TRUE) +
+      scale_x_discrete(limits = c(unique(as.character(top_n_words_5_year_periods$time_period))),
+                       position = "top") +
+      scale_y_continuous(limits = c(log_odds_min - 1, NA)) +
+      scale_size(range = c(3, 6)) +
+      scale_color_manual(values = c("#4d4d4d", "#0571b0")) +
+      theme(legend.position = "none",
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank()
+            ) +
+      labs(title = glue("RISKS Digest: Most unique {gram} in each period"),
+           subtitle = glue("{gram} in {my_source}",
+                           "\nlog odds >= {log_odds_min} in each period;",
+                           " higher number is more unique; larger text occurs more often"),
+           x = "",
+           y = "Log odds",
+           caption = my_caption)
+    
+    print(p5)
+    
+    if (params$save_figures) {
+      ggsave(here(output_path, 
+                  paste0("risks-digest-most-unique-", gram, "-",
+                         format(Sys.time(), "%Y-%m-%d-%H%M%S"), fname_ext_plot)
+      ), 
+      height = 8, width = 10, units = "in"
+      )
+    }
+  }
+  
+  if(6 %in% which_plots) {
+    ###### Which words have had the steepest growth or decline in mentions? ######
+    
+    perennial_words <- df %>%
+      mutate(issue_year = year(issue_date)) %>%
+      distinct(ngram, issue_year, .keep_all = TRUE) %>%
+      count(ngram, name = "n_years", sort = TRUE) %>%
+      filter(n_years >= 10) # only words that appear in at least 10 years
+    
+    working_set <- df %>%
+      right_join(., perennial_words, by = "ngram") %>%
+      mutate(time_period = year(issue_date)) %>%
+      count(ngram, time_period) %>% 
+      group_by(ngram) %>%
+      filter(any(n > 5)) %>% # only words with at least 5 mentions in one year
+      ungroup() %>%
+      arrange(ngram, time_period) 
+    
+    nested_working_set <- working_set %>%
+      group_by(ngram) %>%
+      nest()
+    
+    word_model <- function(df) {
+      lm(n ~ time_period, data = df)
+    }
+    
+    by_word <- nested_working_set %>%
+      mutate(model = map(data, word_model))
+    
+    get_coef <- function(x, n) {
+      # x is a listcol with results of coef()
+      # n is the position in the list
+      # message(paste0("x = ", x, "and n = ", n))
+      x[[n]]
+    }
+    
+    by_word_model <- by_word %>%
+      mutate(coef = map(model, coef),
+             intercept = map2_dbl(coef, 1, get_coef),
+             slope = map2_dbl(coef, 2, get_coef)
+      )
+    
+    biggest_change_word_list <- by_word_model %>%
+      select(slope, intercept, ngram) %>% 
+      distinct(ngram, .keep_all = TRUE) %>%
+      arrange(desc(slope))
+    
+    biggest_changes <- bind_rows(head(biggest_change_word_list, n = round(max_words / 2, 0)),
+                                 tail(biggest_change_word_list, n = round(max_words / 2, 0))
+    )
+    
+    biggest_changes_plot <- biggest_changes %>%
+      crossing(time_period = seq(1985, 2020, by = 1)) %>%
+      mutate(y = intercept + slope * time_period) %>%
+      left_join(., working_set, by = c("ngram", "time_period"))%>%
+      filter(y >= 0)
+    
+    text_y <- max(biggest_changes_plot$n, na.rm = TRUE) * 0.95
+    
+    p6 <- biggest_changes_plot %>%
+      na.omit() %>%
+      mutate(ngram = fct_reorder(ngram, desc(slope))) %>%
+      ggplot() +
+      geom_line(aes(time_period, y, group = ngram), color = "grey60", alpha = 0.6) +
+      geom_point(aes(time_period, n, group = ngram, color = slope), size = 1, alpha = 0.8) +
+      geom_text(aes(x = 2020, y = text_y, 
+                    label = paste0(round(slope, 2), "/yr"),
+                    color = slope),
+                hjust = 1, size = 3, alpha = 0.6, na.rm = TRUE) +
+      facet_wrap(~ ngram, ncol = 5) +
+      scale_x_continuous(breaks = seq(1980, 2020, by = 10)) +
+      scale_y_continuous(labels = label_number_si(),
+                         limits = c(0, NA)) +
+      scale_color_gradient2(low = "firebrick", high = "steelblue", mid = "purple", midpoint = 0) +
+      theme(legend.position = "none",
+            strip.text = element_text(size = rel(rel_size)),
+            axis.text.x = element_text(size = rel(0.8)),
+            panel.grid.major.x = element_blank(),
+            panel.grid.minor = element_blank()
+            ) +
+      labs(title = glue("RISKS Digest: {length(unique(biggest_changes_plot$ngram))} {gram}",
+                        " biggest trends 1985-{max(year(df$issue_date))}"),
+           subtitle = glue("Top 10 increases and decreases", 
+                           "\nin {my_source} at least 10 of the years and 5+ mentions in one year"),
+           x = "",
+           y = "Yearly mentions",
+           caption =  my_caption)
+         
+    print(p6)
+    
+    if (params$save_figures) {
+      ggsave(here(output_path, 
+                  paste0("risks-digest-top-changes-", gram, "-", 
+                         format(Sys.time(), "%Y-%m-%d-%H%M%S"), fname_ext_plot)
+      ), 
+      height = 8, width = 10, units = "in"
+      )
+    }
+    
+  }
+
+    if(7 %in% which_plots) {
+    ###### Which words have had the steepest growth or decline in mentions since 2010? ######
+    # limit to those interesting since 2010 (i.e., shows up in at least 5 of the last 10 years)
+    perennial_words <- df %>%
+      mutate(issue_year = year(issue_date)) %>%
+      distinct(ngram, issue_year, .keep_all = TRUE) %>%
+      filter(issue_year >= 2010 ) %>% 
+      count(ngram, name = "n_years", sort = TRUE) %>% #, wt = weight
+      filter(n_years >= 5) # only words that appear in at least 10 years
+    
+    working_set <- df %>%
+      right_join(., perennial_words, by = "ngram") %>%
+      mutate(time_period = year(issue_date)) %>%
+      count(ngram, time_period) %>%
+      arrange(ngram, time_period) %>%
+      filter(time_period >= 2010)  %>%
+      group_by(ngram) %>%
+      filter(any(n > 5)) %>% # only words with at least 5 mentions in one year
+      ungroup()
+    
+    nested_working_set <- working_set %>%
+      group_by(ngram) %>%
+      nest()
+    
+    word_model <- function(df) {
+      lm(n ~ time_period, data = df)
+    }
+    
+    by_word <- nested_working_set %>%
+      mutate(model = map(data, word_model))
+    
+    get_coef <- function(x, n) {
+      # x is a listcol with results of coef()
+      # n is the position in the list
+      x[[n]]
+    }
+    
+     by_word_model <- by_word %>%
+      mutate(coef = map(model, coef),
+             intercept = map2_dbl(coef, 1, get_coef),
+             slope = map2_dbl(coef, 2, get_coef)
+      )
+    
+    biggest_change_word_list <- by_word_model %>%
+      select(slope, intercept, ngram) %>% 
+      distinct(ngram, .keep_all = TRUE) %>%
+      arrange(desc(slope))
+    
+    biggest_changes <- bind_rows(head(biggest_change_word_list, n = round(max_words / 2, 0)),
+                                 tail(biggest_change_word_list, n = round(max_words / 2, 0))
+    )
+    
+    biggest_changes_plot <- biggest_changes %>%
+      crossing(time_period = seq(2010, 2020, by = 1)) %>%
+      mutate(y = intercept + slope * time_period) %>%
+      left_join(., working_set, by = c("ngram", "time_period")) %>%
+      filter(y >= 0)
+    
+    text_y <- max(biggest_changes_plot$n, na.rm = TRUE) * 0.95
+    
+    p7 <- biggest_changes_plot %>%
+      na.omit() %>%
+      mutate(ngram = fct_reorder(ngram, desc(slope))) %>%
+      ggplot() +
+      geom_line(aes(time_period, y, group = ngram), color = "grey60", alpha = 0.6) +
+      geom_point(aes(time_period, n, group = ngram, color = slope), size = 2, alpha = 0.8) +
+      geom_text(aes(x = 2020, y = text_y, 
+                    label = paste0(round(slope, 2), "/yr"),
+                    color = slope),
+                hjust = 1, size = 3, alpha = 0.6, na.rm = TRUE) +
+      facet_wrap(~ ngram, ncol = 5) +
+      scale_x_continuous(breaks = seq(2010, 2020, by = 4)) +
+      scale_y_continuous(labels = label_number_si(),
+                         limits = c(0, NA)) +
+      scale_color_gradient2(low = "firebrick", high = "steelblue", mid = "purple", midpoint = 0) +
+      theme(legend.position = "none",
+            strip.text = element_text(size = rel(rel_size)),
+            panel.grid.major.x = element_blank(),
+            panel.grid.minor = element_blank()
+            ) +
+      labs(title = glue("RISKS Digest: {length(unique(biggest_changes_plot$ngram))} {gram}",
+                        " biggest trends 2010-{max(year(df$issue_date))}"),
+           subtitle = glue("Top 10 increases and decreases", 
+                           "\nin {my_source} at least 5 of the years and 5+ mentions in one year"),
+           x = "",
+           y = "Yearly mentions",
+           caption =  my_caption)
+    
+    print(p7)
+
+    if (params$save_figures) {
+      ggsave(here(output_path, 
+                  paste0("risks-digest-top-changes-since-2010-", gram, "-", 
+                         format(Sys.time(), "%Y-%m-%d-%H%M%S"), fname_ext_plot)
+      ), 
+      height = 8, width = 10, units = "in"
+      )
+    }
+    }
+}
+
+```
+
+
+Counting the frequency of unigrams in five-year periods and ranking them in each period makes visible some trends in Figure \@ref(fig:unigrams-all-plot2). Unigrams that are ranked in the top five at least one year are red; unigrams are blue if their highest rank was six to ten at least one year.
+
+Common topics over the years
+
+- ***Security*** and ***privacy*** are always relevant. ***Voting*** keeps coming up: the security and trustworthiness of the voting process, computerized voting machines, and proposals for on-line voting.
+- ***Hacker*** and ***hack*** are common too. Other sources of problems include ***error***, ***failure***, ***bug***, ***crash***, ***attack***, ***breach***, ***theft***, and ***outage***.
+
+Changing topics
+
+- ***Bank***, credit ***card***, the ***phone*** system, and computer ***virus*** topics gave way to ***mobile phone***, the ***internet***, on-line activities, ***cars***, a direct focus on ***data***, and ***fake news***.
+- ***Y2K*** came and went, as did lots of discussion of ***email*** and ***spam***, and the security of ***Microsoft*** software. ***Microsoft*** was mentioned often 1995-2004; after that ***Google***, ***Facebook*** and ***Apple*** make their appearance.
+
+```{r unigrams-all-plot2, fig.height=9, fig.width=9, fig.cap="Unigram rank by frequency: five-year periods"}
+
+do_top_words_plot(df = d_unigrams_all %>%
+                    filter(issue_year <= 2019),
+                  gram = "unigrams",
+                  which_plots = 2)
+
+```
+
+<br>
+
+Zooming in, let's consider only 2010+. In Figure \@ref(fig:unigrams-all-plot3) we see ***security***, ***internet***, ***data***, and ***car*** in the top five most years. At least one of ***hack***, ***hacker***, ***attack*** or ***NSA*** are usually in the top five. In the most recent years ***Facebook*** and ***Google*** are near the top, and ***Russian*** interference in the 2016 election was a common topic.  Since 2017 ***AI*** is a common topic, and we find ***"fake_news"*** makes the ranking in 2017--after the 2016 US presidential election. (Turning "fake news" into the unigram "fake_news" is an intervention on my part to avoid losing visibility of this significant topic). Unsurprisingly, in 2020 ***Coronavirus*** and ***COVID-19*** top the list while ***pandemic*** rounds out the top 20.
+
+```{r unigrams-all-plot3, fig.height=9, fig.width=9, fig.cap="Unigram rank by frequency: five-year periods"}
+
+do_top_words_plot(df = d_unigrams_all,
+                  gram = "unigrams",
+                  which_plots = 3)
+
+```
+
+<br>
+
+Returning to five-year periods, we can see the relative frequency of the unigrams within and across these periods by plotting the portion of mentions during each period in Figure \@ref(fig:unigrams-all-plot4).
+
+```{r unigrams-all-plot4, fig.height=9, fig.width=9, fig.cap="Unigram frequency: five-year periods"}
+
+do_top_words_plot(df = d_unigrams_all %>%
+                    filter(issue_year <= 2019),
+                  gram = "unigrams",
+                  which_plots = 4,
+                  use_pct = TRUE)
+
+```
+
+<br>
+
+Which unigrams are most uniquely to be found in each period? We represent distinctiveness in terms of [weighted log odds](https://juliasilge.com/blog/introducing-tidylo/), which is the natural log of the odds of finding the unigram in one period compared to all the others. Figure \@ref(fig:unigrams-all-plot5) reinforces earlier observations of the changing topics:
+
+- The focus on ***Y2K*** leading up to the big date as well as "year 2000" converted here to ***year_2000***
+- The Strategic Defense Initiative ***(SDI)*** in the Reagan era
+- User interfaces ***CRT*** and ***VTD*** giving way to ***iphone***
+- The rise of ***Facebook***, ***Google***, ***Twitter*** and ***Tesla***
+- The decline of ***Compuserve*** and ***Netscape***
+- New software technologies and their implementation: concerns about ***ActiveX*** and ***Java***  were replaced by ***blockchain***, ***bitcoin***, and ***Android***)
+
+We also see discussion of topics that were popular for a short time
+
+- USS ***Vincennes*** shooting down an Iranian airliner and the ***Challenger*** disaster
+- ***Patriot*** missiles and ***Ariane*** rockets
+- Computer ***virus*** topics and specific malware, including ***klez*** and ***heartbleed***
+
+```{r unigrams-all-plot5, fig.height=9, fig.width=9, fig.cap="Most unique unigrams: five-year periods"}
+
+do_top_words_plot(df = d_unigrams_all %>%
+                    filter(issue_year <= 2019),
+                  gram = "unigrams",
+                  which_plots = 5)
+
+```
+
+<br>
+
+Which unigrams changed the most in number of mentions (either becoming more common or less common) over the full period? I interpret the slope of linear regression lines as the magnitude of the trends in Figure \@ref(fig:unigrams-all-plot6), sorting them from greatest increase to greatest descrease.
+
+Linear regression lines under-represent recent large swings for topics including ***data***, ***hack*** and ***car*** that have been around since the beginning. ***AI*** mentions have an interesting distribution: some discussion in the late 1980s, then not common until a resurgence in recent years
+
+```{r unigrams-all-plot6, fig.height=9, fig.width=9, fig.cap="Unigrams with biggest change in frequency: all years"}
+
+do_top_words_plot(df = d_unigrams_all,
+                  gram = "unigrams",
+                  which_plots = 6)
+
+```
+
+<br>
+
+Again we can zoom into 2010+ and this time look at the topics with biggest positive and negative trends in Figure \@ref(fig:unigrams-all-plot7). Here ***AI***, ***data***, ***hacker***, and ***security*** are a among those terms growing the most in recent years while ***Snowdon*** and ***NSA*** show the steepest declines, representing both the significant discussion of the Snowden revelations in 2014-2015 and their fading after 2016.
+
+```{r unigrams-all-plot7, fig.height=9, fig.width=9, fig.cap="Unigrams with biggest change in frequency: 2010+"}
+
+do_top_words_plot(df = d_unigrams_all,
+                  gram = "unigrams",
+                  which_plots = 7)
+
+```
+
+<br>
+
+## Lessons from the RISKS Forum
+
+I've been reading the RISKS Forum for more than twenty years. Below are some of the lessons I have gathered during this time. 
+
+- Your product is a system and is part of a larger system.
+- The application of any new technology occurs in the context of a system.
+- Design your systems to be resilient to failures.
+- When there is a catastrophic failure, it's not uncommon that it occurred due to a series of lesser failures. During the design and testing phases of product development, the failure modes were not considered or it was not considered possible that they would all occur at the same time. Or once in operation, lesser failures were allowed to fester, sometimes with the rationale "We have redundant systems!".
+- The weak link is often people, including their willingness or ability over the long term to follow rules and procedures and uphold the cultural norms necessary to maintain safe, reliable systems. People respond to their incentives, and managers' incentives in particular seem too often to be at odds with maximizing safe and reliable operations, since they face pressures to limit costs and find new efficiencies.
+- People can be inattentive, distracted, confused, lazy, or malicious. You should take this into account in your designs.
+- Your design should guide people to the right things and require extra effort to do what may be the wrong things. Most people want to do the right things, and you may not have thought of all the "right things" they need to do.
+- When failures occur in or with systems were not well designed, it's common to blame the users.
+- There are many public policy implications in the application of modern technologies: safety, privacy, voting, information dissemination/propaganda, etc. It can be difficult to affect change until something goes wrong, since only then does a consensus form that "something must be done." It's very helpful to have a body of expert consensus ready to guide policy makers when they are ready to focus on the issue. Of course we shouldn't wait until then to attempt to affect change.
+
+<br>
+<br>
+
+*There are other ways to select the words or phrases that rise to the top, which point to other risk-related trends. More on that in* [Part 2: Multiple perspectives].
+
+<br>
+
+By Daniel Moul (heydanielmoul via gmail)
+
+![CC-BY](https://i.creativecommons.org/l/by/4.0/88x31.png) This work is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/)
+
+<br>
+<br>
+
+(end of document)

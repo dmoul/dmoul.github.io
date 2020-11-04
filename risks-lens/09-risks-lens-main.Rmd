@@ -1,0 +1,40 @@
+---
+# risks-lens-main.Rmd
+#
+title: "Through the lens of the RISKS Forum"
+subtitle: "(work in progress)"
+author: "Daniel Moul"
+date: "`r Sys.Date()`"
+output:
+  bookdown::gitbook:
+    config:
+      sharing: no
+      toc:
+        before: |
+          <li><strong><a href="./">Risks through the lens<br>of the RISKS Forum</a></strong></li>
+# some of these params are overridden in risk-analysis-setup.R
+params:
+  showcode: FALSE
+  showinfo: FALSE
+  showwarning: TRUE
+  continueonerror: TRUE
+  save_figures: FALSE
+
+---
+
+<!-- #  github_document: -->
+<!-- #    pandoc_args: [ -->
+<!-- #      "--filter", "/Users/dmoul/opt/anaconda3/bin/pandoc-crossref" -->
+<!-- #    ] -->
+<!-- #    number_sections: TRUE -->
+<!-- #    fig_caption: true -->
+<!-- #    toc: true -->
+<!-- #    toc_depth: 2 -->
+
+```{r child='09A-risks-lens.Rmd'}
+```
+
+\newpage
+
+```{r child='09B-risks-lens.Rmd'}
+```

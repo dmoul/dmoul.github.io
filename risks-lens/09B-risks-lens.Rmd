@@ -1,0 +1,538 @@
+<!-- 09B-risk-lens.Rmd -->
+<!-- # part 2 -->
+
+# Part 2: Multiple perspectives
+
+As the term ***n-gram*** implies, there are other word chunkings we could consider besides unigrams. In this section, we will look at nounphrases, identified by parsing with an awareness of the parts of speech, and at bigrams, which are two-word phrases. This is a follow-on to [Part 1: The lens], which uses simple unigrams from titles as the source for rankings and other visualizations. We'll focus first on nounphrase unigrams ***from titles*** of submissions, then bigrams from titles (simple and nounphrases). Then we'll look at nounphrase unigrams and bigrams ***from the body text*** of submissions.
+
+<br>
+
+## An example: "car"
+
+Why do unigrams, bigrams and nounphrases provide different perspectives? Consider ***car***, which can stand alone as a unigram or be part of a longer n-gram:
+
+<br>
+
+```{r gram-example-car, out.width="50%"}
+ngram_example <- tibble(
+  ngram = c("car", "car computer", "car insurance", "car lcd", "car navigational", "car repair", 
+           "car door", "car electronics", "car destroyed", "car insurance", "car software", 
+           "car computer system", "car insurance policy", "car lcd display", "car navigational system", 
+           "car repair shop", "car train collision"),
+) %>%
+  mutate(n_words = str_count(ngram, " ") + 1)
+
+tibble(
+  type = c("unigram", "bigram", "trigram"),
+  ngram = c(glue_collapse(ngram_example %>% filter(n_words == 1) %>% pull(ngram), sep = ", "),
+             glue_collapse(ngram_example %>% filter(n_words == 2) %>% pull(ngram), sep = ", "),
+             glue_collapse(ngram_example %>% filter(n_words == 3) %>% pull(ngram), sep = ", ")
+             )
+  ) %>%
+  gt() %>%
+  tab_options(
+    table.width = pct(50)
+  ) %>%
+cols_label(
+  type = md("******type******"),
+  ngram = md("******ngram******")
+)
+
+```
+
+<br>
+
+Unigrams are less precise than bigrams and trigrams, however unigrams are helpful in signaling a general topic, and counts of bigrams and trigrams are much lower in the same corpus, which limits the possible analysis.
+
+I find the n-grams in two ways:
+
+1. Naively: simply count the occurrence of each n-gram by treating words in their base form ("lemma") as a unigram or bigram.
+
+2. With awareness of grammatical structure to identify nounphrases and categorize them by type. 
+
+The results of the two approaches differ considerably, primarily because with nounphrases, a subset of a larger nounphrase is not counted as a shorter n-gram. Suppose each of the car n-grams above can be found in a distinct sentence of text. Then the count of each type are as follows:
+
+<br>
+
+```{r gram-example-count, out.width="50%"}
+
+tibble(
+  type = c("unigram", "nounphrase unigram", "bigram", "nounphrase bigram", "trigram"),
+  n = c(ngram_example %>% filter(str_detect(ngram, "car")) %>% nrow(),
+        1,
+        ngram_example %>% filter(n_words == 2) %>% nrow(),
+        ngram_example %>% filter(n_words == 2) %>% nrow() - ngram_example %>% filter(n_words == 3) %>% nrow(),
+        ngram_example %>% filter(n_words == 3) %>% nrow()
+        )
+) %>%
+  gt() %>%
+  cols_label(
+    type = md("******type******"),
+    n = md("******n******")
+  )
+  
+```
+
+<br>
+
+## Different perspectives: summary by type
+
+These distinctions are evident in the twenty most common unigrams, bigrams and nounphrase unigrams. Note first the big difference in frequencies. The character of the lists is different too:
+
+* Unigrams are for the most part general risk topics
+* Nounphrase unigrams from titles are mostly organizations, countries and adjectives related to countries. 
+Nounphrase unigrams from body text are a wider mix of people, concepts, products, and organizations.
+* Bigrams are more particular risk topics--or shards of them. For example, "credit card" and "buffer overflow" are sources of many risks, while "driving car" is likely part of a trigram, for example "self driving car" and "autonomous driving car;" "air traffic" is probably part of "air traffic control."
+
+<br>
+
+```{r plot-top-unigrams-bigrams-faceted, fig.height=9, fig.width=9, fig.cap="Most common n-grams--all years"}
+
+gram_counts <- bind_rows(
+  d_unigrams_all %>%
+    distinct(ngram, .keep_all = TRUE) %>%
+    top_n(20, n) %>%
+    select(ngram, n) %>%
+    mutate(gram = "Unigrams from titles"),
+  d_bigrams %>%
+    distinct(ngram, .keep_all = TRUE) %>%
+    top_n(20, n) %>%
+    select(ngram, n) %>%
+    mutate(gram = "Bigrams from titles"),
+  d_nounphrases %>%
+    distinct(ngram, .keep_all = TRUE) %>%
+    top_n(20, n)%>%
+    select(ngram, n) %>%
+    mutate(gram = "Nounphrases from titles"),
+  d_nounphrases_body %>%
+    distinct(ngram, .keep_all = TRUE) %>%
+    top_n(20, n)%>%
+    select(ngram, n) %>%
+    mutate(gram = "Nounphrases from body text")
+) %>%
+  mutate(gram = factor(gram, levels = c("Unigrams from titles", "Bigrams from titles", 
+                                        "Nounphrases from titles", "Nounphrases from body text")))
+
+gram_counts %>%
+  ggplot(aes(n, reorder_within(ngram, n, gram))) +
+  geom_col(fill = "steelblue", alpha = 0.6) +
+  facet_wrap(~gram, scales = "free") +
+  scale_y_reordered() +
+  theme(panel.grid.major.y = element_blank(),
+            panel.grid.minor.y = element_blank()) +
+  labs(title = "RISKS Digest: Most common unigrams and bigrams",
+       subtitle = "All years",
+       x = NULL, 
+       y = NULL,
+       caption = NULL)
+
+```
+<br>
+
+## N-grams from titles
+
+### Simple unigrams
+
+The [Visualizations and discussion] in [Part 1: The lens] uses simple nounphrases. Below we'll look at n-grams from other sources.
+
+<br>
+
+### Nounphrase unigrams
+
+Nounphrase unigrams provide a different perspective than simple unigrams.
+
+Counting the frequency of nounphrase unigrams in five-year periods and ranking them in each period makes visible some trends in Figure \@ref(fig:unigrams-nounphrase-plot2-part2). Topics that were ranked in the top five at least one year are red; topics with greatest rank of six to ten at least one year are blue.
+
+Common topics
+
+* Aerospace has been a common source of topics, with references to manufacturers ***Airbus*** and ***Boeing*** as well as specific planes (***A320***, ***A380***), rockets (***Ariane***), and topics related to space exploration (***NASA***, ***Mariner***, ***mars***).
+* Whereas ***privacy***, ***encryption*** and ***data*** are consistently in the top-five in the ranking of simple unigrams, here they are missing. Instead the list includes many more place-related terms: ***British***, ***Dutch***, ***German***, ***Japanese***, ***Russia*** and ***Russian***, ***China*** and ***Chinese***, ***Canadian***, ***American***, ***California***, ***San Francisco***, etc. We also see more organizations: ***congress***, ***IRS***, ***Stanford***, ***Intel***, ***Amazon***, ***Skype***, ***NSA***, and the same technology companies: ***Microsoft***, ***Facebook***, ***Google***, and ***Apple***.
+
+Compare this figure to Figure \@ref(fig:unigrams-all-plot2)
+
+```{r unigrams-nounphrase-plot2-part2, fig.height=9, fig.width=9, fig.cap="Unigram rank by frequency: five-year periods"}
+
+do_top_words_plot(df = d_nounphrases %>%
+                    filter(n_words == 1,
+                           issue_year <= 2019), 
+                  gram = "nounphrase unigrams",
+                  which_plots = 2)
+
+```
+
+<br>
+
+Zooming in, let's consider only the last ten years in Figure \@ref(fig:unigrams-nounphrase-plot3-part2). Here we see even more the domination of organizations and place-related unigrams in the top five.
+
+Compare this figure to Figure \@ref(fig:unigrams-all-plot3)
+
+```{r unigrams-nounphrase-plot3-part2, fig.height=9, fig.width=9, fig.cap="Unigram rank by frequency: five-year periods"}
+
+do_top_words_plot(df = d_nounphrases %>%
+                    filter(n_words == 1), 
+                  gram = "nounphrase unigrams",
+                  which_plots = 3)
+
+```
+
+<br>
+
+A simple ranked view hides the relative frequency of the unigrams within a time period and across them. When we plot the frequency as a portion of the unigrams in each time period in Figure \@ref(fig:unigrams-nounphrase-plot4-part2) we see ***Microsoft*** was a dominant topic before and after the turn of the millennium, then ***Google*** and ***Facebook*** took its place in recent periods.
+
+Compare this to Figure \@ref(fig:unigrams-all-plot4)
+
+```{r unigrams-nounphrase-plot4-part2, fig.height=9, fig.width=9, fig.cap="Unigram frequency: five-year periods"}
+
+do_top_words_plot(df = d_nounphrases %>%
+                    filter(n_words == 1,
+                             issue_year <= 2019), 
+                  gram = "nounphrase unigrams",
+                  which_plots = 4,
+                  use_pct = TRUE)
+
+```
+
+<br>
+
+Figure \@ref(fig:unigrams-nounphrase-plot5-part2) shows the most unique nounphrase unigrams in each period, which tells a similar story. We represent uniqueness in terms of [weighted log odds](https://juliasilge.com/blog/introducing-tidylo/).
+
+Compare this figure to Figure \@ref(fig:unigrams-all-plot5)
+
+```{r unigrams-nounphrase-plot5-part2, fig.height=9, fig.width=9, fig.cap="Most unique unigrams: five-year periods"}
+
+do_top_words_plot(df = d_nounphrases %>%
+                    filter(n_words == 1,
+                           issue_year <= 2019), 
+                  gram = "nounphrase unigrams",
+                  log_odds_min = 3,
+                  which_plots = 5)
+
+```
+
+<br>
+
+Which unigrams have changed the most in number of mentions (either becoming more common or less common) over the full period? Again, more place-related topics make the list, and we can see the rise in discussion about risks related to Russia and China. Compare Figure \@ref(fig:unigrams-nounphrase-plot6-part2) below to Figure \@ref(fig:unigrams-all-plot6)
+
+```{r unigrams-nounphrase-plot6-part2, fig.height=9, fig.width=9, fig.cap="Unigrams with biggest change in frequency: all years"}
+
+do_top_words_plot(df = d_nounphrases %>%
+                    filter(n_words == 1), 
+                  gram = "nounphrase unigrams",
+                  which_plots = 6)
+
+```
+
+<br>
+
+And last for this data set: Figure \@ref(fig:unigrams-nounphrase-plot7-part2) identifies the unigrams that have become more common or less common since 2010.  Tesla makes the list, as does Boeing due to the 737 MAX.
+
+Compare this figure to Figure \@ref(fig:unigrams-all-plot7)
+
+```{r unigrams-nounphrase-plot7-part2, fig.height=9, fig.width=9, fig.cap="Unigrams with biggest change in frequency: 2010+"}
+
+do_top_words_plot(df = d_nounphrases %>%
+                    filter(n_words == 1), 
+                  gram = "nounphrase unigrams",
+                  which_plots = 7)
+
+```
+
+<br>
+
+### Bigrams from titles
+
+Bigrams are two words that occur adjacent to each other in the text. Figure \@ref(fig:bigrams-part2) show the most common simple bigrams in each 5-year period. These are derived from the submission titles. Note the low number of occurrences; we cannot infer much given such low numbers.
+
+"Grandma wind" is third bigram in the 2010-2014 column. It illustrates some of the challenges and limitations in doing this kind of textual analysis. It's part of the title of the thread "Don't throw away Grandma's wind-up desk clock" started by Danny Burstein in Volume 26.
+
+* ***Grandma's*** was lemmatized to "grandma"
+* ***wind-up*** was separated into two words
+* ***up*** was filtered out, because it's a short, common word.
+
+```{r bigrams-part2, fig.height=9, fig.width=9, fig.cap="Simple bigrams in each five-year period"}
+
+do_top_words_plot(df = d_bigrams, 
+                  gram = "bigrams",
+                  which_plots = 1)
+```
+
+<br>
+
+Figure \@ref(fig:bigram-nounphrases-part2) presents the same visualization using nounphrase bigrams. Note the similarly low frequencies.
+
+Here again we can see limitations:
+
+* AT&T and fighter planes F15, F-16, and F22 should not be considered bigrams.
+
+
+```{r bigram-nounphrases-part2, fig.height=9, fig.width=9, fig.cap="Nounphrase bigrams in each five-year period"}
+
+do_top_words_plot(df = d_nounphrases %>%
+                    filter(n_words == 2), 
+                  gram = "nounphrase bigrams",
+                  which_plots = 1)
+```
+
+<br>
+
+## N-grams from body text
+
+There is a lot more body text than title text: `r round(n_body_words / n_title_words, 0)` times more (see summary in [Hot topics and perennial favorites]). However nounphrase unigrams do not include words that are not part of nounphrases or are part of multi-word nounphrases, so the set of words we have to work with is only about one tenth as large: (`r d_unigrams_all %>% distinct(ngram) %>% nrow() %>% comma()` unique, simple unigrams compared to (`r d_nounphrases_body %>% filter(n_words == 1) %>% distinct(ngram) %>% nrow() %>% comma()` unique, nounphrase unigrams). In the body text, the most common nounphrase is one word in length, as seen in Figure \@ref(fig:words-in-nounphrase-bodytext):
+
+```{r words-in-nounphrase-bodytext, fig.cap="Number of words in body text nounphrases"}
+d_nounphrases_body %>%
+  distinct(ngram, .keep_all = TRUE) %>%
+  ggplot(aes(n_words)) +
+  geom_histogram(binwidth = 1) +
+  scale_y_continuous(labels = label_number_si()) + 
+  labs(title = "Number of words in body text nounphrases",
+       subtitle = glue("{d_nounphrases_body %>% distinct(ngram) %>% nrow()} distinct n-grams"),
+       caption = my_caption)
+  
+```
+
+<br>
+
+### Nounphrase Unigrams
+
+Figure \@ref(fig:unigrams-nounphrase-body-plot2-part2) shows the frequency of unigrams in five-year periods. This ranking includes a better mix of concepts, products, organizations, and place-reated unigrams than the nounphrases sourced from titles. ***Soviet*** makes the list in the first period, and ***PGP*** (Phil Zimmerman's Pretty Good Privacy) reaches high on the list in the third.
+
+Items in red are in the top five at least one year, and items in blue are in the top six-ten at least one year.
+
+Compare this figure to Figure \@ref(fig:unigrams-all-plot2) and \@ref(fig:unigrams-nounphrase-plot2-part2)
+
+```{r unigrams-nounphrase-body-plot2-part2, fig.height=9, fig.width=9, fig.cap="Unigram rank by frequency: five-year periods"}
+
+do_top_words_plot(df = d_nounphrases_body %>%
+                    filter(n_words == 1,
+                           issue_year <= 2019), 
+                  gram = "nounphrase unigrams",
+                  which_plots = 2,
+                  df_source = "bodies")
+
+```
+
+<br>
+
+Zooming in, in Figure \@ref(fig:unigrams-nounphrase-body-plot3-part2) let's consider only the years since 2010. Now we see organizations and place-related unigrams swamping the top five and much of the top six-ten.
+
+Compare this figure to Figure \@ref(fig:unigrams-all-plot3) and \@ref(fig:unigrams-nounphrase-plot3-part2)
+
+```{r unigrams-nounphrase-body-plot3-part2, fig.height=9, fig.width=9, fig.cap="Unigram rank by frequency: five-year periods"}
+
+do_top_words_plot(df = d_nounphrases_body %>%
+                    filter(n_words == 1), 
+                  gram = "nounphrase unigrams",
+                  which_plots = 3,
+                  df_source = "bodies")
+
+```
+
+<br>
+
+Looking at relative frequency of the unigrams within each time period in \@ref(fig:unigrams-nounphrase-body-plot4-part2) we can see the tracks of technological evolution: ***uucp***, ***arpanet***, ***clipper*** in the early years, ***java***, ***javascript*** and ***pgp*** in the middle years then ***siri***, ***bitcoin***, ***iphone*** and ***android*** in the later years. ***USB*** shows up in the last three five-year periods.
+
+Compare this figure to Figure \@ref(fig:unigrams-all-plot4) and \@ref(fig:unigrams-nounphrase-plot4-part2)
+
+```{r unigrams-nounphrase-body-plot4-part2, fig.height=9, fig.width=9, fig.cap="Unigram frequency: five-year periods"}
+
+do_top_words_plot(df = d_nounphrases_body %>%
+                    filter(n_words == 1,
+                           issue_year <= 2019), 
+                  gram = "nounphrase unigrams",
+                  #max_words = n_words,
+                  which_plots = 4,
+                  use_pct = TRUE,
+                  df_source = "bodies")
+
+```
+
+<br>
+
+Figure \@ref(fig:unigrams-nounphrase-body-plot5-part2) highlights the most unique unigrams in each period, again representing this in terms of [weighted log odds](https://juliasilge.com/blog/introducing-tidylo/). ***Google*** and ***Facebook*** again stand out.
+
+Compare this figure to Figure \@ref(fig:unigrams-all-plot5) and \@ref(fig:unigrams-nounphrase-plot5-part2)
+
+```{r unigrams-nounphrase-body-plot5-part2, fig.height=9, fig.width=9, fig.cap="Most unique unigrams: five-year periods"}
+
+do_top_words_plot(df = d_nounphrases_body %>%
+                    filter(n_words == 1,
+                           issue_year <= 2019), 
+                  gram = "nounphrase unigrams",
+                  log_odds_min = 3,
+                  which_plots = 5,
+                  df_source = "bodies")
+
+```
+
+<br>
+
+Which nounphrase unigrams sourced from body text have changed the most in number of mentions (either becoming more common or less common) over the full period? The results are generally similar to nounphrases sourced from titles.
+
+Compare Figure \@ref(fig:unigrams-nounphrase-body-plot6-part2) to  \@ref(fig:unigrams-all-plot6) and \@ref(fig:unigrams-nounphrase-plot6-part2)
+
+```{r unigrams-nounphrase-body-plot6-part2, fig.height=9, fig.width=9, fig.cap="Unigrams with biggest change in frequency: all years"}
+
+do_top_words_plot(df = d_nounphrases_body %>%
+                    filter(n_words == 1), 
+                  gram = "nounphrase unigrams",
+                  which_plots = 6,
+                  df_source = "bodies")
+
+```
+
+<br>
+
+And last for this data set: \@ref(fig:unigrams-nounphrase-body-plot7-part2) shows the unigrams that have become more common or less common since 2010. ***Huawai*** and ***Comey*** make the list. We also see the variance in yearly mentions of ***Google*** and ***Facebook***.
+
+Compare this figure to Figure \@ref(fig:unigrams-all-plot7) and \@ref(fig:unigrams-nounphrase-plot7-part2)
+
+```{r unigrams-nounphrase-body-plot7-part2, fig.height=9, fig.width=9, fig.cap="Unigrams with biggest change in frequency: 2010+"}
+
+do_top_words_plot(df = d_nounphrases_body %>%
+                    filter(n_words == 1), 
+                  gram = "nounphrase unigrams",
+                  which_plots = 7,
+                  df_source = "bodies")
+
+```
+
+<br>
+
+### Bigrams
+
+The most common bigrams sourced from bodytext nounphrases are shown in \@ref(fig:bigrams-nounphrases-body-part2). Again place-related n-grams dominate the top of the list. This could be due in part to these bigrams being part of email signatures that I imperfectly filtered out. Further down the list we do see n-grams that we otherwise would miss, including ***college board***, ***Fannie Mae***, ***B-2***, ***Kapersky Lab***, ***Ashley Madison***, and ***Homeland Security***.
+
+Compare this figure to Figure \@ref(fig:bigrams-part2) and \@ref(fig:bigram-nounphrases-part2)
+
+```{r bigrams-nounphrases-body-part2, fig.height=9, fig.width=9, fig.cap="Add figure caption here"}
+
+do_top_words_plot(df = d_nounphrases_body %>%
+                    filter(n_words == 2,
+                           issue_year <= 2019), 
+                  gram = "bigrams",
+                  which_plots = 1,
+                  df_source = "bodies"
+                  )
+```
+
+<br>
+
+There is no one "correct" way to collect n-grams from a corpus. Using multiple techniques provides a richer view into the topics that have been addressed in the RISKS Forum.
+
+<br>
+
+# Limitations and other notes
+
+## Limitations
+
+Rankings are sensitive to data cleaning steps and misclassifications. Synonyms and changing terminology, which often overlap for years, reduce the visibility of some topics.
+
+* There is a long tail of possible data corrections, including misspellings in the original, differences in US and British spellings, and sometimes overly blunt regular expressions used to clean the source text. I manually corrected for some where I noticed a word variant showing up in one of the plots; this has the effect of boosting the signal of n-grams that were already rising to the top. I wasn't thorough or completely consistent. Since we are focused on the n-grams that are most common, this long tail need not be resolved along its length for us to have an interesting data set.
+* Preferred terms change, and their use overlaps in time. For example, "cellular phone" and "cellular telephone" gave way to "cell phone" in the US and "mobile phone" most other places. I transformed all of these terms to "mobile phone", so we don't lose this important topic. Another example: "e-voting", "online voting", and "internet voting"; in this case I did not attempt to consolidate them into one term, assuming "vote" or "voting" would rise on its own merits. In contrast, I did transform "fake news" into "fake_news" so we don't lose this important concept in the unigram plots.
+* While I did review and correct `spaCy`'s classification of the most common nounphrases, I could do more to correct  misclassifications, for example, organizations or media misclassified as persons and vice versa. I used `spacyr`, which is is a wrapper for the `spaCy` library. I used the medium-sized English language model (en_core_web_md); see https://spacy.io/models/en#en_core_web_md.
+* In addition to excluding predefined stop words, I removed the following words, because they are not interesting, or (as in the case of "risk", "computer", "system" and "software), they are too common:
+
+```{r uninteresting-words-part2}
+
+tibble(
+  words = sort(uninteresting_words)
+  ) %>%
+  mutate(id = row_number() %/% 6 * 6) %>%
+  group_by(id) %>%
+  mutate(my_string  = glue_collapse(words, sep = ", ", last = "") ) %>%
+  ungroup() %>%
+  distinct(my_string) %>%
+  gt() %>%
+  tab_header(
+    title = '"Uninteresting" words',
+    subtitle = 'Excluded from unigrams and bigrams'
+    ) %>%
+  cols_label(my_string = "")
+
+```
+
+<br>
+
+* Since submissions' body text often includes a signature section at the end, I removed the following names of companies, places, and submitters. I also removed media sources that were commonly mentioned. I am not suggesting the people with the names included below are uninteresting people! Quite the contrary, as frequent contributors to the RISKS Forum, it's necessary to filter out their names so that the topics they write about (rather than their names) rise to the top. Likely I could do more to filter out words in signatures. It's possible that I misclassified some people below as *authors* when in fact they were the *subject* of posts.
+
+```{r uninteresting-places-company-media-peoplenames-part2}
+
+tibble(
+  words = c(sort(companies), sort(places), sort(people), sort(media))
+  ) %>%
+  mutate(id = row_number() %/% 5 * 5) %>%
+  group_by(id) %>%
+  mutate(my_string  = glue_collapse(words, sep = ", ", last = "") ) %>%
+  ungroup() %>%
+  distinct(my_string) %>%
+  gt() %>%
+  tab_header(
+    title = '"Uninteresting" words',
+    subtitle = 'Excluded from unigrams and bigrams'
+    ) %>%
+  cols_label(my_string = "")
+
+```
+
+<br>
+
+* To improve clarity and accuracy in representation, I made other small transformations and corrections not detailed here.
+
+## Acknowledgements
+
+Thousands of people have contributed content to the RISKS Forum over the last 35+ years--no one more than the moderator Peter G. Neumann.
+
+This analysis would have been a lot harder to accomplish without the high quality, free software in the R ecosystem: R itself, RStudio, the packages listed below and their many prerequisite packages. Most of these packages are available through one of the CRAN mirrors; CRAN is an initiative of the [R Project](https://www.r-project.org).
+
+File system, paths and files
+
+* library(here)
+* library(fs)
+* library(openxlsx)
+
+Scraping web pages
+
+* library(rvest)
+* library(xml2)
+
+Data cleaning, manipulation and more
+
+* library(tidyverse)
+* library(lubridate)
+
+Text cleaning and manipulation
+
+* library(janitor)
+* library(stringi)
+* library(pluralize)
+* library(glue)
+
+Textual analysis
+
+* library(spacyr)
+* library(tidytext)
+* library(tidylo)
+
+Visualization
+
+* library(hrbrthemes)
+* library(scales)
+* library(ggrepel)
+* library(ggtext)
+* library(ggridges)
+* library(patchwork)
+* library(gt)
+
+Other
+
+* library(attempt)
+
+---
+
+<br>
+<br>
+
+By Daniel Moul (heydanielmoul via gmail)
+
+![CC-BY](https://i.creativecommons.org/l/by/4.0/88x31.png) This work is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/)

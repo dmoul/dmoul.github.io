@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>3 Limitations and other notes | Through the lens of the RISKS Forum</title>
+  <meta name="description" content="3 Limitations and other notes | Through the lens of the RISKS Forum" />
+  <meta name="generator" content="bookdown 0.21 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="3 Limitations and other notes | Through the lens of the RISKS Forum" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="3 Limitations and other notes | Through the lens of the RISKS Forum" />
+  
+  
+  
+
+<meta name="author" content="Daniel Moul" />
+
+
+<meta name="date" content="2020-11-04" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="part-2-multiple-perspectives.html"/>
+
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/accessible-code-block-0.0.1/empty-anchor.js"></script>
+<link href="libs/anchor-sections-1.0/anchor-sections.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.0/anchor-sections.js"></script>
+
+
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><strong><a href="./">Risks through the lens<br>of the RISKS Forum</a></strong></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="1" data-path="part-1-the-lens.html"><a href="part-1-the-lens.html"><i class="fa fa-check"></i><b>1</b> Part 1: The lens</a><ul>
+<li class="chapter" data-level="1.1" data-path="part-1-the-lens.html"><a href="part-1-the-lens.html#hot-topics-and-perennial-favorites"><i class="fa fa-check"></i><b>1.1</b> Hot topics and perennial favorites</a></li>
+<li class="chapter" data-level="1.2" data-path="part-1-the-lens.html"><a href="part-1-the-lens.html#visualizations-and-discussion"><i class="fa fa-check"></i><b>1.2</b> Visualizations and discussion</a></li>
+<li class="chapter" data-level="1.3" data-path="part-1-the-lens.html"><a href="part-1-the-lens.html#lessons-from-the-risks-forum"><i class="fa fa-check"></i><b>1.3</b> Lessons from the RISKS Forum</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="part-2-multiple-perspectives.html"><a href="part-2-multiple-perspectives.html"><i class="fa fa-check"></i><b>2</b> Part 2: Multiple perspectives</a><ul>
+<li class="chapter" data-level="2.1" data-path="part-2-multiple-perspectives.html"><a href="part-2-multiple-perspectives.html#an-example-car"><i class="fa fa-check"></i><b>2.1</b> An example: “car”</a></li>
+<li class="chapter" data-level="2.2" data-path="part-2-multiple-perspectives.html"><a href="part-2-multiple-perspectives.html#different-perspectives-summary-by-type"><i class="fa fa-check"></i><b>2.2</b> Different perspectives: summary by type</a></li>
+<li class="chapter" data-level="2.3" data-path="part-2-multiple-perspectives.html"><a href="part-2-multiple-perspectives.html#n-grams-from-titles"><i class="fa fa-check"></i><b>2.3</b> N-grams from titles</a><ul>
+<li class="chapter" data-level="2.3.1" data-path="part-2-multiple-perspectives.html"><a href="part-2-multiple-perspectives.html#simple-unigrams"><i class="fa fa-check"></i><b>2.3.1</b> Simple unigrams</a></li>
+<li class="chapter" data-level="2.3.2" data-path="part-2-multiple-perspectives.html"><a href="part-2-multiple-perspectives.html#nounphrase-unigrams"><i class="fa fa-check"></i><b>2.3.2</b> Nounphrase unigrams</a></li>
+<li class="chapter" data-level="2.3.3" data-path="part-2-multiple-perspectives.html"><a href="part-2-multiple-perspectives.html#bigrams-from-titles"><i class="fa fa-check"></i><b>2.3.3</b> Bigrams from titles</a></li>
+</ul></li>
+<li class="chapter" data-level="2.4" data-path="part-2-multiple-perspectives.html"><a href="part-2-multiple-perspectives.html#n-grams-from-body-text"><i class="fa fa-check"></i><b>2.4</b> N-grams from body text</a><ul>
+<li class="chapter" data-level="2.4.1" data-path="part-2-multiple-perspectives.html"><a href="part-2-multiple-perspectives.html#nounphrase-unigrams-1"><i class="fa fa-check"></i><b>2.4.1</b> Nounphrase Unigrams</a></li>
+<li class="chapter" data-level="2.4.2" data-path="part-2-multiple-perspectives.html"><a href="part-2-multiple-perspectives.html#bigrams"><i class="fa fa-check"></i><b>2.4.2</b> Bigrams</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="limitations-and-other-notes.html"><a href="limitations-and-other-notes.html"><i class="fa fa-check"></i><b>3</b> Limitations and other notes</a><ul>
+<li class="chapter" data-level="3.1" data-path="limitations-and-other-notes.html"><a href="limitations-and-other-notes.html#limitations"><i class="fa fa-check"></i><b>3.1</b> Limitations</a></li>
+<li class="chapter" data-level="3.2" data-path="limitations-and-other-notes.html"><a href="limitations-and-other-notes.html#acknowledgements"><i class="fa fa-check"></i><b>3.2</b> Acknowledgements</a></li>
+</ul></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Through the lens of the RISKS Forum</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="limitations-and-other-notes" class="section level1">
+<h1><span class="header-section-number">3</span> Limitations and other notes</h1>
+<div id="limitations" class="section level2">
+<h2><span class="header-section-number">3.1</span> Limitations</h2>
+<p>Rankings are sensitive to data cleaning steps and misclassifications. Synonyms and changing terminology, which often overlap for years, reduce the visibility of some topics.</p>
+<ul>
+<li>There is a long tail of possible data corrections, including misspellings in the original, differences in US and British spellings, and sometimes overly blunt regular expressions used to clean the source text. I manually corrected for some where I noticed a word variant showing up in one of the plots; this has the effect of boosting the signal of n-grams that were already rising to the top. I wasn’t thorough or completely consistent. Since we are focused on the n-grams that are most common, this long tail need not be resolved along its length for us to have an interesting data set.</li>
+<li>Preferred terms change, and their use overlaps in time. For example, “cellular phone” and “cellular telephone” gave way to “cell phone” in the US and “mobile phone” most other places. I transformed all of these terms to “mobile phone”, so we don’t lose this important topic. Another example: “e-voting”, “online voting”, and “internet voting”; in this case I did not attempt to consolidate them into one term, assuming “vote” or “voting” would rise on its own merits. In contrast, I did transform “fake news” into “fake_news” so we don’t lose this important concept in the unigram plots.</li>
+<li>While I did review and correct <code>spaCy</code>’s classification of the most common nounphrases, I could do more to correct misclassifications, for example, organizations or media misclassified as persons and vice versa. I used <code>spacyr</code>, which is is a wrapper for the <code>spaCy</code> library. I used the medium-sized English language model (en_core_web_md); see <a href="https://spacy.io/models/en#en_core_web_md" class="uri">https://spacy.io/models/en#en_core_web_md</a>.</li>
+<li>In addition to excluding predefined stop words, I removed the following words, because they are not interesting, or (as in the case of “risk”, “computer”, “system” and "software), they are too common:</li>
+</ul>
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#cdrhlmgzpb .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#cdrhlmgzpb .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#cdrhlmgzpb .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#cdrhlmgzpb .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#cdrhlmgzpb .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cdrhlmgzpb .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#cdrhlmgzpb .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#cdrhlmgzpb .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#cdrhlmgzpb .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#cdrhlmgzpb .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#cdrhlmgzpb .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#cdrhlmgzpb .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#cdrhlmgzpb .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#cdrhlmgzpb .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#cdrhlmgzpb .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#cdrhlmgzpb .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#cdrhlmgzpb .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#cdrhlmgzpb .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cdrhlmgzpb .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#cdrhlmgzpb .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#cdrhlmgzpb .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#cdrhlmgzpb .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#cdrhlmgzpb .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#cdrhlmgzpb .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#cdrhlmgzpb .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#cdrhlmgzpb .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#cdrhlmgzpb .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#cdrhlmgzpb .gt_left {
+  text-align: left;
+}
+
+#cdrhlmgzpb .gt_center {
+  text-align: center;
+}
+
+#cdrhlmgzpb .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#cdrhlmgzpb .gt_font_normal {
+  font-weight: normal;
+}
+
+#cdrhlmgzpb .gt_font_bold {
+  font-weight: bold;
+}
+
+#cdrhlmgzpb .gt_font_italic {
+  font-style: italic;
+}
+
+#cdrhlmgzpb .gt_super {
+  font-size: 65%;
+}
+
+#cdrhlmgzpb .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="cdrhlmgzpb" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="1" class="gt_heading gt_title gt_font_normal" style>"Uninteresting" words</th>
+    </tr>
+    <tr>
+      <th colspan="1" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>Excluded from unigrams and bigrams</th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_center">can, chapter, chapter eleven, chapter sixteen, chapter twelve</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">computer, computer risk, et al, get, go, include</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">kb, man, may, million, new, re</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">review, risk, risks, say, she, software</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">system, their, them, they, use, via</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">what, who, you</td>
+    </tr>
+  </tbody>
+  
+  
+</table></div>
+<p><br></p>
+<ul>
+<li>Since submissions’ body text often includes a signature section at the end, I removed the following names of companies, places, and submitters. I also removed media sources that were commonly mentioned. I am not suggesting the people with the names included below are uninteresting people! Quite the contrary, as frequent contributors to the RISKS Forum, it’s necessary to filter out their names so that the topics they write about (rather than their names) rise to the top. Likely I could do more to filter out words in signatures. It’s possible that I misclassified some people below as <em>authors</em> when in fact they were the <em>subject</em> of posts.</li>
+</ul>
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#mjeabxchwj .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#mjeabxchwj .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#mjeabxchwj .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#mjeabxchwj .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#mjeabxchwj .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mjeabxchwj .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#mjeabxchwj .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#mjeabxchwj .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#mjeabxchwj .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#mjeabxchwj .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#mjeabxchwj .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#mjeabxchwj .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#mjeabxchwj .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#mjeabxchwj .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#mjeabxchwj .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#mjeabxchwj .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#mjeabxchwj .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#mjeabxchwj .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mjeabxchwj .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#mjeabxchwj .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#mjeabxchwj .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#mjeabxchwj .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#mjeabxchwj .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#mjeabxchwj .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#mjeabxchwj .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#mjeabxchwj .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#mjeabxchwj .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#mjeabxchwj .gt_left {
+  text-align: left;
+}
+
+#mjeabxchwj .gt_center {
+  text-align: center;
+}
+
+#mjeabxchwj .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#mjeabxchwj .gt_font_normal {
+  font-weight: normal;
+}
+
+#mjeabxchwj .gt_font_bold {
+  font-weight: bold;
+}
+
+#mjeabxchwj .gt_font_italic {
+  font-style: italic;
+}
+
+#mjeabxchwj .gt_super {
+  font-size: 65%;
+}
+
+#mjeabxchwj .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="mjeabxchwj" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="1" class="gt_heading gt_title gt_font_normal" style>"Uninteresting" words</th>
+    </tr>
+    <tr>
+      <th colspan="1" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style>Excluded from unigrams and bigrams</th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1"></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr>
+      <td class="gt_row gt_center">computers publishing, georgia institute of technology, ims health holdings, isect ltd. zealand</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">john wiley sons, lexis-nexis, lgs inc., macmillan computer publishing, mcgraw-hill ryerson</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">mgmt consultant, sri international, tech 1, tttech, bath ba1 1px</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">canton st., flight international, manvers stree, north america, west german</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">alan wexelblat, amos shapir, carpenter, catalin cimpanu, charlie osborne</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">dave horsfall, dave kennedy, david, dewayne hendricks, dewayne hendricks</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">don norman, gabe goldberg, gabe goldberg, gene, henry</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">herb lin, jim h., jim horning, john, klaus brunnstein</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">lauren, lucian constantin, mark, melissa, monte</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">monty solomon, monty solomon, nick brown, paul, paul robinson</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">peter, peter ladkin, peter mellor, pgn, pgn - ed</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">pgn-ed, rob, robert dorsett, ross anderson, sean gallagher</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">slade, solomon, ted samson, weinstein, wirchenko</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">ars technica, bbc news, buzzfeed news, cbc news, daythink</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">dejanews, edupage, executive news service, fox news, gawker media</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">idg news service, ieee spectrum, infoword, infoworld, infoworld home</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">internationale medieninformatik, la times, los angeles times, mercury news, mit technology review</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">nbc news, newsscan, newsscan daily, ny times, pc world</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">redmond magazine, risks-forum digest, san francisco chronicle, svenska dagbladet, verge</td>
+    </tr>
+    <tr>
+      <td class="gt_row gt_center">wall street journal, washington post, wsj, zdnet</td>
+    </tr>
+  </tbody>
+  
+  
+</table></div>
+<p><br></p>
+<ul>
+<li>To improve clarity and accuracy in representation, I made other small transformations and corrections not detailed here.</li>
+</ul>
+</div>
+<div id="acknowledgements" class="section level2">
+<h2><span class="header-section-number">3.2</span> Acknowledgements</h2>
+<p>Thousands of people have contributed content to the RISKS Forum over the last 35+ years–no one more than the moderator Peter G. Neumann.</p>
+<p>This analysis would have been a lot harder to accomplish without the high quality, free software in the R ecosystem: R itself, RStudio, the packages listed below and their many prerequisite packages. Most of these packages are available through one of the CRAN mirrors; CRAN is an initiative of the <a href="https://www.r-project.org">R Project</a>.</p>
+<p>File system, paths and files</p>
+<ul>
+<li>library(here)</li>
+<li>library(fs)</li>
+<li>library(openxlsx)</li>
+</ul>
+<p>Scraping web pages</p>
+<ul>
+<li>library(rvest)</li>
+<li>library(xml2)</li>
+</ul>
+<p>Data cleaning, manipulation and more</p>
+<ul>
+<li>library(tidyverse)</li>
+<li>library(lubridate)</li>
+</ul>
+<p>Text cleaning and manipulation</p>
+<ul>
+<li>library(janitor)</li>
+<li>library(stringi)</li>
+<li>library(pluralize)</li>
+<li>library(glue)</li>
+</ul>
+<p>Textual analysis</p>
+<ul>
+<li>library(spacyr)</li>
+<li>library(tidytext)</li>
+<li>library(tidylo)</li>
+</ul>
+<p>Visualization</p>
+<ul>
+<li>library(hrbrthemes)</li>
+<li>library(scales)</li>
+<li>library(ggrepel)</li>
+<li>library(ggtext)</li>
+<li>library(ggridges)</li>
+<li>library(patchwork)</li>
+<li>library(gt)</li>
+</ul>
+<p>Other</p>
+<ul>
+<li>library(attempt)</li>
+</ul>
+<hr />
+<p><br>
+<br></p>
+<p>By Daniel Moul (heydanielmoul via gmail)</p>
+<p><img src="https://i.creativecommons.org/l/by/4.0/88x31.png" alt="CC-BY" /> This work is licensed under a <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a></p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="part-2-multiple-perspectives.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": false,
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+},
+"search": false
+});
+});
+</script>
+
+</body>
+
+</html>
