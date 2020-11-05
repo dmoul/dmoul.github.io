@@ -1,0 +1,269 @@
+---
+title: "Title Word Analysis Preparation"
+subtitle: "Unigrams, bigrams and trigrams"
+author: "Daniel Moul"
+date: "`r Sys.Date()`"
+output:
+  html_document
+
+---
+
+```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
+
+library(here)
+
+source(here("risks-lens/scripts", "risk-analysis-setup.R"))
+
+library(spacyr)
+spacy_initialize(model = "en_core_web_md")
+
+```
+
+<br>
+
+Note that this script assumes the following file exist:
+
+* volume-issue-titles-all.rds
+
+```{r define-ngrams}
+
+d_raw <- read_rds(here(processed_path, "volume-issue-titles-all.rds"))
+
+d <- d_raw %>%
+  mutate(doc_id = as.character(row_number())) %>%
+  select(doc_id, volume, issue, subject, issue_date, entity:entry_count) # use root_subj for analysis
+
+```
+
+```{r define-make-lemma-function}
+make_lemma <- function(df) {
+  # input: data frame with columns we can make `doc_id` and `text` to be parsed
+  # output: data frame with lemmas
+  
+  # test
+  # df <- d
+  
+  d_unigrams_temp1 <- df %>%
+    select(doc_id, text = root_subj) %>%
+    # these changes pre-parsing
+    mutate(text = str_replace_all(text, 
+                                c("san francisco" = "san_francisco",
+                                  "san jose" = "san_jose",
+                                  "new york\\b" = "new_york",
+                                  "fake news" = "fake_news",
+                                  "new zealand" = "new_zealand",
+                                  "year-2000" = "year_2000",
+                                  "year 2000" = "year_2000",
+                                  "\\bu.s[.]?\\b" = "us",
+                                  "\\bu.k[.]?\\b" = "uk",
+                                  "\\bu.n[.]?\\b" = "un"
+                                  )
+                                ) 
+           ) %>%
+    spacy_parse(lemma = TRUE, entity = TRUE, nounphrase = TRUE, tag = TRUE) %>%
+    # these changes post-parsing
+    mutate(lemma = singularize(lemma)) %>% 
+    anti_join(get_stopwords(), by = c("lemma" = "word"))
+  
+  d_unigrams_temp2 <- d_unigrams_temp1 %>%
+    # more changes post-parsing
+    filter(str_length(lemma) >= min_ngram_char,
+           !lemma %in% uninteresting_words,
+           !lemma %in% c("-PRON-"),
+           # exclude those starting with a number unless it's a common Boeing plane
+           str_detect(lemma, "[a-z]|747|787|737|767") 
+    ) %>%
+  # make some repairs
+    left_join(.,
+              parsing_corrections_lemma,
+              by = c("lemma" = "token")) %>%
+    mutate(lemma = coalesce(fixed_word, lemma)) %>%
+    select(-fixed_word) %>%
+    left_join(.,
+              df %>% select(doc_id, volume, issue, subject, issue_date),
+              by = "doc_id")
+  
+}
+
+```
+
+
+```{r define-unigrams-function}
+make_unigrams <- function(df, gram_filter = "all") {
+  # input: df with lemmas created by make_lemma()
+  # output: df filtered by gram_filter
+  
+  # test
+  # df <- d_lemma
+  # gram_filter <- "basic"
+  # gram_filter <- "places" # norp = nationality or religious or political groups
+  # gram_filter <- "all"
+  
+  if (!gram_filter %in% c("basic", "places")) {
+    gram_filter <- "all"
+  }
+  
+  d_unigrams_temp1 <- df %>%
+    filter(case_when(
+      gram_filter == "basic"    ~ pos == "NOUN" & entity == "",
+      gram_filter == "places"   ~ str_detect(entity, "GPE") | str_detect(entity, "LOC") | str_detect(entity, "NORP"),
+      gram_filter == "all"      ~ TRUE,
+      TRUE                      ~ TRUE
+    )) 
+  
+  n_unigrams <- d_unigrams_temp1  %>%
+    count(lemma, sort = TRUE)
+  
+  d_unigrams_temp2 <- inner_join(d_unigrams_temp1,
+                                 n_unigrams,
+                                 by = "lemma")
+  
+  d_unigrams_temp2 %>%
+    write_rds(here(processed_path,
+                   paste0('unigrams-', gram_filter, '.rds')
+                   )
+    )
+  
+  d_unigrams_temp2
+}
+```
+
+
+```{r define-bigrams-function}
+
+make_bigrams <- function(df) {
+  # input: df with text to be parsed into bigrams
+  # output: df filtered by gram_filter
+  # NOTE: uses the same input as make_lemma() ... not the output of d_lemma like make_unigram()
+  
+  # test
+  # df <- d
+  
+  d_bigrams_temp1 <- df %>%
+    # this parser assumes hyphens are word boundaries, so remove them in plane designations
+    mutate(
+      root_subj = str_replace_all(root_subj, c("\\bf[-]" = "f", # for fighter planes
+                                               "\\bb[-]" = "b", # for bomber planes
+                                               "\\ba[-]" = "a", # for attack planes
+                                               "\\bu[-]2" = "u2", # for recon planes
+                                               "\\bx[-]" = "x", # for experimental planes (with collateral damage)
+                                               "'s\\b" = "", " s\\b" = "")
+      )
+    ) %>%
+    unnest_tokens(bigram, root_subj, format = "text", token = "ngrams", n = 2) %>%
+    mutate(bigram = str_replace_all(bigram, c("'s\\b" = "", " s\\b" = "")
+    )
+    ) %>%
+    na.omit() %>%
+    # get rid of bigrams with common "stop words"
+    # using pattern found at https://www.tidytextmining.com/ngrams.html#counting-and-filtering-n-grams
+    separate(bigram, c("word1", "word2"), sep = " ") %>%
+    filter(!word1 %in% stop_words$word) %>%
+    filter(!word2 %in% stop_words$word) %>%
+    # get rid of '_' at beginning or end of word (but not in the middle!)
+    mutate(
+      # convert second word plurals to singulars
+      word2 = singularize(word2)
+    ) %>%
+    left_join(.,
+              parsing_corrections_lemma,
+              by = c("word2" = "token")) %>%
+    mutate(word2 = coalesce(fixed_word, word2)) %>%
+    unite(bigram, word1, word2, sep = " ") %>%
+    select(-fixed_word)
+  
+  d_bigrams_temp2 <- d_bigrams_temp1 %>%
+    left_join(.,
+              parsing_corrections_2gram,
+              by = "entity") %>%
+    mutate(bigram = coalesce(fixed_word, bigram),
+           ngram = bigram,
+           n_words = as.integer(stri_count_words(ngram))
+           ) %>%
+    select(-fixed_word, -bigram)
+  
+  n_bigrams <- d_bigrams_temp2 %>%
+    count(ngram, sort = TRUE)
+  
+  bi_g <- inner_join(d_bigrams_temp2,
+                     n_bigrams,
+                     by = "ngram") %>%
+    arrange(volume, issue, subject) 
+  
+  write_rds(bi_g, here(processed_path, "bigrams.rds"))
+  
+  bi_g
+  
+}
+
+```
+
+```{r define-nounphrases-function}
+# https://spacy.io/api/textcategorizer#architectures
+# using nounphrases
+
+make_nounphrases <- function(df) {
+  # input: df with lemmas created by make_lemma()
+  # output: df filtered by gram_filter
+  
+  # test
+  # df <- d_lemma
+  
+  d_nounphrases_temp  <- entity_extract(df, concatenator = " ") %>%
+    rename(ngram = entity) %>%
+    filter(str_length(ngram) >= min_ngram_char) %>%
+    # fix unigrams
+    left_join(.,
+              bind_rows(parsing_corrections_lemma, parsing_corrections_2gram),
+              by = c("ngram" = "token")) %>%
+    mutate(ngram = coalesce(fixed_word, ngram)) %>%
+    select(-fixed_word) %>%
+    mutate(n_words = as.integer(stri_count_words(ngram)))
+  
+  n_nounphrases <- d_nounphrases_temp %>%
+    count(ngram, sort = TRUE)
+  
+  d_n <- inner_join(d_nounphrases_temp,
+                    n_nounphrases,
+                    by = "ngram") %>%
+    inner_join(.,
+               d %>% select(doc_id:issue_date),
+               by = "doc_id")
+  
+  write_rds(d_n, here(processed_path, "nounphrases.rds"))
+  
+  d_n
+  
+}
+
+
+
+```
+
+```{r make-ngram-data-files}
+
+d_lemma <- make_lemma(d)
+
+# this also saves each as a .rds file
+
+# unigrams
+d_places <- make_unigrams(d_lemma, "places")
+d_basic <- make_unigrams(d_lemma, "basic")
+d_all <- make_unigrams(d_lemma, "all")
+
+d_bigram <- make_bigrams(d) # NOTE: use d not d_lemma
+
+d_nounphrases <- make_nounphrases(d_lemma)
+
+spacy_finalize()
+
+```
+
+<br>
+
+Unigrams, bigrams, and nonphrase rds files created in `r here(processed_path)`
+
+<br>
+<br>
+
+(end of document)

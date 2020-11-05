@@ -1,0 +1,354 @@
+---
+title: "RISKS Digest Body Word Analysis Preparation"
+author: "Daniel Moul"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r echo=FALSE, warning=TRUE, message=TRUE}
+
+library(here)
+
+source(here("risks-lens/scripts", "risk-analysis-setup.R"))
+
+library(spacyr)
+spacy_initialize(model = "en_core_web_md")
+
+```
+
+```{r load-existing-dfs}
+
+d_volumes_issues_titles <- read_rds(here(processed_path, "volume-issue-titles-all.rds")) %>%
+  mutate(url = paste0('https://catless.ncl.ac.uk/', subj_href))
+
+d_issue_detail <- read_rds(here(processed_path, "issue-detail.rds")) %>%
+  # TODO: move this to before we save each issue's .rds file
+  mutate_if(#is.character, ~map_chr(.x, iconv, "UTF-8", "UTF-8", sub='')
+    is.character, ~map_chr(.x, stringi::stri_enc_toutf8) # ensure we have good UTF-8
+  ) %>%
+  # the following is needed for analysis
+  mutate(issue_year = as.integer(year(date)),
+         decade = paste0(as.character(issue_year %/% 10 * 10), "s"),
+         doc_id = as.character(row_number()),
+  ) %>%
+  mutate(detail = str_replace_all(detail, c("[[:space:]] +" = " ")), # this avoids RStudio aborting in spacy_parse()
+         detail = str_squish(detail)
+  )
+
+```
+
+```{r define-detail-summary}
+# let's see what we've collected
+
+d_summary <- d_issue_detail %>%
+  mutate(n_words_title = stri_count_words(title),
+         n_words_body = stri_count_words(detail),
+         n_char_title = str_count(title, "."),
+         n_char_body = str_count(detail, "."),
+         char_word_body = n_char_body / n_words_body
+         ) %>%
+  select(volume, issue, date, decade, starts_with("n_"))
+
+d_summary_total <- d_summary %>%
+  pivot_longer(cols = starts_with("n_"), names_to = "metric", values_to = "value") %>%
+  group_by(metric) %>%
+  summarize(total = sum(value, na.rm = TRUE)) %>%
+  ungroup()
+
+d_summary_total <- d_summary %>%
+  summarize(across(starts_with("n_"), 
+                   sum, na.rm = TRUE
+                   )
+            )
+
+```
+
+TODO:
+
+* reduce number of detail entries that are NA
+* remove duplicated rows where there are multiple authors
+* add number of posts below
+
+The posts include `r comma(d_summary_total$n_words_title)` words (`r comma(d_summary_total$n_char_title)` characters) in titles and `r comma(d_summary_total$n_words_body)` words (`r comma(d_summary_total$n_char_body)` characters) in the body of the posts.
+
+<br>
+
+```{r define-detail-histograms}
+data_for_plot <- d_summary %>%
+  filter(n_words_body > 0, 
+         n_words_title > 0, 
+         year(date) >= 1985,   # shouldn't be any earlier, but there are
+         date <= today()) %>%  # shouldn't be any greater, but may be
+  pivot_longer(cols = starts_with("n_"), names_to = "metric", values_to = "value") %>%
+  na.omit() %>%
+  mutate(metric = factor(metric, 
+                         levels = c("n_char_title", "n_words_title", "n_char_body", "n_words_body"))
+         )
+
+medians_for_plot <- data_for_plot %>%
+  group_by(metric, decade) %>%
+  summarize(across(starts_with("value"), 
+                   ~median(.x, na.rm = TRUE))
+            ) %>%
+  ungroup()
+```
+
+```{r plot-detail-histograms, fig.height=8}
+data_for_plot %>%
+  ggplot(aes(value)) +
+  geom_histogram(bins = 25, fill = "steelblue", alpha = 0.6) + 
+  geom_vline(data = medians_for_plot, 
+             aes(xintercept = value),
+             color = "tomato", alpha = 0.8) +
+  scale_y_log10(labels = label_number_si()) +
+  scale_x_log10(labels = label_number_si()) +
+  facet_grid(decade ~ metric, scales = "free") +
+  labs(
+    title = "RISKS Digest: size of submissions",
+    subtitle = glue("from issue detail pages; lines are medians",
+                    "\npublished between {min(data_for_plot$date)} and {max(data_for_plot$date)}"),
+    x = "value (log10 scale)",
+    y = "count (log10 scale)",
+    caption = my_caption
+  )
+
+```
+
+Titles have gotten longer, and posts have gotten shorter.
+
+<br>
+
+```{r make-lemma-function}
+make_lemma <- function(df, vol_start, vol_stop) {
+  
+  # test
+  # df <- issue_detail_subset
+  # vol_start <- 9
+  # vol_stop <- 9
+  
+  df %>%
+    filter(volume >= vol_start & volume <= vol_stop,
+           !is.na(detail)) %>%
+    distinct(detail, .keep_all = TRUE) %>%
+    select(doc_id, text = detail) %>%
+    spacy_parse(., lemma = TRUE, entity = TRUE, nounphrase = TRUE,
+                additional_attributes = c("like_url", "like_email", "like_num", "is_stop")) %>%
+    mutate(lemma = case_when(
+      lemma == "datum"         ~ "data",
+      TRUE                     ~ lemma
+    )
+    ) %>%
+    left_join(.,
+              df %>% select(doc_id, volume, issue, issue_date = date),
+              by = "doc_id")
+
+}
+
+
+```
+
+```{r make-bodylemma-function}
+make_bodylemma <- function(df) {
+  # input: df with lemmas created in make_lemma()
+  
+  body_lemma <- df %>%
+    filter(!(is_stop & nounphrase == "")) %>%
+    mutate(lemma = ifelse(is_stop & !str_detect(entity, "^GPE"),
+                           " ",
+                           lemma)
+    ) %>%
+    mutate(
+      lemma = tolower(lemma), # TODO: tell spaCy to make them lower case?
+      lemma = str_replace_all(lemma, 
+                              c("-PRON-" = " ", "(?i)-or-" = " ",
+                                "(-){2,99}" = "", "_" = " ",
+                                "[`~!@#%^*+=:;/?|<>]+" = " ", " & " = " ",
+                                "\\(" = " ", "\\)" = "", "\\{" = " ", "\\}" = " ", "\\[" = " ", "\\]" = " ",
+                                "—" = " ", "[ ]?- " = "", " -[ ]?" = "", "-[a-zAz0-9]+" = "",
+                                "^," = "", "^\\.+" = " ", '"' = " ", " , " = " ", " ," = " ",
+                                "^[ ]?+'" = " ", "'$[ ]?+" = " ", " '[ ]?" = " ", "[ ]'?]" = " ",
+                                "\\bthe\\b" = " ")
+      ),
+      lemma = str_squish(lemma) # TODO: may need to wait till later if single " " are replaced with "" to avoid run-ons
+    )
+  
+  n_body_lemma <- body_lemma %>%
+    count(lemma, sort = TRUE)
+  
+  d_body_lemma <- left_join(body_lemma,
+                             n_body_lemma, 
+                             by = "lemma")
+
+  d_body_lemma
+  
+}
+
+```
+
+```{r define-make-nounphrases-function}
+make_nounphrases <- function(df) {
+  # input: df with lemmas created in make_lemma()
+  
+  # test
+  # df <- d_lemma
+  # vol_start <- 10
+  # vol_stop <- 10
+  
+  body <- df %>%
+    mutate(token = tolower(token)) # TODO: tell spaCy to make tokens lower case
+  
+  d_nounphrases_temp <- body %>%
+    entity_extract(., concatenator = " ") %>%
+    # mutate(n_words = stri_count_words(entity))
+    # note: above hasn't had stopwords removed
+    # some clean-up (e.g, "it 's")
+    mutate(entity = str_replace_all(entity, c("[*\`'—]+" = " ",
+                                              "\\(" = " ",  "\\)" = " ",
+                                              '"' = " ", "\\[" = " ", "\\]" = " ",
+                                              " :[ ]?" = " ", "[ ]?: " = " ",
+                                              " ,[ ]?]" = " ", "[ ]?, " = " ", 
+                                              "<" = " ", ">" = " ",
+                                              " \\." = ".", 
+                                              "it 's" = "it's", " 's" = " ", " s\\b" = " ")
+                                    ),
+    entity = str_replace_all(entity, c("\\bu\\.?s\\.?a\\.?\\b" = "usa", "\\bu\\.?s\\.?\\b" = "us",
+                                       "\\bus\\." = "us",
+                                       "\\bu.k\\.?\\b" = "uk", "_" = " ",
+                                       #"747 [-] 400" = "747-400",
+                                        " - " = "-",
+                                       "americans" = "american",
+                                       "soviets" = "soviet",
+                                       "^a " = "", "^the " = "",
+                                       "risks-[0-9]+(.[0-9]+)?" = ""
+                                       )
+                             ),
+    entity = str_squish(entity)
+    ) %>%
+    filter(str_length(entity) > min_ngram_char) %>%
+    mutate(n_words = stri_count_words(entity))
+  
+  n_nounphrase <- d_nounphrases_temp %>%
+    count(entity, sort = TRUE)
+  
+  left_join(d_nounphrases_temp,
+            n_nounphrase, 
+            by = "entity") %>%
+    rename(ngram = entity) %>%
+    left_join(.,
+              df %>% 
+                select(doc_id, volume, issue, issue_date) %>% 
+                distinct(doc_id, volume, issue, issue_date),
+              by = "doc_id")
+  
+}
+
+```
+
+```{r define-write-bodytext-function}
+write_bodytext <- function(df, my_path) {
+  # input: data frame of grams
+  # side effect: saved .rds file for each volume
+  
+  # each volume in its own .rds file
+  # thus I need to process whole volumes at once (or parts will be overwritten)
+  # Note: will later will need to consolidate them
+  
+  # test
+  # df <- d_bodylemma
+  # my_path <- processed_path_issuebodylemma
+  
+  for (i in sort(unique(df$volume))) {
+    my_pathname <- here(my_path, 
+                        paste0("vol-",  str_pad(i, width = 2, side = "left", pad = "0"), "-bodytext.rds")
+                        ) %>%
+                  str_replace_all(., "//", "/") # correct potential error
+    message("writing body detail for volume ", i, " at ", my_pathname)
+    filter(df, volume == i) %>%
+      write_rds(., my_pathname)
+  }
+}
+
+```
+
+```{r do-the-main-work}
+
+volume_start <- 1L
+volume_stop <- 32L
+
+issue_detail_subset <- d_issue_detail %>%
+  filter(volume >= volume_start & volume <= volume_stop,
+         !is.na(detail)) %>%
+  distinct(detail, .keep_all = TRUE)
+
+# test
+# i <- 9
+
+for (i in volume_start:volume_stop) {
+  d_lemma <- make_lemma(issue_detail_subset, vol_start = i, vol_stop = i)
+  d_nounphrases <- make_nounphrases(d_lemma)
+  write_bodytext(d_nounphrases, cachedata_issuebodynounphrase_path)
+  d_bodylemma <- make_bodylemma(d_lemma)
+  write_bodytext(d_bodylemma, cachedata_issuebodylemma_path)
+}
+
+# Free up a lot of RAM used by the python process running spacy
+spacy_finalize()
+
+```
+
+```{r write-all-bodynounphrases}
+# get everything we have collected thus far
+
+all_files <- tibble(datafile = fs::dir_ls(path = here(cachedata_issuebodynounphrase_path), 
+                                          glob = "*.rds", type = "file")) %>%
+  arrange(datafile) %>%
+  pull(datafile)
+
+d <- purrr::map_dfr(all_files, read_rds)
+# hmm 263M rows. What went wrong?
+
+n_tokens <- d %>%
+  arrange(ngram) %>%
+  distinct(ngram, .keep_all = TRUE) %>%
+  count(ngram, wt = n)
+
+d_total <- left_join(d %>% select(-n),
+                     n_tokens, 
+                     by = "ngram")
+
+write_rds(d_total, here(processed_path, "body-nounphrases.rds"), compress = "gz")
+write.xlsx(d_total, here(processed_path, "body-nounphrases.xlsx"))
+
+```
+
+```{r write-all-bodylemma}
+# get everything we have collected thus far
+
+all_files <- tibble(datafile = fs::dir_ls(path = here(cachedata_issuebodylemma_path), 
+                                          glob = "*.rds", type = "file")) %>%
+  arrange(datafile) %>%
+  pull(datafile)
+
+d <- purrr::map_dfr(all_files, read_rds) %>%
+  filter(lemma != "") %>%
+  anti_join(.,
+            tidytext::stop_words, 
+            by = c("lemma" = "word")
+  )
+  
+
+n_lemma <- d %>%
+  count(lemma)
+
+d_total <- left_join(d %>% select(-n),
+                     n_lemma, 
+                     by = "lemma")
+
+write_rds(d_total, here(processed_path, "body-lemmas.rds"), compress = "gz")
+# perhaps 3.9M rows is too big for write.xlsx()?
+# Error in zip_internal(zipfile, files, recurse, compression_level, append = FALSE,  : 
+#   Some files do not exist
+# write.xlsx(d_total, paste0(processed_path, "body-lemmas.xlsx"))
+
+```
+

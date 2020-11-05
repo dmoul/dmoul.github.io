@@ -1,0 +1,396 @@
+---
+title: "RISKS Digest Issue Detail Preparation"
+author: "Daniel Moul"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+library(here)
+
+source(here("risks-lens/scripts", "risk-analysis-setup.R"))
+
+```
+<br>
+
+Note that this notebook assumes the following file exist:
+
+* volume-issue-titles-all.rds
+
+And it creates the following:
+
+* a cached html file for each issue in `r cachepages_path`
+* a file for each issue in `r cachedata_issue_path`
+* a combined `r paste0(processed_path, "issue-detail.rds")`
+
+
+```{r prepare-issue-urls}
+
+d_volume_issue_titles <- read_rds(here(processed_path, "volume-issue-titles-all.rds")) %>%
+  mutate(url = paste0('https://catless.ncl.ac.uk/', subj_href))
+
+```
+
+```{r define-make-issue-df-function, eval=TRUE}
+make_issue_df <-function(p, url) {
+  # Take a rvest::html_page object for an issue and get the issue's subject details in one go. 
+  # NOTE: This will create duplicate rows for subjects that have multiple authors listed.
+  
+  ###### Function definitions ######
+  
+  make_safe_df <- function(vectors) {
+    # need to ensure each vector is the same length before binding them
+    # I do a a "dumb fill" to make all vectors the same length
+    # TODO: could  make it smarter so that we can be confident authors are on the right rows in all cases
+    
+    # input: a list of vectors, potentially of differing length
+    # output: a tibble df with (at this time) no guarantee that the per-row affinity of 
+    #            the column variables is completely accurate
+    
+    if(length(vectors) == 0) {
+      stop("make_safe_df: input is empty")
+    } else {
+      my_vecs <- map_df(lapply(vectors, compact), # get rid of NULL and "" elements, 
+                        length) %>% 
+        tibble() %>%
+        pivot_longer(cols = everything(), names_to = "vec", values_to = "n") %>%
+        mutate(rowid = row_number())
+    }
+    
+    if(!all(my_vecs$n == 1)) {
+      # we need to add filler somewhere; at least one vector is shorter
+      diff_lengths <- max(my_vecs$n) - my_vecs$n
+      for (i in 1:length(diff_lengths)) {
+        if (diff_lengths[i] > 0) { # there is a difference; we need to append at least one element
+          for (j in seq(1, diff_lengths[[i]])) {# some may need to multiple appends
+            vectors[[ my_vecs[[i , 1]] ]] <- 
+              c(vectors[[ my_vecs[[i , 1]] ]], NA_character_) 
+        }
+        }
+      }
+    }
+  tibble(as.data.frame(vectors))
+  }
+  
+  check_string_includes_month_abbreviation <- function(s) {
+    any(str_detect(tolower(s), tolower(month.abb)))
+  }
+  
+  parse_my_date <- function(my_date) {
+    if(str_detect(my_date, "^[0-9]")) {
+      dmy(str_extract(my_date, "^[0-9]+ (?i)[a-z]+ [0-9]+"), truncated = 3) # in form dmy
+    } else if(str_detect(my_date, "^(?i)[a-z]+")) {
+      mdy(str_extract(my_date, "^(?i)[a-z]+ [0-9]+ [0-9]+"), truncated = 3)
+    } else {
+      # unknown format
+      NA_real_
+    }
+  }
+  
+  clean_email <- function(email_string) {
+    # email IDs are not consistently expressed. Many are in the from first name <email@host.com>
+    # but some lack "first name" and some lack angle brackets around email
+    # and some have datetime info appended
+    
+    # test
+    # email_string <- "<Theta Eta <theta@eta.gamma.bc.ca>>"
+    
+    # if (str_length(email_string) > 1) {
+    if (!is.na(email_string)) {
+      # get rid of extra "<" and ">" surrounding entire string
+      if (str_detect(email_string, "^<") & str_detect(email_string, ">$")) {
+      email_string <- str_remove(email_string, "^<")
+      email_string <- str_remove(email_string, ">$")
+      }
+      if (str_detect(email_string, ">")) {
+        # get email between < and >
+        email_string <- str_extract(email_string, ".*>")
+        if(str_count(">") > str_count("<")) {
+          email_string <- str_remove(email_string, ">$")
+        }
+      } 
+      else { 
+        # no brackets, so let's work with "@"
+        if (str_detect(email_string, "@")) {
+          email_string <- str_extract(email_string, "[^<[:space:]]+@[^[:space:]]+[^> ]")
+        }
+        else {
+          # no email address; append a placeholder so later separate() does the right thing
+          # TODO: is this really necessary? This function shouldn't know about future processing steps
+          email_string <- paste0(email_string, " <>")
+        }
+      }
+    } else {
+      email_string <- NA_character_
+    }
+    
+    email_string
+    
+  }
+
+  extract_name <- function(my_string, email) {
+    # input: string with name and email address plus email already extracted
+    # output: string with person's name if available
+    
+    # test
+    # my_string <- '"Alpha Beta" <AA.BBB@Gamma.Stanford.EDU>'
+    # email <- "AA.BBB@Gamma.Stanford.EDU"
+    
+    if (!is.na(my_string) & my_string != "") {
+      if (is.na(email)) {
+        email <- ""
+      }
+      my_name = str_remove_all(my_string, c('"' = ""))
+      # it's too much work to create a "safe" regex; I'll accept some potential collateral damage
+      # my_name = str_remove(my_name, make_safe_email(email))
+      # TODO:
+      #  filter out any words containing numbers
+      #  filter out any characters after and including a comma
+      my_name = str_extract(my_name, "(?i)[[a-z][._'][-][ ]]+") # TODO: filter out any words containing number
+      my_name = str_remove(my_name, "<.+")
+      # my_name = str_remove(my_name, "<$")
+      my_name = str_squish(my_name)
+    }
+    else {
+      my_name = ""
+    }
+  }
+  
+  ###### End of function definitions ######
+  
+  #test
+  # url <- url_list[[1]]
+  # url <- 'https://catless.ncl.ac.uk//Risks/29/75'
+  # url <- 'https://catless.ncl.ac.uk//Risks/08/31'
+  # url <- "./data/pagecache/v02i28.html"
+  # p <- read_html(url)
+
+  # make sure we have good UTF-8
+  # p <- iconv(p, "UTF-8", "UTF-8", sub='')
+  
+  # keep this it works (but doesn't handle a missing address or date)
+  subj_title =  p %>% html_nodes("body h3") %>% html_text(trim = TRUE)
+  # author has potential to be more accurate than that scraped from issue index subject titles
+  subj_author = p %>% html_nodes("body address") %>% html_text(trim = TRUE)
+  subj_date_temp = p %>% html_nodes("body i") %>% html_text(trim = TRUE)
+  # this is the body text of the submission--the payload
+  subj_detail = p %>% html_nodes("body pre") %>% html_text(trim = TRUE)
+  
+  subj_date <- tibble(subj_date = subj_date_temp) %>%
+    filter(subj_date != "") %>%
+    filter(!str_detect(subj_date, "^ACM")) %>% # drop header
+    # double-check this has a date (may not be needed)
+    filter(map_lgl(subj_date, check_string_includes_month_abbreviation)) %>% 
+    mutate(subj_date = str_remove(subj_date, "^[A-Za-z]+[,]? "),
+           subj_date = str_remove(subj_date, "\\(")) %>%
+    #filter(str_detect(subj_date, "^[0-9]")) %>% # starts with day of month
+    mutate(subj_date = as.Date(map_dbl(subj_date, parse_my_date), origin = "1970-01-01")
+    ) %>%
+    pull(subj_date)
+  
+  ## Maybe I don't really need these in one df with alignment of all four parts. ????
+  ##  I could still do the following:
+  ##  * all analysis of the body text
+  ##  * harvest author names and emails (but not associate them to topics in the titles or body text)
+  ##  * I could replace the detailed submission dates with the issue date or 
+  ##     do a "dumb" fill of any missing dates to get an closer approximation
+  ##  * If I do the above, I could look topics over time.
+  ## The above musings are implemented in make_safe_df()
+  
+  d <- make_safe_df(
+    list(
+      title = subj_title[4:length(subj_title)], # drop 3 header elements
+      author = subj_author,
+      date = subj_date,
+      detail = subj_detail
+    )
+  ) %>%
+    mutate(author = str_replace(author ,"[ ]?@[ ]?", "@")) %>%
+    mutate(cleaned_email = map_chr(author, clean_email)) %>%
+    mutate(person_name  = map2_chr(author, cleaned_email, extract_name)) %>%
+    mutate(volume_issue_temp = str_extract(url, "[0-9]+/[0-9]+"))%>%
+    separate(volume_issue_temp, into = c("volume", "issue")) %>%
+    mutate(volume = as.integer(volume), # do we really want these?
+           issue = as.integer(issue),
+           # TODO: rework to account for duplicate rows when there are multiple authors
+    ) %>%
+    # now provide cleaned_title column for use later in fuzzy joining tables
+    mutate(cleaned_title = tolower(title),
+           # TODO: ensure the following includes the same transformation to 
+           # create subj_text in volume-issue-titles-prep.Rmd
+           cleaned_title = str_remove_all(cleaned_title, c('"' = "", "," = "", "\\.{3}" = "",
+                                                           ":" = "", "\\?" = "")
+                                          )
+    ) %>%
+    mutate(detail = str_replace_all(detail, c("[[:space:]]+" = " ")), # this avoids RStudio aborting in spacy_parse()
+           detail = str_squish(detail)
+    )
+  
+  d
+  
+  # test
+  # d %>%
+  #   gt()
+  
+}
+  
+```
+
+```{r define-make-fname-issue-function}
+## Create name for issue's .html or .rds file (other file extensions possible too)
+
+make_fname_issue <- function(u, fn_ext) {
+  #assume issue URL of the form https://catless.ncl.ac.uk/Risks/30/01 where 30 is the volume and 01 is the issue
+  
+  # test
+  # u <- 'https://catless.ncl.ac.uk/Risks/8/2'
+  # fn_ext <- ".rds"
+  
+  volume <- str_pad(str_extract(u, "[0-9]+"),
+                    width = 2, side = "left", pad = "0")
+  isssue <- str_pad(str_extract(u, "[0-9]+$"),
+                    width = 2, side = "left", pad = "0")
+  if(fn_ext == ".html") {
+    here(cachepages_path, 
+         paste0("v", volume, "i", isssue, fn_ext)
+         )
+  } 
+  else {
+    here(cachedata_issue_path, 
+         paste0("v", volume, "i", isssue, fn_ext)
+    )
+  }
+}
+
+# test
+# u <- 'https://catless.ncl.ac.uk/Risks/20/11/index'
+# fn_ext <- ".rds"
+# fn_ext <- ".html"
+# xx <- make_fname_issue(u, fn_ext)
+
+get_my_page <- function(url) {
+  # test
+  #url <- my_url
+  
+  my_fname_html <- make_fname_issue(url, ".html")
+  my_fname_rds <- make_fname_issue(url, ".rds")
+  # message("my_fname_rds = ", my_fname_rds)
+  
+  if(!file_exists(my_fname_rds)) {
+    if(file_exists(my_fname_html)) {
+      message(my_fname_rds, " does NOT exist\n  but ", my_fname_html,
+                     " DOES exist, \n  so reading ", my_fname_html)
+      p <- read_html(my_fname_html)
+      # create processed df from page
+      df <- make_issue_df(p, url)
+      write_rds(df, my_fname_rds)
+    } 
+    else {
+      message(my_fname_rds, " and\n  ", my_fname_html, " DO NOT exist,\n  so reading ", url)
+      p <- read_html(url)
+      write_html(p, my_fname_html) # save it in page_cache
+      df <- make_issue_df(p, url)
+      write_rds(df, my_fname_rds)
+      # Since we read a page, wait a bit to be kind to the web server
+      Sys.sleep(rnorm(n = 1, mean = 2, sd = 0.5)) 
+    }
+  }
+  
+  # even though we have df if we had to create my_fname_rds, let's re-read my_fname_rds
+  message("Reading ", my_fname_rds)
+  read_rds(my_fname_rds) # return the df
+}
+
+# test
+# my_url <- 'https://catless.ncl.ac.uk/Risks/21/22'
+# my_url <- paste0('https://catless.ncl.ac.uk/Risks/20/', 80:98)
+# my_df <- get_my_page(my_url)
+
+```
+
+# Get issue details
+
+```{r get-issue-pages, eval=TRUE}
+
+# test
+# a sample of issues
+# url_list <- d_volume_issue_titles %>%
+#   sample_n(., size = 2, replace = FALSE) %>%
+#   pull(url)
+
+# or all issues in one volume
+# url_list <- d_volume_issue_titles %>%
+#   filter(volume == 19) %>% #limit the volume to limit going against server until sure it's right
+#   pull(url)
+
+# or or or more issues
+# url_list <- paste0('https://catless.ncl.ac.uk/Risks/20/', 80:98)
+# url_list <- paste0('https://catless.ncl.ac.uk/Risks/22/',
+#                    str_pad("13", width = 2, side = "left", pad = "0"))
+
+# volume_start <- 32L
+# volume_stop <- 32L
+
+current_volume_working_set <- volume_start:volume_stop
+
+url_list <- d_volume_issue_titles %>%
+  filter(volume %in% current_volume_working_set) %>%
+  mutate(url_working = str_extract(url, ".+#"),
+         url_working = str_remove(url_working, "#")
+         ) %>%
+  distinct(url_working) %>%
+  mutate(url_working = map_chr(url_working, pad_risk_urls)) %>%
+  pull(url_working)
+
+#url_list <- 'https://catless.ncl.ac.uk/Risks/8/2'
+
+all_data <- map_dfr(url_list, get_my_page) 
+
+# saving each volume in its own .rds file
+for (i in sort(unique(all_data$volume))) {
+  message("writing issue detail for volume ", i)
+  filter(all_data, volume == i) %>%
+    write_rds(., here(cachedata_issue_path, 
+                      paste0("vol-", str_pad(i, width = 2, side = "left", pad = "0"), 
+                             "-issue-detail.rds")
+                      )
+    )
+}
+
+# test
+# xx <- read_rds("./data/processed/issue/v30i98.rds")
+
+```
+
+```{r get-all-issue-details}
+# get everything we have collected thus far
+
+all_files <- tibble(datafile = fs::dir_ls(path = here(cachedata_issue_path), glob = "*.rds", type = "file")) %>%
+  filter(str_detect(datafile, "/vol-[0-9][0-9]?-issue-detail.rds")) %>%
+  arrange(datafile) %>%
+  pull(datafile)
+
+d <- purrr::map_dfr(all_files, read_rds) %>%
+  fill(date, .direction = "downup")
+  # minor cleanup
+  # cleaned_email missed a bunch of things
+  # TODO: would be better to do these before saving individual issues
+  # (add here)
+
+write_rds(d, here(processed_path, 
+                  paste0("issue-detail.rds")
+                  ), 
+          compress = "gz")
+write.xlsx(d, here(processed_path, 
+                   paste0("issue-detail.xlsx")
+                   )
+           )
+
+```
+
+<br>
+
+Created here(processed_path, paste0("issue-detail.rds"))
+
+Created here(processed_path, paste0("issue-detail.xlsx"))

@@ -5,7 +5,7 @@
 
 ```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
 
-source(here::here("scripts", "risk-analysis-setup.R"))
+source(here::here("risks-lens/scripts", "risk-analysis-setup.R"))
 
 ```
 

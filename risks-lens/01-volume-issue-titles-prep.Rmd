@@ -1,0 +1,445 @@
+---
+title: "RISKS Digest Volumes Issues Titles Preparation"
+author: "Daniel Moul"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r echo=FALSE, warning=TRUE, message=TRUE}
+
+library(here)
+
+source(here("risks-lens/scripts", "risk-analysis-setup.R"))
+
+```
+
+<br>
+
+# Introduction
+
+This is the first step in collecting RISKS Digest archive data (replacing volume-download-prep.Rmd)
+
+The purpose is to collect selected pages from the archive and cache them locally. 
+
+Then after that, cleaning and preparing and saving as dataframes in .rds file(s).
+
+We need the following:
+
+File | Description | Comment
+--- | --- | ---
+Risks overview page | includes list of volumes with links to each one | https://catless.ncl.ac.uk/Risks/
+volume-issue index pages | for each volume, all issues and subjects of each issue | example for volume 30: https://catless.ncl.ac.uk/Risks/30/index
+
+In the future:
+
+File | Description | Comment
+--- | --- | ---
+Issue page | includes table of contents for issue plus text of each submission, including submitter's email and datetime of submission | Example: https://catless.ncl.ac.uk/Risks/30/2/ (see note 1)
+
+Note 1: The format of text in submissions varies enough that it will be some effort to categorize it with reasonable accuracy. At this point we are not looking at the submission body.
+
+<br>
+
+# Get the issue and subject list for a volume
+
+Let's try starting with the volume index https://catless.ncl.ac.uk/Risks/30/index
+
+* `li` is the full list of all issues and their subjects
+* `dl dt` is one issue
+* `li` are are the subjects in one issue
+* `ul li` is one subject
+
+<br>
+
+```{r}
+# get RISKS Digest summary volume table
+
+#if (!file_exists(fname_volume_table)) {
+if (TRUE) {  # Let's always read the page, so we learn about any new volumes and issues
+  volume_table_raw <- read_html(risks_url) 
+  xml2::write_html(volume_table_raw, here(cachepages_path, 
+                                          paste0(url2filename(risks_url), ".html")
+                                          )
+                   )
+  
+  volume_table <- volume_table_raw %>%
+    html_node("table") %>% 
+    html_table() %>% 
+    clean_names() %>%
+    rename(volume = volume_index, 
+           n_issues = no_of_issues,
+           date_first = date_range, 
+           date_last = date_range_2) %>%
+    mutate(volume = as.integer(str_extract(volume, "[0-9]+")), #DONE: perhaps better NOT to be a factor at this point?
+           date_first = dmy(date_first),
+           date_last = dmy(date_last),
+           n_issues = as.integer(str_extract(n_issues, "[0-9]+"))
+    ) %>%
+    mutate(volume_year = as.integer(year(date_last)),
+         volume_duration = as.numeric(date_last - date_first),
+         days_per_issue = volume_duration / n_issues,
+         decade = paste0(as.character(volume_year %/% 10 * 10), "s")
+    ) %>%
+    write_rds(., file = fname_volume_table)
+} else {
+  volume_table <- read_rds(fname_volume_table)
+}
+
+```
+
+```{r}
+
+make_issue_df <-function(p) {
+  # Take a rvest::html_page object p and get volume, issue and subject titles in one go. 
+  # Note that we expect a bunch of NAs for the rows that have only volume-issue information (no subject details)
+
+  # test
+  # p <- read_html('./data/pagecache/catless.ncl.ac.uk-Risks-12-index.html')
+
+  d_issue_subj_text <- p %>%
+    html_nodes("dl a") %>%
+    html_text() %>%
+    enframe() %>%
+    # make sure we have good UTF-8
+    mutate_if(is.character, ~map_chr(.x, iconv, "UTF-8", "UTF-8", sub='')) %>%
+    rename(issue_subj_text = value)
+  
+  d_issue_subj_href <- p %>%
+    html_nodes("dl a") %>%
+    html_attr("href") %>%
+    enframe() %>%
+    rename(subj_href = value) %>%
+    # make sure we have good UTF-8
+    mutate_if(is.character, ~map_chr(.x, iconv, "UTF-8", "UTF-8", sub='')) %>%
+    mutate(tmp_issues_subj = str_remove(subj_href, "/Risks/")) %>% 
+    separate(tmp_issues_subj, into = c("volume", "issue"), sep = '/') %>%
+    separate(issue, into = c("issue", "subj"), sep = '#') 
+  
+  d <- left_join(d_issue_subj_href, d_issue_subj_text, by = c("name")) %>% #"rowid", 
+    select(-name) %>%
+    mutate(issue_date = str_extract(issue_subj_text, '[0-9]+ \\w+ [0-9]+[)]$'),
+           issue_date = str_remove(issue_date, "[)]"),
+           issue_date = dmy(issue_date)
+    ) %>%
+    fill(issue_date, .direction = "down") %>%
+    filter(!is.na(subj)) %>%
+    mutate(volume = as.integer(volume),
+           issue = as.integer(issue),
+           subject = parse_number(subj)
+    ) %>%
+    select(subj_href, volume, issue, subject, everything())
+  
+  d
+  
+  # error check:
+  # d %>% 
+  #   gt()
+  
+}
+
+# test
+# my_url <- 'https://catless.ncl.ac.uk/Risks/8/index'
+# p <- read_html(my_url)
+# xx <- make_issue_df(p)
+
+
+```
+
+```{r}
+
+make_fname <- function(u, fn_ext) {
+    #assume URL of the form https://catless.ncl.ac.uk/Risks/29/index where 29 is the volume
+    if(fn_ext == ".html") {
+    here(cachepages_path, paste0(url2filename(u), fn_ext))
+  }
+  else if(fn_ext == ".xml") {
+    here(cachepages_path, paste0("v", str_extract(u, "[0-9]+"), "index", fn_ext))
+  }
+  else { #likely ".rds"
+    here(cachedata_volume_path, paste0("v", str_extract(u, "[0-9]+"), "index", fn_ext))
+  }
+}
+
+get_risks_issue_page <- function(url) {
+  
+  # test
+  # url <- my_url
+  # url <- url_list
+  
+  my_fname_html <- make_fname(url, ".html")
+  my_fname_rds <- make_fname(url, ".rds")
+  message(paste("fname.rds = ", my_fname_rds))
+  if(!file_exists(my_fname_rds)) {
+    
+    if(file_exists(my_fname_html)) {
+      message(my_fname_rds, " Does NOT exist but ", my_fname_html,
+                     " DOES exist, so reading ", my_fname_html)
+      p <- read_html(my_fname_html)
+      # create processed df from page
+      df <- make_issue_df(p)
+      write_rds(df, my_fname_rds)
+    } else {
+      message(my_fname_rds, " and ", my_fname_html, " DO NOT exist, so reading ", url)
+      p <- read_html(url)
+      write_html(p, my_fname_html) # cache it for later use
+      # create processed df from page
+      df <- make_issue_df(p)
+      write_rds(df, file = my_fname_rds)
+      # since we read a page, wait a bit to be kind to the web server
+      Sys.sleep(rnorm(n = 1, mean = 2, sd = 0.5)) 
+    }
+  }
+  # even though we have df if we had to create my_fname_rds, let's re-read my_fname_rds
+  message("Reading ", my_fname_rds)
+  read_rds(my_fname_rds) # return the df
+}
+
+```
+
+```{r collect-issue-data}
+# get data from multiple issue index pages in one go (could be all of them)
+
+# test
+# volume_start <- 29
+# volume_stop <- 30
+
+url_list <- character(0) # need to pre-define variable
+v <- volume_start:volume_stop
+for (i in seq_len(length.out = volume_stop - volume_start + 1)) {
+  url_list[[i]] <- paste0('https://catless.ncl.ac.uk/Risks/', v[i], '/index')
+}
+
+# test
+# i <- 19
+# url_list <- paste0('https://catless.ncl.ac.uk/Risks/', i, '/index')
+# d12 <- get_issue_index_data(url_list)
+
+issue_data_raw <- map_dfr(url_list, get_risks_issue_page) 
+
+# capture entity (author and/or source). Note this assumes every submission has a subsequent
+  # row with ".1", ".2" etc suffix on subj string
+entity <- character(nrow(issue_data_raw))
+
+for (i in seq(from = nrow(issue_data_raw), to = 1)) { # start from the back and work forward
+  if(str_detect(issue_data_raw$subj[[i]], "[.]")) { # we've got an entity on this row
+    entity[[i - 1]] <- paste(issue_data_raw$issue_subj_text[[i]], 
+                             entity[[i]], 
+                             sep = ", ")
+  } else {
+    # do nothing
+  }
+}
+
+issue_data_temp1 <- bind_cols(issue_data_raw,
+                              entity = entity) %>%
+  filter(!str_detect(subj, "[.]")) %>%
+  mutate(subject = as.integer(subject)) %>%
+  # there are too many entities that were not parsed correctly in the source pages
+  # so time to do some remediation
+  # per https://stackoverflow.com/questions/8613237/extract-info-inside-all-parenthesis-in-r answer by Nettle
+  mutate(subj_text = tolower(issue_subj_text),
+         new_entity = str_extract(tolower(subj_text), "\\([A-Za-z.,\\- ']+\\)[ ]?$"),
+         ## subj_text = str_remove(subj_text, "\\(.*\\)$"),
+         new_entity = str_remove_all(new_entity, "\\(|\\)"),
+         new_entity = str_replace_all(
+           new_entity, c("[*]" = "", "[!]" = "", "[?]" = "", '"' = "",
+                         "\\[" = "", "\\]" = "", "_" = " ", " et al\\." = "")
+           ),
+         new_entity = str_squish(new_entity),
+         new_entity = str_replace_all(
+           new_entity, c("^via " = "", " via " = ", ", " and " = ", ", " & " = ", ",
+                         " on " = ", ", " in " = ", ", " to " = ", ", " compiled by " = ", ",
+                         "[/]" = ", ", "\\.\\.\\." = ", ")
+           ),
+         entity = ifelse(str_length(entity) > 1,
+                         entity,
+                         new_entity
+                         )
+         # throw away entity text if it starts with number or certain punctuation
+         # entity = str_replace_all(entity, c("^[0-9].+" = "", "^\\$.+" = "", "^\\..+" = ""))
+  ) %>%
+  mutate(entity = str_remove(entity, ", $")) %>% 
+  filter(!str_detect(subj, "[.]")) %>% # get rid of the entity-only rows
+  select(-new_entity)
+
+# More detail from issue and subject titles
+issue_data_temp2 <- issue_data_temp1 %>%
+  left_join(.,
+            volume_table %>% 
+              select(volume, volume_year, decade) %>%
+              mutate(volume = as.integer(as.character(volume))),
+            by = "volume") %>%
+  # for reply analysis
+  mutate(is_reply = str_detect(subj_text, "^re:"),
+         subj_text = str_replace(subj_text, "[(].+[)][ ]?$", " "),
+         subj_text = str_replace_all(subj_text, "[(]|[)]", " "),
+         subj_text = str_replace_all(subj_text, c("'" = " ", '"' = " ", '“' = " ", "”" = " ")),
+         #TODO: try a reprex: str_replace_all doesn't seem to handle raw strings, e.g., r"(mystring)"
+         subj_text = str_replace_all(subj_text, c("[!#$%’()*+/:;<=>?@^_`{|}~]" = " ", 
+                                                  "\\[|\\]" = " ",
+                                                  "\\.\\.\\." = " ", "…" = " ", 
+                                                  "--" = " ", " - " = " ")
+                                     ), # not including "[-,.]"
+         subj_text = str_replace_all(subj_text, c(", " = " ", 
+                                                  " \\. " = " ",
+                                                  " & " = " ")
+                                     ),
+         #subj_text = str_replace_all(subj_text, "!#$%&’\\(\\)\\*\\+,-./:;<=>\\?@\\[\\]^_`\\{\\|\\}~", " "),
+         subj_text = str_replace_all(subj_text, "—", " "), #long dash
+         subj_text = str_replace_all(subj_text, "\\bu[. ]?s\\.?", "us"),
+         subj_text = str_replace_all(subj_text, "\\bu[. ]?k\\.?", "uk"),
+         subj_text = str_replace_all(subj_text, c("e-mail" = "email", #"risks-[0-9]+\\.[0-9]+" = " "
+                                                  "wi-fi" = "wifi", "\\bwi fi\\b" = "wifi",
+                                                  "risks-[0-9]+(.[0-9]+)?" = " ")
+                                     ),
+         subj_text = str_squish(subj_text),
+         reply_to_subj_text = str_extract(subj_text, "^re[ ]+.+"),
+         reply_to_subj_text = str_remove_all(reply_to_subj_text, "^re[ ]+"),
+         root_subj = ifelse(is_reply,
+                            reply_to_subj_text,
+                            subj_text
+                            ),
+         volume_issue = paste0(volume, "-", issue),
+         volume_issue_subj = paste0(volume_issue, "-", subject)
+         ) %>%
+  group_by(volume_issue) %>%
+  mutate(pct_reply = sum(is_reply) / n()) %>%
+  ungroup() %>%
+  # only use 4 words to find same thread (not perfect but good enough)
+  mutate(root_subj_short = str_extract(root_subj, "((\\w+|\\d+|[.-])+[ ]?){1,4}")) %>%
+  arrange(is_reply) %>%
+  group_by(root_subj_short) %>%
+  mutate(n_subj_in_thread = n(),
+         entry_count = row_number()) %>%
+  ungroup()
+
+# Fix dates
+issue_data_temp3 <- issue_data_temp2
+# fix an error in the issue_date for volume 26 issue 25
+issue_data_temp3$issue_date[issue_data_temp3$volume == 26 & issue_data_temp3$issue_date == ymd("2020-12-20")] <- ymd("2010-12-20")
+# Some dates are set to Jan 1 1970 on the issue pages
+# for example issue 40 in https://catless.ncl.ac.uk/Risks/12/index
+# so in these cases we need to get the real issue date from the issue pages if body-word-analysis.Rmd has run
+#    and created body-lemma.rds and body-entity.rds (use either one)
+issue_data_temp3$issue_date[issue_data_temp2$issue_date == ymd("1970-01-01")] <- NA
+# there are handful with dates earlier than the first issue
+issue_data_temp3$issue_date[issue_data_temp2$issue_date < ymd("1985-08-16")] <- NA
+# let's fix what we can
+if (file.exists(fname_nounphrases_body)) {
+  issue_data_temp4 <- left_join(
+    issue_data_temp3, 
+    read_rds(fname_nounphrases_body) %>%
+      select(volume, issue, correct_date = issue_date) %>% # edited 2020-10-16; was 'date'
+      distinct(volume, issue, correct_date) %>%
+      group_by(volume, issue) %>%
+      mutate(correct_date = ifelse(n() == 1,
+                                   correct_date,
+                                   round(mean(correct_date), 0)
+                                   )
+      ) %>%
+      ungroup() %>%
+      distinct(volume, issue, correct_date) %>%
+      mutate(correct_date = as.Date(correct_date, origin = "1970-01-01")),
+    by = c("volume", "issue")
+    ) %>%
+    mutate(issue_date = coalesce(issue_date, correct_date)) %>%
+    select(-correct_date)
+  issue_data_temp3 <- issue_data_temp4
+}
+# OK for whatever is left, a fill() gives us a better issue_date than nothing
+issue_data <- issue_data_temp3 %>%
+  arrange(volume, issue, subject) %>%
+  fill(issue_date, .direction = "downup")
+
+```
+
+```{r save-issue-data}
+# each volume in its own .rds file
+# so later will need to consolidate them into one file
+for (i in sort(unique(issue_data$volume))) {
+  filter(issue_data, volume == i) %>%
+    # message("i = ", i)
+    write_rds(., file = here(cachedata_volume_path, 
+                      paste0("vol-", i, "-volume-issue-subject-titles.rds")
+                      )
+              )
+}
+
+```
+
+We collected the following:
+
+```{r print-saved-issue-data}
+
+issue_data %>%
+  count(volume, issue, name = "subject") %>%
+  na.omit() %>%
+  arrange(volume, issue) %>%
+  group_by(volume) %>%
+  summarize(issues = n(),
+            subjects = sum(subject)) %>%
+  adorn_totals(where = "row") %>%
+  gt() %>%
+  tab_header(
+    title = "Gathered from RISKS Digest archive",
+    subtitle = glue("Between {min(issue_data$issue_date)} and {max(issue_data$issue_date)}")
+  ) %>%
+  fmt_number(
+    columns = vars(issues, subjects),
+    sep_mark = ",",
+    decimals = 0
+  ) %>%
+  cols_align(align = "right")
+
+```
+
+<br>
+
+Altogether we now have this:
+
+```{r save-all-volume-data}
+# get all volume detail collected thus far
+
+all_files <-
+  tibble(datafile = fs::dir_ls(
+    path = here(cachedata_volume_path),
+    glob = "*.rds",
+    type = "file"
+  )) %>%
+  # keep only the ones like those created above (in case there are others)
+  filter(str_detect(datafile, "vol-")) %>% 
+  pull(datafile)
+
+d_all_volume_table <- purrr::map_dfr(all_files, read_rds) %>%
+  arrange(volume, issue, subject)
+
+write_rds(d_all_volume_table, file = here(processed_path, "volume-issue-titles-all.rds"))
+
+```
+
+```{r print-all-issue-data}
+d_all_volume_table %>%
+  count(volume, issue, name = "subject") %>%
+  arrange(volume, issue) %>%
+  group_by(volume) %>%
+  summarize(issues = n(),
+            subjects = sum(subject)) %>%
+  ungroup() %>%
+  adorn_totals(where = "row") %>%
+  gt() %>%
+  tab_header(
+    title = "Gathered from RISKS Digest archive",
+    subtitle = glue("Between {min(d_all_volume_table$issue_date)} and {max(d_all_volume_table$issue_date)}")
+  ) %>%
+  fmt_number(
+    columns = vars(issues, subjects),
+    sep_mark = ",",
+    decimals = 0
+  ) %>%
+  cols_align(align = "right")
+
+```
+<br>
+<br>
+
+(end of document)
