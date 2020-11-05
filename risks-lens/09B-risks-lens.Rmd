@@ -405,7 +405,7 @@ The most common bigrams sourced from bodytext nounphrases are shown in \@ref(fig
 
 Compare this figure to Figure \@ref(fig:bigrams-part2) and \@ref(fig:bigram-nounphrases-part2)
 
-```{r bigrams-nounphrases-body-part2, fig.height=9, fig.width=9, fig.cap="Add figure caption here"}
+```{r bigrams-nounphrases-body-part2, fig.height=9, fig.width=9, fig.cap="Nounphrase bigrams from body text"}
 
 do_top_words_plot(df = d_nounphrases_body %>%
                     filter(n_words == 2,
