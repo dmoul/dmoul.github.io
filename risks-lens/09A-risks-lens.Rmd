@@ -1,7 +1,7 @@
 <!-- 09A-risk-lenst.Rmd -->
 <!-- # part 1 -->
 
-# Part 1: The lens
+# The lens
 
 ```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
 
@@ -9,7 +9,7 @@ source(here::here("risks-lens/scripts", "risk-analysis-setup.R"))
 
 ```
 
-```{r get-unigrams-all}
+```{r get-unigrams-all, eval=TRUE}
 if(file.exists(fname_unigrams_all_title)) {
   d_unigrams_all <- read_rds(fname_unigrams_all_title) %>%
     rename(ngram = lemma) %>%
@@ -58,7 +58,7 @@ if(file.exists(fname_unigrams_places_title)) {
 
 ```
 
-```{r get-bigrams, eval=TRUE}
+```{r get-bigrams, eval=FALSE}
 if(file.exists(fname_bigrams_title)) {
   d_bigrams <- read_rds(fname_bigrams_title) %>%
     mutate(issue_year = year(issue_date)) %>%
@@ -73,7 +73,7 @@ if(file.exists(fname_bigrams_title)) {
 
 ```
 
-```{r get-nounphrases, eval=TRUE}
+```{r get-nounphrases, eval=FALSE}
 if(file.exists(fname_nounphrases_title)) {  
   d_nounphrases <- read_rds(fname_nounphrases_title) %>%
     mutate(issue_year = year(issue_date)) %>%
@@ -88,7 +88,7 @@ if(file.exists(fname_nounphrases_title)) {
 
 ```
 
-```{r get-nounphrases-body, eval=TRUE}
+```{r get-nounphrases-body, eval=FALSE}
 if(file.exists(fname_nounphrases_body)) {  
   d_nounphrases_body <- read_rds(fname_nounphrases_body) %>%
     filter(n > 4) %>%
@@ -105,7 +105,7 @@ if(file.exists(fname_nounphrases_body)) {
 
 ```
 
-```{r get-lemmas-body}
+```{r get-lemmas-body, eval=TRUE}
 if(file.exists(fname_lemmas_body)) {  
   d_lemmas_body <- read_rds(fname_lemmas_body) %>%
     filter(n > 4) %>%
@@ -123,7 +123,6 @@ if(file.exists(fname_lemmas_body)) {
 ```
 
 ```{r define-median-issues-submissions}
-
 volume_issues_subjects <- d_unigrams_all %>%
   distinct(volume, issue, subject) %>%
   group_by(volume, issue) %>%
@@ -144,7 +143,10 @@ d_lemmas_title_words_only <- d_unigrams_all %>%
 
 n_title_words <- sum(d_lemmas_title_words_only$n)
 n_distinct_title_words <- nrow(d_lemmas_title_words_only)
-  
+```
+
+
+```{r define-body-words, eval=TRUE}
 d_lemmas_body_words_only <- d_lemmas_body %>%
   filter(str_detect(ngram, "^[a-z]")) %>%
   distinct(ngram, .keep_all = TRUE)
@@ -163,7 +165,7 @@ Much has remained constant, including the observation that failures occur, and w
 
 ## Hot topics and perennial favorites
 
-Some risks come and go: remember Y2K? Others including security and privacy seem fresh every year. One way to discove the ebb and flow of topics is to count the occurrences of words in the subject titles of submissions to the RISKS Forum. These titles are natural summaries of much longer text in the bodies of the submissions.
+Some risks come and go: remember Y2K? Others including security and privacy seem fresh every year. One way to discover the ebb and flow of topics is to count the occurrences of words in the subject titles of submissions to the RISKS Forum. These titles are natural summaries of much longer text in the bodies of the submissions.
 
 Part 1 of this analysis does exactly that, looking at the `r d_unigrams_all %>% distinct(volume) %>% nrow()` RISKS Digest volumes published between `r min(d_unigrams_all$issue_date)` to `r max(d_unigrams_all$issue_date)`. The volumes include `r d_unigrams_all %>% distinct(volume, issue, subject) %>% nrow() %>% comma()` submission titles in `r d_unigrams_all %>% distinct(volume, issue) %>% nrow() %>% comma()` issues. There are median `r median_issues` issues in a volume and median `r median_submissions` subjects in an issue. Submissions include more than `r comma(n_title_words + n_body_words)` words (`r comma(n_title_words)` in titles, `r comma(n_body_words)` in the bodies of messages).
 
@@ -785,7 +787,7 @@ do_top_words_plot(df = d_unigrams_all %>%
 
 <br>
 
-Zooming in, let's consider only 2010+. In Figure \@ref(fig:unigrams-all-plot3) we see ***security***, ***internet***, ***data***, and ***car*** in the top five most years. At least one of ***hack***, ***hacker***, ***attack*** or ***NSA*** are usually in the top five. In the most recent years ***Facebook*** and ***Google*** are near the top, and ***Russian*** interference in the 2016 election was a common topic.  Since 2017 ***AI*** is a common topic, and we find ***"fake_news"*** makes the ranking in 2017--after the 2016 US presidential election. (Turning "fake news" into the unigram "fake_news" is an intervention on my part to avoid losing visibility of this significant topic). Unsurprisingly, in 2020 ***Coronavirus*** and ***COVID-19*** top the list while ***pandemic*** rounds out the top 20.
+Now let's zoom in and consider only 2010+. In Figure \@ref(fig:unigrams-all-plot3) we see ***security***, ***internet***, ***data***, and ***car*** in the top five most years. At least one of ***hack***, ***hacker***, ***attack*** or ***NSA*** are usually in the top five. In the most recent years ***Facebook*** and ***Google*** are near the top, and ***Russian*** interference in the 2016 election was a common topic.  Since 2017 ***AI*** is a common topic, and we find ***"fake_news"*** makes the ranking in 2017--after the 2016 US presidential election. (Turning "fake news" into the unigram "fake_news" is an intervention on my part to avoid losing visibility of this significant topic). Unsurprisingly, in 2020 ***Coronavirus*** and ***COVID-19*** top the list while ***pandemic*** rounds out the top 20.
 
 ```{r unigrams-all-plot3, fig.height=9, fig.width=9, fig.cap="Unigram rank by frequency: five-year periods"}
 
@@ -811,7 +813,7 @@ do_top_words_plot(df = d_unigrams_all %>%
 
 <br>
 
-Which unigrams are most uniquely to be found in each period? We represent distinctiveness in terms of [weighted log odds](https://juliasilge.com/blog/introducing-tidylo/), which is the natural log of the odds of finding the unigram in one period compared to all the others. Figure \@ref(fig:unigrams-all-plot5) reinforces earlier observations of the changing topics:
+Which unigrams are most uniquely to be found in each period? We represent distinctiveness in terms of [weighted log odds](https://juliasilge.com/blog/introducing-tidylo/), which is the natural log of the odds of finding the unigram in one period compared to all the other periods. Figure \@ref(fig:unigrams-all-plot5) reinforces earlier observations of the changing topics:
 
 - The focus on ***Y2K*** leading up to the big date as well as "year 2000" converted here to ***year_2000***
 - The Strategic Defense Initiative ***(SDI)*** in the Reagan era
@@ -837,7 +839,7 @@ do_top_words_plot(df = d_unigrams_all %>%
 
 <br>
 
-Which unigrams changed the most in number of mentions (either becoming more common or less common) over the full period? I interpret the slope of linear regression lines as the magnitude of the trends in Figure \@ref(fig:unigrams-all-plot6), sorting them from greatest increase to greatest descrease.
+Which unigrams changed the most in number of mentions (either becoming more common or less common) over the full period? I interpret the slope of linear regression lines as the magnitude of the trends in Figure \@ref(fig:unigrams-all-plot6), sorting them from greatest increase to greatest decrease.
 
 Linear regression lines under-represent recent large swings for topics including ***data***, ***hack*** and ***car*** that have been around since the beginning. ***AI*** mentions have an interesting distribution: some discussion in the late 1980s, then not common until a resurgence in recent years
 
@@ -851,7 +853,7 @@ do_top_words_plot(df = d_unigrams_all,
 
 <br>
 
-Again we can zoom into 2010+ and this time look at the topics with biggest positive and negative trends in Figure \@ref(fig:unigrams-all-plot7). Here ***AI***, ***data***, ***hacker***, and ***security*** are a among those terms growing the most in recent years while ***Snowdon*** and ***NSA*** show the steepest declines, representing both the significant discussion of the Snowden revelations in 2014-2015 and their fading after 2016.
+Again we can zoom into 2010+ and this time look at the topics with biggest positive and negative trends in Figure \@ref(fig:unigrams-all-plot7). Here ***AI***, ***data***, ***hacker***, and ***security*** are among those terms growing the most in recent years while ***Snowdon*** and ***NSA*** show the steepest declines, representing both the significant discussion of the Snowden revelations in 2014-2015 and their fading after 2016.
 
 ```{r unigrams-all-plot7, fig.height=9, fig.width=9, fig.cap="Unigrams with biggest change in frequency: 2010+"}
 
@@ -874,16 +876,16 @@ I've been reading the RISKS Forum for more than twenty years. Below are some of 
 - The weak link is often people, including their willingness or ability over the long term to follow rules and procedures and uphold the cultural norms necessary to maintain safe, reliable systems. People respond to their incentives, and managers' incentives in particular seem too often to be at odds with maximizing safe and reliable operations, since they face pressures to limit costs and find new efficiencies.
 - People can be inattentive, distracted, confused, lazy, or malicious. You should take this into account in your designs.
 - Your design should guide people to the right things and require extra effort to do what may be the wrong things. Most people want to do the right things, and you may not have thought of all the "right things" they need to do.
-- When failures occur in or with systems were not well designed, it's common to blame the users.
+- When failures occur in or with systems that were not well designed, it's common to blame the users.
 - There are many public policy implications in the application of modern technologies: safety, privacy, voting, information dissemination/propaganda, etc. It can be difficult to affect change until something goes wrong, since only then does a consensus form that "something must be done." It's very helpful to have a body of expert consensus ready to guide policy makers when they are ready to focus on the issue. Of course we shouldn't wait until then to attempt to affect change.
 
 <br>
 <br>
 
-*There are other ways to select the words or phrases that rise to the top, which point to other risk-related trends. More on that in* [Part 2: Multiple perspectives].
+<!-- *There are other ways to select the words or phrases that rise to the top, which point to other risk-related trends. More on that in* [Part 2: Multiple perspectives]. -->
 
-<br>
-<br>
+<!-- <br> -->
+<!-- <br> -->
 
 ---
 

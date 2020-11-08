@@ -80,8 +80,9 @@ min_ngram_char <- 2 # filter out any unigrams shorter than this
 knitr::opts_chunk$set(echo=FALSE, warning=TRUE, message=FALSE,
                       #fig.height=4, 
                       #dev = "png",
-                      out.width='200%', 
-                      fig.retina=3)
+                      out.width='100%', 
+                      fig.retina=3,
+                      fig.topcaption=TRUE)
 
 # making sure fonts are loaded in R
 # https://github.com/hrbrmstr/hrbrthemes/issues/2
@@ -96,11 +97,11 @@ theme_set(theme_ipsum_ps(base_size = 10) + ### doesn't appear to be working
             )
 )
 
-my_caption = "Plot: Daniel Moul | Source: https://catless.ncl.ac.uk/Risks/"
+my_caption = "Plot: Daniel Moul | Source: https://www.risks.org/"
 fname_ext_plot <- ".png" # for cases in which we save plots individually
 ### end for plots
 
-my_caption_sparkline_table <- "**Table**: Daniel Moul | **Source**: https://catless.ncl.ac.uk/Risks/<br>**Inspiration**: @thomas_mock"
+my_caption_sparkline_table <- "**Table**: Daniel Moul | **Source**: https://www.risks.org/<br>**Inspiration**: @thomas_mock"
 
 ######## for volumes-issues-subjects-prep.Rmd
 url2filename <- function(u) {

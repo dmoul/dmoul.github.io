@@ -24,7 +24,7 @@
 <meta name="author" content="Daniel Moul" />
 
 
-<meta name="date" content="2020-11-04" />
+<meta name="date" content="2020-11-07" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -112,7 +112,7 @@
             <section class="normal" id="section-">
 <div id="part-2-multiple-perspectives" class="section level1">
 <h1><span class="header-section-number">2</span> Part 2: Multiple perspectives</h1>
-<p>As the term <strong><em>n-gram</em></strong> implies, there are other word chunkings we could consider besides unigrams. In this section, we will look at nounphrases, identified by parsing with an awareness of the parts of speech, and at bigrams, which are two-word phrases. This is a follow-on to <a href="part-1-the-lens.html#part-1-the-lens">Part 1: The lens</a>, which uses simple unigrams from titles as the source for rankings and other visualizations. We’ll focus first on nounphrase unigrams <strong><em>from titles</em></strong> of submissions, then bigrams from titles (simple and nounphrases). Then we’ll look at nounphrase unigrams and bigrams <strong><em>from the body text</em></strong> of submissions.</p>
+<p>As the term <strong><em>n-gram</em></strong> implies, there are other word chunkings we could consider besides unigrams. In this section, we will look at nounphrases, identified by parsing with an awareness of the parts of speech, and at bigrams, which are two-word phrases. This is a follow-on to <a href="part-1-the-lens.html#part-1-the-lens">Part 1: The lens</a>, which uses simple unigrams from titles as the source for rankings and other visualizations. We’ll focus first on nounphrase unigrams <strong><em>from the titles</em></strong> of submissions, then bigrams from the titles (simple and nounphrases). Then we’ll look at nounphrase unigrams and bigrams <strong><em>from the body text</em></strong> of submissions.</p>
 <p><br></p>
 <div id="an-example-car" class="section level2">
 <h2><span class="header-section-number">2.1</span> An example: “car”</h2>
@@ -483,7 +483,7 @@
 <p>Unigrams are less precise than bigrams and trigrams, however unigrams are helpful in signaling a general topic, and counts of bigrams and trigrams are much lower in the same corpus, which limits the possible analysis.</p>
 <p>I find the n-grams in two ways:</p>
 <ol style="list-style-type: decimal">
-<li><p>Naively: simply count the occurrence of each n-gram by treating words in their base form (“lemma”) as a unigram or bigram.</p></li>
+<li><p>Naively: simply count the occurrence of each n-gram by treating words in their base form (“lemma”) as a unigram or bigram; and</p></li>
 <li><p>With awareness of grammatical structure to identify nounphrases and categorize them by type.</p></li>
 </ol>
 <p>The results of the two approaches differ considerably, primarily because with nounphrases, a subset of a larger nounphrase is not counted as a shorter n-gram. Suppose each of the car n-grams above can be found in a distinct sentence of text. Then the count of each type are as follows:</p>

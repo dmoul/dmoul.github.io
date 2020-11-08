@@ -2,7 +2,6 @@
 # risks-lens-main.Rmd
 #
 title: "Through the lens of the RISKS Forum"
-subtitle: "(work in progress)"
 author: "Daniel Moul"
 date: "`r Sys.Date()`"
 output:
@@ -12,14 +11,11 @@ output:
       toc:
         before: |
           <li><strong><a href="https://dmoul.github.io/risks-lens/part-1-the-lens.html">Risks through the lens<br>of the RISKS Forum</a></strong></li>
-# some of these params are overridden in risk-analysis-setup.R
+
 params:
-  showcode: FALSE
-  showinfo: FALSE
-  showwarning: TRUE
   continueonerror: TRUE
   save_figures: FALSE
-
+  # other knitr options are set in risk-analysis-setup.R
 ---
 
 <!-- #  github_document: -->
@@ -34,9 +30,9 @@ params:
 ```{r child='09A-risks-lens.Rmd'}
 ```
 
-\newpage
+<!-- \newpage -->
 
-```{r child='09B-risks-lens.Rmd'}
+```{r child='09B-risks-lens.Rmd', eval=FALSE}
 ```
 
 \newpage

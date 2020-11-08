@@ -3,7 +3,7 @@
 
 # Part 2: Multiple perspectives
 
-As the term ***n-gram*** implies, there are other word chunkings we could consider besides unigrams. In this section, we will look at nounphrases, identified by parsing with an awareness of the parts of speech, and at bigrams, which are two-word phrases. This is a follow-on to [Part 1: The lens], which uses simple unigrams from titles as the source for rankings and other visualizations. We'll focus first on nounphrase unigrams ***from titles*** of submissions, then bigrams from titles (simple and nounphrases). Then we'll look at nounphrase unigrams and bigrams ***from the body text*** of submissions.
+As the term ***n-gram*** implies, there are other word chunkings we could consider besides unigrams. In this section, we will look at nounphrases, identified by parsing with an awareness of the parts of speech, and at bigrams, which are two-word phrases. This is a follow-on to [Part 1: The lens], which uses simple unigrams from titles as the source for rankings and other visualizations. We'll focus first on nounphrase unigrams ***from the titles*** of submissions, then bigrams from the titles (simple and nounphrases). Then we'll look at nounphrase unigrams and bigrams ***from the body text*** of submissions.
 
 <br>
 
@@ -46,7 +46,7 @@ Unigrams are less precise than bigrams and trigrams, however unigrams are helpfu
 
 I find the n-grams in two ways:
 
-1. Naively: simply count the occurrence of each n-gram by treating words in their base form ("lemma") as a unigram or bigram.
+1. Naively: simply count the occurrence of each n-gram by treating words in their base form ("lemma") as a unigram or bigram; and
 
 2. With awareness of grammatical structure to identify nounphrases and categorize them by type. 
 
