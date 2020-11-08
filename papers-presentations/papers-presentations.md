@@ -1,6 +1,13 @@
-## Selected papers and presentations - Daniel Moul
+## My work life
+
+I work at IBM in the role of a Program Director / Senior Product Manager for software tools used by engineers and developers to create the amazingly complex product-systems our societies rely on, including planes, trains, automobiles, and space vehicles, as well as IT systems that run our financial sector and government services and defenses. I speak for myself on this website, except in the papers and presentations below.
 
 <br>
+<br>
+
+## Selected papers and presentations - Daniel Moul
+
+The following papers and presentations were written as part of my work, and IBM holds the copyright. I am thankful for the opportunities I have had two work with high-caliber collaborators on many of them.
 
 [*Introducing IBM Engineering Lifecycle Management V7*](./files/IBM-ELM-V7.0-Persistent-Supercharging-Engineering-2020-03-26.pdf) by Daniel Moul. Public webcast hosted by Persistent Systems Ltd. March 2020. [Watch the replay](https://www.persistent.com/events/webinar-supercharging-elm/).
 
