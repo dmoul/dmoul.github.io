@@ -21,5 +21,4 @@
 
 [Work life, papers & presentations](./papers-presentations/papers-presentations.html)
 
-
-
+[LinkedIn](https://www.linkedin.com/in/danielmoul/)
