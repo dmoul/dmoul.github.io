@@ -12,7 +12,13 @@
 [Cistercian and Franciscan monasteries in Europe that opened 1000-1600](./monasteries/monasteries.html)
 
 <br>
-<br>
 
 *Source files are at* [https://github.com/dmoul/dmoul.github.io](https://github.com/dmoul/dmoul.github.io)
+
+<br>
+<br>
+
+[Work life, papers & presentations](./papers-presentations/papers-presentations.html)
+
+
 
