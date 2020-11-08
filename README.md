@@ -4,7 +4,7 @@
 
 [Risks through the lens of the RISKS Digest](./risks-lens/the-lens.html)
 
-[What is the average elevation above sea level of the US Population?](./mean-uspop-elevation/mean-population-elevation.html)
+[What is the average elevation above sea level of the US population?](./mean-uspop-elevation/mean-population-elevation.html)
 
 [Weather at Raleigh-Durham International Airport (RDU) 2011-2020](./rdu-weather/rdu-weather.html)
 
