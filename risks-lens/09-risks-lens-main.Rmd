@@ -13,26 +13,16 @@ output:
           <li><strong><a href="https://dmoul.github.io/risks-lens/the-lens.html">Risks through the lens<br>of the RISKS Forum</a></strong></li>
 
 params:
-  continueonerror: TRUE
   save_figures: FALSE
   # other knitr options are set in risk-analysis-setup.R
 ---
 
-<!-- #  github_document: -->
-<!-- #    pandoc_args: [ -->
-<!-- #      "--filter", "/Users/dmoul/opt/anaconda3/bin/pandoc-crossref" -->
-<!-- #    ] -->
-<!-- #    number_sections: TRUE -->
-<!-- #    fig_caption: true -->
-<!-- #    toc: true -->
-<!-- #    toc_depth: 2 -->
-
 ```{r child='09A-risks-lens.Rmd'}
 ```
 
-<!-- \newpage -->
+\newpage
 
-```{r child='09B-risks-lens.Rmd', eval=FALSE}
+```{r child='09B-risks-lens.Rmd', eval=TRUE}
 ```
 
 \newpage

@@ -58,7 +58,7 @@ if(file.exists(fname_unigrams_places_title)) {
 
 ```
 
-```{r get-bigrams, eval=FALSE}
+```{r get-bigrams, eval=TRUE}
 if(file.exists(fname_bigrams_title)) {
   d_bigrams <- read_rds(fname_bigrams_title) %>%
     mutate(issue_year = year(issue_date)) %>%
@@ -73,9 +73,9 @@ if(file.exists(fname_bigrams_title)) {
 
 ```
 
-```{r get-nounphrases, eval=FALSE}
+```{r get-noun-phrases, eval=TRUE}
 if(file.exists(fname_nounphrases_title)) {  
-  d_nounphrases <- read_rds(fname_nounphrases_title) %>%
+  d_noun_phrases <- read_rds(fname_nounphrases_title) %>%
     mutate(issue_year = year(issue_date)) %>%
     filter(issue_date <= ymd(paste0(last_full_year, "-12-31")),
            !ngram %in% c(uninteresting_words, people, companies, places, media)
@@ -88,9 +88,9 @@ if(file.exists(fname_nounphrases_title)) {
 
 ```
 
-```{r get-nounphrases-body, eval=FALSE}
+```{r get-noun-phrases-body, eval=TRUE}
 if(file.exists(fname_nounphrases_body)) {  
-  d_nounphrases_body <- read_rds(fname_nounphrases_body) %>%
+  d_noun_phrases_body <- read_rds(fname_nounphrases_body) %>%
     filter(n > 4) %>%
     mutate(issue_year = year(issue_date)) %>%
     filter(issue_date <= ymd(paste0(last_full_year, "-12-31")),
@@ -169,9 +169,9 @@ Some risks come and go: remember Y2K? Others including security and privacy seem
 
 Part 1 of this analysis does exactly that, looking at the `r d_unigrams_all %>% distinct(volume) %>% nrow()` RISKS Digest volumes published between `r min(d_unigrams_all$issue_date)` to `r max(d_unigrams_all$issue_date)`. The volumes include `r d_unigrams_all %>% distinct(volume, issue, subject) %>% nrow() %>% comma()` submission titles in `r d_unigrams_all %>% distinct(volume, issue) %>% nrow() %>% comma()` issues. There are median `r median_issues` issues in a volume and median `r median_submissions` subjects in an issue. Submissions include more than `r comma(n_title_words + n_body_words)` words (`r comma(n_title_words)` in titles, `r comma(n_body_words)` in the bodies of messages).
 
-I parsed the volume summary pages, for example: https://catless.ncl.ac.uk/Risks/29/index, using the popular text analysis library `spaCy` (actually the [`spacyr` wrapper](https://cran.r-project.org/web/packages/spacyr/vignettes/using_spacyr.html) by Kenneth Benoit and Akitaka Matsuo) to covert words to their base form ("lemmas"). I use  lemmas as one-word n-grams (aka "unigrams"), count their occurrence in certain time periods, and visualize the results below, making some observations along the way.
+I parsed the volume summary pages, for example: https://catless.ncl.ac.uk/Risks/29/index, using the popular text analysis library `spaCy` (actually the [`spacyr` wrapper](https://cran.r-project.org/web/packages/spacyr/vignettes/using_spacyr.html) by Kenneth Benoit and Akitaka Matsuo) to covert words to their canonical form ("[lemma](https://en.wikipedia.org/wiki/Lemma_(morphology))"). I use lemmas as one-word n-grams (a.k.a. "unigrams"), count their occurrence in certain time periods, and visualize the results below, making some observations along the way.
 
-Note that the results are sensitive to data cleaning steps and various assumptions, including which words (like "risk",  "computer", "software" and "system") I consider too common and therefore filter out. See [Limitations and other notes].
+Note that the results are sensitive to data cleaning steps and various assumptions, including which words (like "risk", "computer", "software" and "system") I consider too common and therefore filter out. See [Limitations and other notes].
 
 <br>
 
@@ -206,18 +206,18 @@ do_top_words_plot <- function(df = NULL,
   # which_plots = c(6)
   
   # test
-  # df = d_nounphrases %>%
+  # df = d_noun_phrases %>%
   #   filter(n_words == 2) %>% # should be 2
   #   filter(year(issue_date) >= 1985) # TODO: this shouldn't be necessary - remove after fixing 1970-01-01 issue dates
-  # gram = "bigram nounphrases"
+  # gram = "bigram noun phrases"
   # max_words = n_words
   # #log_odds_min = 3.5
   # log_odds_min = 2.0
   # which_plots = c(4)
   
   # test
-  # df <- d_nounphrases_body
-  # gram <- "Nounphrase unigrams"
+  # df <- d_noun_phrases_body
+  # gram <- "noun phrase unigrams"
   # max_words <- n_words
   
   ## Adjusting for differing size of unigrams, bigrams, trigrams for some plot elements
