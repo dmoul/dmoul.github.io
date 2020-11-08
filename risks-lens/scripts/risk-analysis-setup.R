@@ -160,7 +160,7 @@ parsing_corrections_2gram <-
      "cellular telephone",    "mobile phone"
     )
 
-parsing_corrections_body_nounphrase <- 
+parsing_corrections_body_noun_phrase <- 
   parsing_corrections_2gram <-
   tibble::tribble(
     ~entity,        ~fixed_word,
