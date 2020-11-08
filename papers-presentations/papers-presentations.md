@@ -1,13 +1,13 @@
 ## My work life
 
-I work at IBM in the role of a Program Director / Senior Product Manager for software tools used by engineers and developers to create the amazingly complex product-systems our societies rely on, including planes, trains, automobiles, and space vehicles, as well as IT systems that run our financial sector and government services and defenses. I speak for myself on this website, except in the papers and presentations below.
+*I work at IBM in the role of a Program Director / Senior Product Manager for software tools used by engineers and developers to create the amazingly complex product-systems our societies rely on, including planes, trains, automobiles, and space vehicles, as well as IT systems that run our financial sector and government services and defenses. I speak for myself on this website, except in the papers and presentations below.*
 
 <br>
 <br>
 
-## Selected papers and presentations - Daniel Moul
+## Selected papers and presentations
 
-The following papers and presentations were written as part of my work, and IBM holds the copyright. I am thankful for the opportunities I have had two work with high-caliber collaborators on many of them.
+*The following papers and presentations were written as part of my work, and IBM holds the copyright. I am thankful for the opportunities I have had to work with high-caliber collaborators on many of them.*
 
 [*Introducing IBM Engineering Lifecycle Management V7*](./files/IBM-ELM-V7.0-Persistent-Supercharging-Engineering-2020-03-26.pdf) by Daniel Moul. Public webcast hosted by Persistent Systems Ltd. March 2020. [Watch the replay](https://www.persistent.com/events/webinar-supercharging-elm/).
 
@@ -55,7 +55,7 @@ The following papers and presentations were written as part of my work, and IBM 
 
 * *There is a trend toward mass customization and shorter product lifecycles, with more embedded software, and more complex connected products. At the same time it's necessary to adhere to increasing safety standards, compliance and regulations.*
 
-[*Visual Definition in the Requirements Lifecycle: A Conceptual Framework*](./files/RDM-2031-Visual-Definition-in-Requirements-Lifecycle-Concept-Framework-2012-06.pdf) by Daniel Moul. Innovate2012 conference. June 2012.
+[*Visual Definition in the Requirements Lifecycle: A Conceptual Framework*](./files/RDM-2031-Visual-Definition-in-Requirements-Lifecycle-Concept-Framework-2012-06.pdf) by Daniel Moul. Innovate2012 conference. June 2012. Original version co-authored with Andy Berner and presented at an IBM Academy of Technology conference.
 
 * *This session provides a framework for evaluating the best uses of text and various visual notations in the requirements process. Presenters highlight this in reference to IBM Rational Requirements Composer, application simulation tools such as iRise, and UML/SysML modeling.*
 
