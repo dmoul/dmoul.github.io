@@ -1,3 +1,5 @@
+## Playground
+
 *Playing to learn ... and maybe help others learn*
 
 <br>
@@ -14,6 +16,8 @@
 
 <br>
 <br>
+
+## About me and by me (and others)
 
 [Work life, papers & presentations](./papers-presentations/papers-presentations.html)
 
