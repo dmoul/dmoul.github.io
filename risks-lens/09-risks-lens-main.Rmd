@@ -11,6 +11,8 @@ output:
       toc:
         before: |
           <li><strong><a href="https://dmoul.github.io/risks-lens/the-lens.html">Risks through the lens<br>of the RISKS Forum</a></strong></li>
+        after: |
+          <br><br><li><strong><a href="https://dmoul.github.io/">By Daniel Moul</a></strong></li>
 
 params:
   save_figures: FALSE

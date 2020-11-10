@@ -24,7 +24,7 @@
 <meta name="author" content="Daniel Moul" />
 
 
-<meta name="date" content="2020-11-08" />
+<meta name="date" content="2020-11-09" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -87,6 +87,9 @@
 <li class="chapter" data-level="3.1" data-path="limitations-and-other-notes.html"><a href="limitations-and-other-notes.html#limitations"><i class="fa fa-check"></i><b>3.1</b> Limitations</a></li>
 <li class="chapter" data-level="3.2" data-path="limitations-and-other-notes.html"><a href="limitations-and-other-notes.html#acknowledgements"><i class="fa fa-check"></i><b>3.2</b> Acknowledgements</a></li>
 </ul></li>
+<li class="divider"></li>
+<br><br><li><strong><a href="https://dmoul.github.io/">By Daniel Moul</a></strong></li>
+
 </ul>
 
       </nav>
@@ -107,7 +110,7 @@
 <div id="header">
 <h1 class="title">Through the lens of the RISKS Forum</h1>
 <p class="author"><em>Daniel Moul</em></p>
-<p class="date"><em>2020-11-08</em></p>
+<p class="date"><em>2020-11-09</em></p>
 </div>
 <div id="the-lens" class="section level1">
 <h1><span class="header-section-number">1</span> The lens</h1>
@@ -117,7 +120,7 @@
 <div id="hot-topics-and-perennial-favorites" class="section level2">
 <h2><span class="header-section-number">1.1</span> Hot topics and perennial favorites</h2>
 <p>Some risks come and go: remember Y2K? Others including security and privacy seem fresh every year. One way to discover the ebb and flow of topics is to count the occurrences of words in the subject titles of submissions to the RISKS Forum. These titles are natural summaries of much longer text in the bodies of the submissions.</p>
-<p>Part 1 of this analysis does exactly that, looking at the 32 RISKS Digest volumes published between 1985-08-28 to 2020-08-25. The volumes include 34,319 submission titles in 2,824 issues. There are median 96 issues in a volume and median 11 subjects in an issue. Submissions include more than 3,528,062 words (154,620 in titles, 3,373,442 in the bodies of messages).</p>
+<p>Part 1 of this analysis does exactly that, looking at the 32 RISKS Digest volumes published between 1985-08-28 and 2020-08-25. The volumes include 34,319 submission titles in 2,824 issues. There are median 96 issues in a volume and median 11 subjects in an issue. Submissions include more than 3,528,062 words (154,620 in titles, 3,373,442 in the bodies of messages).</p>
 <p>I parsed the volume summary pages, for example: <a href="https://catless.ncl.ac.uk/Risks/29/index" class="uri">https://catless.ncl.ac.uk/Risks/29/index</a>, using the popular text analysis library <code>spaCy</code> (actually the <a href="https://cran.r-project.org/web/packages/spacyr/vignettes/using_spacyr.html"><code>spacyr</code> wrapper</a> by Kenneth Benoit and Akitaka Matsuo) to covert words to their canonical form (“<a href="https://en.wikipedia.org/wiki/Lemma_(morphology)">lemma</a>”). I use lemmas as one-word n-grams (a.k.a. “unigrams”), count their occurrence in certain time periods, and visualize the results below, making some observations along the way.</p>
 <p>Note that the results are sensitive to data cleaning steps and various assumptions, including which words (like “risk”, “computer”, “software” and “system”) I consider too common and therefore filter out. See <a href="limitations-and-other-notes.html#limitations-and-other-notes">Limitations and other notes</a>.</p>
 <p><br></p>
