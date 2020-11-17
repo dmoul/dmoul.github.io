@@ -94,7 +94,7 @@ make_issue_df <-function(p) {
   # Note that we expect a bunch of NAs for the rows that have only volume-issue information (no subject details)
 
   # test
-  # p <- read_html('./data/pagecache/catless.ncl.ac.uk-Risks-12-index.html')
+  # p <- read_html('./data/cache-pages/catless.ncl.ac.uk-Risks-32-index.html')
 
   d_issue_subj_text <- p %>%
     html_nodes("dl a") %>%
@@ -111,11 +111,12 @@ make_issue_df <-function(p) {
     rename(subj_href = value) %>%
     # make sure we have good UTF-8
     mutate_if(is.character, ~map_chr(.x, iconv, "UTF-8", "UTF-8", sub='')) %>%
-    mutate(tmp_issues_subj = str_remove(subj_href, "/Risks/")) %>% 
-    separate(tmp_issues_subj, into = c("volume", "issue"), sep = '/') %>%
-    separate(issue, into = c("issue", "subj"), sep = '#') 
+    filter(str_detect(subj_href, "^/Risks/")) %>%
+    mutate(tmp_issues_subj = str_remove(subj_href, "^/Risks/")) %>% 
+    separate(tmp_issues_subj, into = c("volume", "issue", "subj"), 
+             sep = '[/#]', extra = "merge", fill = "right")
   
-  d <- left_join(d_issue_subj_href, d_issue_subj_text, by = c("name")) %>% #"rowid", 
+  d <- left_join(d_issue_subj_href, d_issue_subj_text, by = c("name")) %>%
     select(-name) %>%
     mutate(issue_date = str_extract(issue_subj_text, '[0-9]+ \\w+ [0-9]+[)]$'),
            issue_date = str_remove(issue_date, "[)]"),
