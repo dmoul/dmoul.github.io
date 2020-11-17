@@ -28,7 +28,7 @@ And it creates the following:
 ```{r prepare-issue-urls}
 
 d_volume_issue_titles <- read_rds(here(processed_path, "volume-issue-titles-all.rds")) %>%
-  mutate(url = paste0('https://catless.ncl.ac.uk/', subj_href))
+  mutate(url = paste0('https://catless.ncl.ac.uk', subj_href))
 
 ```
 
@@ -271,7 +271,7 @@ make_fname_issue <- function(u, fn_ext) {
 
 get_my_page <- function(url) {
   # test
-  #url <- my_url
+  # url <- my_url
   
   my_fname_html <- make_fname_issue(url, ".html")
   my_fname_rds <- make_fname_issue(url, ".rds")
@@ -340,10 +340,9 @@ url_list <- d_volume_issue_titles %>%
          url_working = str_remove(url_working, "#")
          ) %>%
   distinct(url_working) %>%
+  ##mutate(url_working = str_replace(url_working, "//Risks/", "/Risks/")) %>% # TODO: fix in 01-volume-issues-titles-prep.Rmd instead of using this
   mutate(url_working = map_chr(url_working, pad_risk_urls)) %>%
   pull(url_working)
-
-#url_list <- 'https://catless.ncl.ac.uk/Risks/8/2'
 
 all_data <- map_dfr(url_list, get_my_page) 
 
@@ -367,7 +366,8 @@ for (i in sort(unique(all_data$volume))) {
 # get everything we have collected thus far
 
 all_files <- tibble(datafile = fs::dir_ls(path = here(cachedata_issue_path), glob = "*.rds", type = "file")) %>%
-  filter(str_detect(datafile, "/vol-[0-9][0-9]?-issue-detail.rds")) %>%
+  #filter(str_detect(datafile, "/vol-[0-9][0-9]?-issue-detail.rds")) %>% # TODO: why doesnt' this exist?
+  filter(str_detect(datafile, "/v[0-9]+i[0-9]+.rds")) %>%
   arrange(datafile) %>%
   pull(datafile)
 
