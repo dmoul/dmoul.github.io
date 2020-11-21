@@ -9,7 +9,7 @@
 # If the scripts can't find a page they are looking for in ./cached-pages/ they will attempt to 
 # scrape the web pages.
 #
-# run this from the "root" directory for this analysis (which can be a sub-directory of the RStudio project):
+# Run this from the risks-lens directory:
 # Rscript --default-packages=here,stats,utils ./scripts/regen-risks-data.R 
 
 #library(knitr)

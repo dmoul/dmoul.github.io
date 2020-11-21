@@ -156,9 +156,9 @@ n_distinct_body_words <- nrow(d_lemmas_body_words_only)
 
 ```
 
-Over the last 35 years technology has changed a lot, but some things don't change: failures occur, we can learn from them, and that's happening in the RISKS Forum.
+Over the last 35 years technology has changed a lot, but some things haven't changed: failures occur, and we can learn from them in the RISKS Forum.
 
-During this time we experienced the rise of mobile phones, the internet, the ever-wider use of software in planes, automobiles--and it seems--everything else; web- and mobile-native companies; machine learning, and verbal interfaces to applications. All brought new  opportunities and conveniences as well as new attack vectors and failure modes.
+During this time we experienced the rise of mobile phones, the internet, the ever-wider use of software in planes, automobiles--and it seems--everything else; web- and mobile-native companies; machine learning, and verbal interfaces to applications. All brought new opportunities and conveniences as well as new attack vectors and failure modes.
 
 The Forum on Risks to the Public in Computers and Related Systems was started in 1985 as the comp.risks USENET newsgroup, sponsored by the Association for Computing Machines ([ACM](https://www.acm.org)) until 2018, and has been moderated by [Peter G. Neumann](http://www.csl.sri.com/users/neumann/neumann.html) since its inception. The archives are available at [RISKS Digest](https://catless.ncl.ac.uk/Risks/), and new issues are available through email and newsfeed subscriptions. Its "front door" website is www.risks.org.
 
