@@ -107,6 +107,13 @@ Other
 
 * library(attempt)
 
+## Document history
+
+| **Date** | **Changes** |
+| --- | --- |
+| 2020-11-09 | Published at [dmoul.github.io](dmoul.github.io) with data through part of August 2020 |
+| 2020-11-21 | Updated narrative; updated data through part of November 2020 |
+
 <br>
 <br>
 

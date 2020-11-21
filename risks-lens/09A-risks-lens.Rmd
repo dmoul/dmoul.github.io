@@ -156,22 +156,22 @@ n_distinct_body_words <- nrow(d_lemmas_body_words_only)
 
 ```
 
-Over the last 35 years technology has changed a lot: the rise of mobile phones, the internet, the ever-wider use of software in planes, automobiles--and it seems--everything else; web- and mobile-native companies; increasing worries about privacy and data breaches; machine learning, and verbal interfaces to applications. All with new attack vectors and failure modes.
+Over the last 35 years technology has changed a lot, but some things don't change: failures occur, we can learn from them, and that's happening in the RISKS Forum.
 
-During this time people have been discussing the risks arising from these technologies and their application in the Forum on Risks to the Public in Computers and Related Systems, which was started in 1985 as the comp.risks USENET newsgroup, sponsored by the Association for Computing Machines ([ACM](https://www.acm.org)) until 2018, and moderated by [Peter G. Neumann](http://www.csl.sri.com/users/neumann/neumann.html) since its inception. 
+During this time we experienced the rise of mobile phones, the internet, the ever-wider use of software in planes, automobiles--and it seems--everything else; web- and mobile-native companies; machine learning, and verbal interfaces to applications. All brought new  opportunities and conveniences as well as new attack vectors and failure modes.
 
-Much has remained constant, including the observation that failures occur, and we can learn from them. This is one of the primary purposes of the Forum, which is available today as the [RISKS Digest](https://catless.ncl.ac.uk/Risks/) and through email and newsfeed subscriptions. Its "front door" website is www.risks.org.
+The Forum on Risks to the Public in Computers and Related Systems was started in 1985 as the comp.risks USENET newsgroup, sponsored by the Association for Computing Machines ([ACM](https://www.acm.org)) until 2018, and has been moderated by [Peter G. Neumann](http://www.csl.sri.com/users/neumann/neumann.html) since its inception. The archives are available at [RISKS Digest](https://catless.ncl.ac.uk/Risks/), and new issues are available through email and newsfeed subscriptions. Its "front door" website is www.risks.org.
 
 
 ## Hot topics and perennial favorites
 
 Some risks come and go: remember Y2K? Others including security and privacy seem fresh every year. One way to discover the ebb and flow of topics is to count the occurrences of words in the subject titles of submissions to the RISKS Forum. These titles are natural summaries of much longer text in the bodies of the submissions.
 
-Part 1 of this analysis does exactly that, looking at the `r d_unigrams_all %>% distinct(volume) %>% nrow()` RISKS Digest volumes published between `r min(d_unigrams_all$issue_date)` and `r max(d_unigrams_all$issue_date)`. The volumes include `r d_unigrams_all %>% distinct(volume, issue, subject) %>% nrow() %>% comma()` submission titles in `r d_unigrams_all %>% distinct(volume, issue) %>% nrow() %>% comma()` issues. There are median `r median_issues` issues in a volume and median `r median_submissions` subjects in an issue. Submissions include more than `r comma(n_title_words + n_body_words)` words (`r comma(n_title_words)` in titles, `r comma(n_body_words)` in the bodies of messages).
+Part 1 of this analysis does that, looking at the `r d_unigrams_all %>% distinct(volume) %>% nrow()` RISKS Forum volumes published between `r min(d_unigrams_all$issue_date)` and `r max(d_unigrams_all$issue_date)`. The volumes include `r d_unigrams_all %>% distinct(volume, issue, subject) %>% nrow() %>% comma()` submission titles in `r d_unigrams_all %>% distinct(volume, issue) %>% nrow() %>% comma()` issues. There are median `r median_issues` issues in a volume and median `r median_submissions` subjects in an issue. Submissions include more than `r comma(n_title_words + n_body_words)` words (`r comma(n_title_words)` in titles, `r comma(n_body_words)` in the bodies of messages).
 
-I parsed the volume summary pages, for example: https://catless.ncl.ac.uk/Risks/29/index, using the popular text analysis library `spaCy` (actually the [`spacyr` wrapper](https://cran.r-project.org/web/packages/spacyr/vignettes/using_spacyr.html) by Kenneth Benoit and Akitaka Matsuo) to covert words to their canonical form ("[lemma](https://en.wikipedia.org/wiki/Lemma_(morphology))"). I use lemmas as one-word n-grams (a.k.a. "unigrams"), count their occurrence in certain time periods, and visualize the results below, making some observations along the way.
+I parsed the volume summary pages, for example: https://catless.ncl.ac.uk/Risks/29/index, using the popular text analysis library `spaCy` (using the [`spacyr` wrapper](https://cran.r-project.org/web/packages/spacyr/vignettes/using_spacyr.html) by Kenneth Benoit and Akitaka Matsuo) to covert words to their canonical form ("[lemma](https://en.wikipedia.org/wiki/Lemma_(morphology))"). I use lemmas as one-word n-grams (a.k.a. "unigrams"), count their occurrence in certain time periods, and visualize the results below, making some observations along the way.
 
-Note that the results are sensitive to data cleaning steps and various assumptions, including which words (like "risk", "computer", "software" and "system") I consider too common and therefore filter out. See [Limitations and other notes].
+Note that the results are sensitive to data cleaning steps and various assumptions, including which words (including "risk", "computer", "software" and "system") I consider too common and therefore filter out. See [Limitations and other notes].
 
 <br>
 
@@ -766,14 +766,14 @@ do_top_words_plot <- function(df = NULL,
 
 Counting the frequency of unigrams in five-year periods and ranking them in each period makes visible some trends in Figure \@ref(fig:unigrams-all-plot2). Unigrams that are ranked in the top five at least one year are red; unigrams are blue if their highest rank was six to ten at least one year.
 
-Common topics over the years
+Consistent topics over the years
 
 - ***Security*** and ***privacy*** are always relevant. ***Voting*** keeps coming up: the security and trustworthiness of the voting process, computerized voting machines, and proposals for on-line voting.
 - ***Hacker*** and ***hack*** are common too. Other sources of problems include ***error***, ***failure***, ***bug***, ***crash***, ***attack***, ***breach***, ***theft***, and ***outage***.
 
 Changing topics
 
-- ***Bank***, credit ***card***, the ***phone*** system, and computer ***virus*** topics gave way to ***mobile phone***, the ***internet***, on-line activities, ***cars***, a direct focus on ***data***, and ***fake news***.
+- ***Bank***, credit ***card***, the ***phone*** system, and computer ***virus*** topics gave way to mobile ***phone***, the ***internet***, on-line activities, ***cars***, a direct focus on ***data***, and ***fake news***.
 - ***Y2K*** came and went, as did lots of discussion of ***email*** and ***spam***, and the security of ***Microsoft*** software. ***Microsoft*** was mentioned often 1995-2004; after that ***Google***, ***Facebook*** and ***Apple*** make their appearance.
 
 ```{r unigrams-all-plot2, fig.height=9, fig.width=9, fig.cap="Unigram rank by frequency: five-year periods"}
@@ -787,7 +787,7 @@ do_top_words_plot(df = d_unigrams_all %>%
 
 <br>
 
-Now let's zoom in and consider only 2010+. In Figure \@ref(fig:unigrams-all-plot3) we see ***security***, ***internet***, ***data***, and ***car*** in the top five most years. At least one of ***hack***, ***hacker***, ***attack*** or ***NSA*** are usually in the top five. In the most recent years ***Facebook*** and ***Google*** are near the top, and ***Russian*** interference in the 2016 election was a common topic.  Since 2017 ***AI*** is a common topic, and we find ***"fake_news"*** makes the ranking in 2017--after the 2016 US presidential election. (Turning "fake news" into the unigram "fake_news" is an intervention on my part to avoid losing visibility of this significant topic). Unsurprisingly, in 2020 ***Coronavirus*** and ***COVID-19*** top the list while ***pandemic*** rounds out the top 20.
+Now let's zoom in and consider only 2010+. In Figure \@ref(fig:unigrams-all-plot3) we see ***security***, ***internet***, ***data***, and ***car*** in the top five most years. At least one of ***hack***, ***hacker***, ***attack*** or ***NSA*** are usually in the top five. In the most recent years ***Facebook*** and ***Google*** are near the top, and ***Russian*** interference in the 2016 election was a common topic.  Since 2017 ***AI*** is a common topic, and we find ***"fake_news"*** makes the ranking in 2017--after the 2016 US presidential election. (Turning "fake news" into the unigram "fake_news" is an intervention on my part to avoid losing visibility of this significant topic). Unsurprisingly, in 2020 ***Coronavirus*** and ***COVID-19*** top the list.
 
 ```{r unigrams-all-plot3, fig.height=9, fig.width=9, fig.cap="Unigram rank by frequency: five-year periods"}
 
@@ -815,7 +815,7 @@ do_top_words_plot(df = d_unigrams_all %>%
 
 Which unigrams are most uniquely to be found in each period? We represent distinctiveness in terms of [weighted log odds](https://juliasilge.com/blog/introducing-tidylo/), which is the natural log of the odds of finding the unigram in one period compared to all the other periods. Figure \@ref(fig:unigrams-all-plot5) reinforces earlier observations of the changing topics:
 
-- The focus on ***Y2K*** leading up to the big date as well as "year 2000" converted here to ***year_2000***
+- The focus on ***Y2K*** leading up to the big date as well as "year 2000", converted here to ***year_2000***
 - The Strategic Defense Initiative ***(SDI)*** in the Reagan era
 - User interfaces ***CRT*** and ***VTD*** giving way to ***iphone***
 - The rise of ***Facebook***, ***Google***, ***Twitter*** and ***Tesla***
@@ -824,8 +824,8 @@ Which unigrams are most uniquely to be found in each period? We represent distin
 
 We also see discussion of topics that were popular for a short time
 
-- USS ***Vincennes*** shooting down an Iranian airliner and the ***Challenger*** disaster
-- ***Patriot*** missiles and ***Ariane*** rockets
+- USS ***Vincennes*** shooting down an Iranian airliner 
+- ***Patriot*** missiles, ***Ariane*** rockets, and the ***Challenger*** disaster
 - Computer ***virus*** topics and specific malware, including ***klez*** and ***heartbleed***
 
 ```{r unigrams-all-plot5, fig.height=9, fig.width=9, fig.cap="Most unique unigrams: five-year periods"}
@@ -839,9 +839,9 @@ do_top_words_plot(df = d_unigrams_all %>%
 
 <br>
 
-Which unigrams changed the most in number of mentions (either becoming more common or less common) over the full period? I interpret the slope of linear regression lines as the magnitude of the trends in Figure \@ref(fig:unigrams-all-plot6), sorting them from greatest increase to greatest decrease.
+Which unigrams changed the most in number of mentions, either becoming more common or less common over the full period? I interpret the slope of linear regression lines as the magnitude of the trends in Figure \@ref(fig:unigrams-all-plot6), sorting them from greatest increase to greatest decrease.
 
-Linear regression lines under-represent recent large swings for topics including ***data***, ***hack*** and ***car*** that have been around since the beginning. ***AI*** mentions have an interesting distribution: some discussion in the late 1980s, then not common until a resurgence in recent years
+Linear regression lines under-represent recent large swings for topics including ***data***, ***hack*** and ***car*** that have been around since the beginning.
 
 ```{r unigrams-all-plot6, fig.height=9, fig.width=9, fig.cap="Unigrams with biggest change in frequency: all years"}
 
@@ -872,12 +872,11 @@ I've been reading the RISKS Forum for more than twenty years. Below are some of 
 - Your product is a system and is part of a larger system.
 - The application of any new technology occurs in the context of a system.
 - Design your systems to be resilient to failures.
-- When there is a catastrophic failure, it's not uncommon that it occurred due to a series of lesser failures. During the design and testing phases of product development, the failure modes were not considered or it was not considered possible that they would all occur at the same time. Or once in operation, lesser failures were allowed to fester, sometimes with the rationale "We have redundant systems!".
+- When there is a catastrophic failure, it's not uncommon that it occurred due to a series of lesser failures. During the design and testing phases of product development, the failure modes were not considered or it was not considered possible that they would occur at the same time. Or once in operation, lesser failures were allowed to fester, sometimes with the rationale "We have redundant systems."
 - The weak link is often people, including their willingness or ability over the long term to follow rules and procedures and uphold the cultural norms necessary to maintain safe, reliable systems. People respond to their incentives, and managers' incentives in particular seem too often to be at odds with maximizing safe and reliable operations, since they face pressures to limit costs and find new efficiencies.
 - People can be inattentive, distracted, confused, lazy, or malicious. You should take this into account in your designs.
 - Your design should guide people to the right things and require extra effort to do what may be the wrong things. Most people want to do the right things, and you may not have thought of all the "right things" they need to do.
 - When failures occur in or with systems that were not well designed, it's common to blame the users.
-- There are many public policy implications in the application of modern technologies: safety, privacy, voting, information dissemination/propaganda, etc. It can be difficult to affect change until something goes wrong, since only then does a consensus form that "something must be done." It's very helpful to have a body of expert consensus ready to guide policy makers when they are ready to focus on the issue. Of course we shouldn't wait until then to attempt to affect change.
 
 <br>
 <br>
