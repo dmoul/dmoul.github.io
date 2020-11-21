@@ -114,3 +114,7 @@ $RECYCLE.BIN/
 
 
 *.Rproj
+
+risks-lens/data/
+
+risks-lens/temp-hold/
