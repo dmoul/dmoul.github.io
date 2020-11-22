@@ -3,7 +3,7 @@
 #
 title: "Through the lens of the RISKS Forum"
 author: "Daniel Moul"
-date: "`r Sys.Date()`"
+date: "2020-11-21"
 output:
   bookdown::gitbook:
     config:

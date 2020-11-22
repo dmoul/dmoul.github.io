@@ -62,6 +62,8 @@ tibble(
 
 Thousands of people have contributed content to the RISKS Forum over the last 35+ years--no one more than the moderator Peter G. Neumann.
 
+Special thanks to Lindsay Marshall and Newcastle University for hosting the RISKS Digest archive, which was the source for this analysis. The Internet Archive [first indexed](https://web.archive.org/web/19961201000000*/https://catless.ncl.ac.uk/Risks/) the archive in December 1996.
+
 This analysis would have been a lot harder to accomplish without the high quality, free software in the R ecosystem: R itself, RStudio, the packages listed below and their many prerequisite packages. Most of these packages are available through one of the CRAN mirrors; CRAN is an initiative of the [R Project](https://www.r-project.org).
 
 File system, paths and files
@@ -112,7 +114,7 @@ Other
 | **Date** | **Changes** |
 | --- | --- |
 | 2020-11-09 | Published at [dmoul.github.io](dmoul.github.io) with data through part of August 2020 |
-| 2020-11-21 | Updated narrative; updated data through part of November 2020 |
+| 2020-11-21 | Updated narrative and acknowledgments; updated data through part of November 2020 |
 
 <br>
 <br>
