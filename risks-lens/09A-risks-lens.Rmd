@@ -162,6 +162,12 @@ During this time we experienced the rise of mobile phones, the internet, the eve
 
 The Forum on Risks to the Public in Computers and Related Systems was started in 1985 as the comp.risks USENET newsgroup, sponsored by the Association for Computing Machines ([ACM](https://www.acm.org)) until 2018, and has been moderated by [Peter G. Neumann](http://www.csl.sri.com/users/neumann/neumann.html) since its inception. The archives are available at [RISKS Digest](https://catless.ncl.ac.uk/Risks/), and new issues are available through email and newsfeed subscriptions. Its "front door" website is www.risks.org.
 
+Permission to reuse RISKS-Forum Digest content for this analysis is provided in http://www.csl.sri.com/users/risko/risksinfo.html
+
+> Reused without explicit authorization under blanket permission
+     granted for all Risks-Forum Digest materials.  The author(s), the 
+     RISKS moderator, and the ACM have no connection with this reuse.
+
 
 ## Hot topics and perennial favorites
 
