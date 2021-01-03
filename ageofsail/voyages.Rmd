@@ -66,7 +66,7 @@ source(here("ageofsail/scripts", "plot-voyages-functions.R"))
 
 ## Introduction
 
-Two hundred and fifty years ago sailings ships were the engines of colonization and commerce. Where did they sail? How far and how long? We can gain some insight by making use of the Climatological Database for the World's Oceans (CLIWOC), which includes 287K observations from logbooks of `r nrow(count(all_voyages, ShipName))` ships from `r nrow(count(all_voyages, Nationality))` countries, mostly British, Dutch, French, and Spanish) that made `r nrow(count(all_voyages, ShipName, VoyageIni))` journeys. The digitized records are mostly from journeys between 1750 and 1850. These journey during this portion of the [Age of Sail](https://en.wikipedia.org/wiki/Age_of_Sail) influenced (and sometimes directly motivated) by these historical events: 
+Two hundred and fifty years ago sailings ships were the engines of colonization and commerce. Where did they sail? How far and how long? We can gain some insight by making use of the Climatological Database for the World's Oceans (CLIWOC), which includes 287K observations from logbooks of `r nrow(count(all_voyages, ShipName))` ships from `r nrow(count(all_voyages, Nationality))` countries, mostly British, Dutch, French, and Spanish) that made `r nrow(count(all_voyages, ShipName, VoyageIni))` journeys. The digitized records are mostly from journeys between 1750 and 1815. These journey during this portion of the [Age of Sail](https://en.wikipedia.org/wiki/Age_of_Sail) influenced (and sometimes directly motivated) by these historical events: 
 
 * [Seven years war](https://en.wikipedia.org/wiki/Seven_Years%27_War) (1756-1763) which included the [French and Indian War](https://en.wikipedia.org/wiki/French_and_Indian_War) in North America
 * [American War of Independence](https://en.wikipedia.org/wiki/American_Revolutionary_War), [French Revolution](https://en.wikipedia.org/wiki/French_Revolution) and resulting [French Revolutionary Wars](https://en.wikipedia.org/wiki/French_Revolutionary_Wars), and others wars of independence in the Americas, including [Haiti](https://en.wikipedia.org/wiki/Haitian_Revolution), and the [Spanish American colonies](https://en.wikipedia.org/wiki/Spanish_American_wars_of_independence) (the latter continued beyond 1815 for many colonial lands)
@@ -520,7 +520,7 @@ It's worth noting some other considerations:
 
 * While the motivation and funding for digitizing these logs was to make weather data available for analysis, I'm ignoring that and focusing on the voyage tracks.
 
-Even with these considerations there is a lot we can learn by plotting the locations recorded each day, which reveals the track of each voyage within the limits of accuracy available at the time with a [sextant](https://en.wikipedia.org/wiki/Sextant), [marine chronometer](https://en.wikipedia.org/wiki/Marine_chronometer), and [alamanac.](https://en.wikipedia.org/wiki/Nautical_almanac)--or when the weather did not cooperate, by [dead reckoning](https://en.wikipedia.org/wiki/Dead_reckoning).
+Even with these considerations there is a lot we can learn by plotting the locations recorded each day, which reveals the track of each voyage within the limits of accuracy available at the time with a [sextant](https://en.wikipedia.org/wiki/Sextant), [marine chronometer](https://en.wikipedia.org/wiki/Marine_chronometer), and [almanac.](https://en.wikipedia.org/wiki/Nautical_almanac)--or when the weather did not cooperate, by [dead reckoning](https://en.wikipedia.org/wiki/Dead_reckoning).
 
 <br>
 
@@ -528,7 +528,7 @@ Even with these considerations there is a lot we can learn by plotting the locat
 
 ### Voyages to or from Virginia ("Hampton Road")
 
-British ships made most of the voyages to Virginia in this data set; Dutch ships made a couple. We see a pattern in the routes between the Mid-Atlantic coast and Northern Europe, due to the [prevailing winds](https://en.wikipedia.org/wiki/Prevailing_winds): when leaving Europe, south near the Azores or Canary Islands then west across the Atlantic; when leaving North America: a more northerly path. 
+British ships made most of the voyages to Virginia in this data set; Dutch ships made a few. We see a pattern in the routes between the Mid-Atlantic coast and Northern Europe, due to the [prevailing winds](https://en.wikipedia.org/wiki/Prevailing_winds): when leaving Europe, south near the Azores or Canary Islands then west across the Atlantic; when leaving North America: a more northerly path. 
 
 For tabular data see [Hampton Road]
 
@@ -741,7 +741,7 @@ plot_voyages(ships = ship_list,
 
 ## Maps: South America
 
-### To and or from Brazil, Uruguay, Argenina
+### To and or from Brazil, Uruguay, Argentina
 
 Most voyages in our data from or to South America we between to [Montevideo](https://en.wikipedia.org/wiki/Montevideo) and Spanish ports. Montevideo was Spain' primary naval base in this period. The trade from the interior via the [Río de la Plata](https://en.wikipedia.org/wiki/R%C3%ADo_de_la_Plata) (River Plate) passed through Montevideo or [Buenos Aires](https://en.wikipedia.org/wiki/Buenos_Aires), which sits on the opposite coast of the estuary.
 
@@ -756,33 +756,33 @@ To:
 ```{r to-sa, out.width="100%", echo = TRUE}
 
 plot_voyages(to = df_voyages %>% 
-      filter(country_to %in% c("brazil", "uruguay", "argenina" ))  %>%
+      filter(country_to %in% c("brazil", "uruguay", "argentina" ))  %>%
       pull(port_to)
       )
 
 plot_voyages(to = df_voyages %>% 
-      filter(country_to %in% c("brazil", "uruguay", "argenina" ))  %>%
+      filter(country_to %in% c("brazil", "uruguay", "argentina" ))  %>%
       pull(port_to),
       color_var = "year"
       )
 
 ```
 
-<br><
+<br>
 
 From:
 
-br>
+<br>
 
 ```{r from-sa, out.width="100%", echo = TRUE}
 
 plot_voyages(from = df_voyages %>% 
-      filter(country_from %in% c("brazil", "uruguay", "argenina" ))  %>%
+      filter(country_from %in% c("brazil", "uruguay", "argentina" ))  %>%
       pull(port_from)
       )
 
 plot_voyages(from = df_voyages %>% 
-      filter(country_from %in% c("brazil", "uruguay", "argenina" ))  %>%
+      filter(country_from %in% c("brazil", "uruguay", "argentina" ))  %>%
       pull(port_from),
       color_var = "year"
       )
@@ -794,6 +794,8 @@ plot_voyages(from = df_voyages %>%
 ### The challenge of rounding the Horn traveling west
 
 The track of the french ship La Boussole illustrates the difficulty [square-rigged](https://en.wikipedia.org/wiki/Square_rig) ships faced from storms and contrary winds.
+
+<br>
 
 ```{r from-sa-horn, out.width="100%", echo = TRUE}
 
@@ -815,7 +817,6 @@ plot_voyages(from = df_voyages %>%
 ```{r}
 guinea_coast <- c("senegal", "guinea-bissau", "guinea", "sierra leone", "liberia", "ivory coast", "ghana", "togo", "benin", "nigeria", "cameroon", "equatorial guinea", "gabon")
 ```
-
 
 In our data set: Dutch and British voyages before 1780 to [Guinea](https://en.wikipedia.org/wiki/Guinea_(region)), modern day `r glue_collapse(str_to_title(guinea_coast), sep = ", ", last = " and ")`. Most voyages were to/from slave trading posts or colonial fortresses. We see two parts of the [triangular trade](https://en.wikipedia.org/wiki/Triangular_trade) route: from Europe to Guinea, then to the Americas.
 
@@ -863,7 +864,7 @@ plot_voyages(from = df_voyages %>%
 
 ### To and from Penang, Malaysia
 
-Our data set includes 28 voyages to or from Penang. There are just enough to see patterns in the routes: leaving the UK for Malaysia, ships stayed near Africa, veered toward Brazil, then picked up the prevailing westerlies between 50 and 60 degrees South, perhaps taking advantage of the [Antarctic Circumpolar Current](https://en.wikipedia.org/wiki/Antarctic_Circumpolar_Current) as well.
+Our data set includes 28 voyages to or from Penang. There are just enough to see patterns in the routes: leaving the UK for Malaysia, ships stayed near Africa, veered toward Brazil, then picked up the prevailing westerlies beyond 35 degrees South, perhaps taking advantage of the [Antarctic Circumpolar Current](https://en.wikipedia.org/wiki/Antarctic_Circumpolar_Current) as well.
 
 <br>
 
@@ -912,6 +913,8 @@ plot_voyages(to = df_voyages %>%
 
 From India
 
+<br>
+
 ```{r from-india, out.width="100%", echo = TRUE}
 
 plot_voyages(from = df_voyages %>%
@@ -925,7 +928,9 @@ plot_voyages(from = df_voyages %>%
 
 ### To and from Indonesia
 
-The same pattern is largely true for ships going to and from Indonesia. Most were Dutch; the main difference in their route was staying near 60 degrees South longer 
+The same pattern is largely true for ships going to and from Indonesia. Most were Dutch; the main difference in their route was staying near 40 degrees South longer on the way to Indonesia.
+
+<br>
 
 ```{r to-indonesia, out.width="100%", echo = TRUE}
 
@@ -946,6 +951,8 @@ plot_voyages(to = df_voyages %>%
 
 From Indonesia
 
+<br>
+
 ```{r from-indonesia, out.width="100%", echo = TRUE}
 
 plot_voyages(from = df_voyages %>%
@@ -960,6 +967,7 @@ plot_voyages(from = df_voyages %>%
 )
 
 ```
+
 <br>
 
 ### The Importance of Chronometers
@@ -1114,7 +1122,7 @@ I was inspired by Simon Coulombe's write up: [Animated map of ships, 1750-1799](
 >
 > To interpret nautical terms in the database, you will likely need to use a [dictionary](https://www.historicalclimatology.com/uploads/4/5/1/4/4514421/cliwoc_nautical_terms.pdf) created as part of the CLIWOC project. 
 
-I could have got the data from source at https://www.historicalclimatology.com/cliwoc.html; however Simon offers a download that is already cleaned up a bit:
+I could have retrieved the data from source at https://www.historicalclimatology.com/cliwoc.html; however Simon offers a download that is  cleaned up a bit already:
 
 * https://blogsimoncoulombe.s3.amazonaws.com/cliwoc/cliwoc21.csv
 
@@ -1124,16 +1132,35 @@ Thanks to the EU for funding the digitization and to everyone who did the work t
 
 Adrien Charles (and others?) at Axxio made a nice visualization in Tableau here: https://www.axxio.io/the-age-of-discovery/ , and there are other examples a web search away. I did not consult them.
 
+Thanks to everyone developing R, RStudio, and the many high-quality R packages. I used the following packages:
+
+* library(here)
+* library(tidyr)
+* library(readr)
+* library(readxl)
+* library(skimr) 
+* library(dplyr)
+* library(stringr)
+* library(lubridate)
+* library(ggplot2)
+* library(forcats)
+* library(glue)
+* library(gt)
+* library(purrr)
+* library(scales)
+* library(hrbrthemes) # for theme_ipsum_ps()
+* library(sf)
+* library(lwgeom)        # for st_distance()
+* library(measurements)  # for conv_unit()
+* library(rnaturalearth) # for landmass boundaries
+* library(cowplot)       # for theme_map()
+* library(units)
+
 <br>
 
-### Possible improvements
+### Source files
 
-I could do some of the following:
-
-* Look at duration, distance, and time in port by company; currently I'm only looking at it by nationality
-* Look at areas for differences in average velocity or distribution of velocities
-* Look at differences in average duration or in opposite directions between the same ports
-* Look at changes in durations or routes from the early years to the later years, e.g., British and Dutch journeys from Jakarta to a UK or Dutch port, respectively
+Source files for this analysis are available at https://github.com/dmoul/dmoul.github.io
 
 <br>
 <br>
