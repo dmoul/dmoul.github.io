@@ -1,8 +1,8 @@
 ---
-title: "Exploring Nighttime lights in the U.S. Southeast"
+title: "Exploring Nighttime Light in the U.S. Southeast"
 subtitle: "Model specification and evaluation in the tidymodels framework"
 author: "Daniel Moul"
-date: "2021-08-29"
+date: "2021-09-02"
 site: bookdown::bookdown_site
 output:
   html_document:
