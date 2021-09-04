@@ -4,6 +4,8 @@
 
 <br>
 
+[Exploring Nighttime Light in the U.S. Southeast: Model specification and evaluation in the tidymodels framework](./nightlight/introduction.html)
+
 [Some Voyages in the Age of Sail 1750-1815](./ageofsail/voyages.html)
 
 [Risks through the lens of the RISKS Forum](./risks-lens/the-lens.html)
