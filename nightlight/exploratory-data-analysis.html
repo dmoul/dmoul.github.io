@@ -317,9 +317,9 @@ Figure 2.1: Average nightlight in the S.E. United States in 2000
 <span id="cb6-9"><a href="exploratory-data-analysis.html#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_number_si</span>()) <span class="sc">+</span> </span>
 <span id="cb6-10"><a href="exploratory-data-analysis.html#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;pop_density by light_avg&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:pop-density-light-avg-scatter"></span>
-<img src="02-eda_files/figure-html/pop-density-light-avg-scatter-1.png" alt="light_avg by pop_density (all states)" width="672" />
+<img src="02-eda_files/figure-html/pop-density-light-avg-scatter-1.png" alt="pop_density by light_avg (all states)" width="672" />
 <p class="caption">
-Figure 2.2: light_avg by pop_density (all states)
+Figure 2.2: pop_density by light_avg (all states)
 </p>
 </div>
 <p><br></p>
@@ -333,9 +333,9 @@ Figure 2.2: light_avg by pop_density (all states)
 <span id="cb7-8"><a href="exploratory-data-analysis.html#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>state)<span class="sc">+</span></span>
 <span id="cb7-9"><a href="exploratory-data-analysis.html#cb7-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;pop_density by light_avg&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:pop-density-light-avg-facet-scatter"></span>
-<img src="02-eda_files/figure-html/pop-density-light-avg-facet-scatter-1.png" alt="light_avg by pop_density (faceted by state)" width="672" />
+<img src="02-eda_files/figure-html/pop-density-light-avg-facet-scatter-1.png" alt="pop_density by light_avg (faceted by state)" width="672" />
 <p class="caption">
-Figure 2.3: light_avg by pop_density (faceted by state)
+Figure 2.3: pop_density by light_avg (faceted by state)
 </p>
 </div>
 <p><br></p>
@@ -348,13 +348,13 @@ Figure 2.3: light_avg by pop_density (faceted by state)
 <span id="cb8-7"><a href="exploratory-data-analysis.html#cb8-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">size =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
 <span id="cb8-8"><a href="exploratory-data-analysis.html#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>() <span class="sc">+</span> </span>
 <span id="cb8-9"><a href="exploratory-data-analysis.html#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_number_si</span>()) <span class="sc">+</span></span>
-<span id="cb8-10"><a href="exploratory-data-analysis.html#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;log_light_avg by log_pop_density&quot;</span>,</span>
+<span id="cb8-10"><a href="exploratory-data-analysis.html#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;log_pop_density by log_light_avg&quot;</span>,</span>
 <span id="cb8-11"><a href="exploratory-data-analysis.html#cb8-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;pop_density (log10 scale)&quot;</span>,</span>
 <span id="cb8-12"><a href="exploratory-data-analysis.html#cb8-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;light_avg (log10 scale)&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:pop-density-light-avg-loglog-scatter"></span>
-<img src="02-eda_files/figure-html/pop-density-light-avg-loglog-scatter-1.png" alt="log_light_avg by log_pop_density (all states)" width="672" />
+<img src="02-eda_files/figure-html/pop-density-light-avg-loglog-scatter-1.png" alt="log_pop_density by log_light_avg (all states)" width="672" />
 <p class="caption">
-Figure 2.4: log_light_avg by log_pop_density (all states)
+Figure 2.4: log_pop_density by log_light_avg (all states)
 </p>
 </div>
 <p><br></p>
@@ -425,7 +425,7 @@ Figure 2.7: log_medincome by log_light_avg (all states)
 <span id="cb12-7"><a href="exploratory-data-analysis.html#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_number_si</span>()) <span class="sc">+</span> </span>
 <span id="cb12-8"><a href="exploratory-data-analysis.html#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># scale_y_log10() +</span></span>
 <span id="cb12-9"><a href="exploratory-data-analysis.html#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>state)<span class="sc">+</span></span>
-<span id="cb12-10"><a href="exploratory-data-analysis.html#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;light_avg by medincome&quot;</span>)</span></code></pre></div>
+<span id="cb12-10"><a href="exploratory-data-analysis.html#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;medincome by light_avg&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:medincome-light-avg-facet-scatterplot"></span>
 <img src="02-eda_files/figure-html/medincome-light-avg-facet-scatterplot-1.png" alt="medincome by light_avg (faceted by state)" width="672" />
 <p class="caption">

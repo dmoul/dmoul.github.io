@@ -295,7 +295,7 @@ Earth in two spectral bands (VIS and TIR). The nighttime “VIS” bandpass stra
 </div>
 <div id="radiance-data" class="section level3" number="5.2.2">
 <h3><span class="header-section-number">5.2.2</span> Radiance data</h3>
-<p>I use Radiance Calibrated values<span class="citation">(<a href="#ref-rs70201855" role="doc-biblioref">Hsu et al. 2015</a>)</span>, a transformation of the Digital Number (DN) made available by the EOG group at <a href="https://eogdata.mines.edu/products/dmsp/#v4_dmsp_download" class="uri">https://eogdata.mines.edu/products/dmsp/#v4_dmsp_download</a></p>
+<p>I use Radiance Calibrated values<span class="citation">(<a href="#ref-rs70201855" role="doc-biblioref">Hsu et al. 2015</a>)</span>, a transformation of the Digital Number (DN) <a href="https://eogdata.mines.edu/products/dmsp/#v4_dmsp_download">made available by the EOG group</a>, which among other things, offers greater dynamic range than the six-bit diginal number values, which can be saturated at high values.</p>
 <p>From <a href="https://eogdata.mines.edu/products/dmsp/#radcal" class="uri">https://eogdata.mines.edu/products/dmsp/#radcal</a> :</p>
 <blockquote>
 <p>The Operational Linescan System (OLS) flown on the Defense Meteorological Satellite Program (DMSP) satellites, has a unique capability to record low light imaging data at night worldwide. These data are archived at the National Oceanic and Atmospheric Administration (NOAA) National Geophysical Data Center (NGDC). The useful data record stretches back to 1992 and is ongoing. The OLS visible band detector observes radiances about one million times dimmer than most other Earth observing satellites. The sensor is typically operated in a high gain setting to enable the detection of moonlit clouds. However, with six bit quantization and limited dynamic range, the recorded data are saturated in the bright cores of urban centers. A limited set of observations have been obtained at low lunar illumination were obtained where the gain of the detector was set significantly lower than its typical operational setting (sometimes by a factor of 100). By combining these sparse data acquired at low gain settings with the operational data acquired at high gain settings, we have produced a set of global nighttime lights product with no sensor saturation. This product can be related to radiances based on the pre-flights sensor calibration.</p>
@@ -311,7 +311,7 @@ Earth in two spectral bands (VIS and TIR). The nighttime “VIS” bandpass stra
 <div id="intercalibration" class="section level3" number="5.2.3">
 <h3><span class="header-section-number">5.2.3</span> Intercalibration</h3>
 <p><a href="https://eogdata.mines.edu/products/dmsp/" class="uri">https://eogdata.mines.edu/products/dmsp/</a></p>
-<p>I use the EOG’s Radiance Calibrated products, which have data for the years I want and requires intersatellite and inter-annual calibration in order to make valid comparisons. The coefficient table is available in <em>DMSP-OLS Radiance Calibrated Nighttime Lights Time Series with Intercalibration</em><span class="citation">(<a href="#ref-rs70201855" role="doc-biblioref">Hsu et al. 2015</a>)</span>:</p>
+<p>The EOG’s Radiance Calibrated products require intersatellite and inter-annual calibration in order to make valid comparisons. The coefficient table is available in <em>DMSP-OLS Radiance Calibrated Nighttime Lights Time Series with Intercalibration</em><span class="citation">(<a href="#ref-rs70201855" role="doc-biblioref">Hsu et al. 2015</a>)</span>:</p>
 <blockquote>
 <p>The Defense Meteorological Satellite Program-Operational Linescan
 System (DMSP-OLS) stable lights products are made using operational
@@ -331,7 +331,7 @@ been made to counter the sensitivity differences of the sensors, and
 coefficients are provided to adjust the datasets to allow
 inter-comparison.</p>
 </blockquote>
-<p>page 1868 includes the relevant coefficients, as does the <a href="https://eogdata.mines.edu/dmsp/radcal_readme.txt">Global Radiance Calibrated Nighttime Lights Product Readme</a>:</p>
+<p>Page 1868 includes the relevant coefficients, as does the <a href="https://eogdata.mines.edu/dmsp/radcal_readme.txt">Global Radiance Calibrated Nighttime Lights Product Readme</a>:</p>
 <p>Inter-satellite Calibration Multiplier.</p>
 <table>
 <thead>
@@ -362,7 +362,7 @@ inter-comparison.</p>
 base gain setting of 55 dB of satellite F16. (page 1872)</p>
 </blockquote>
 <p>Thus, to perform inter-satellite calibration, I multiplied the radiance values in the F14 GeoTIFF image by 0.82. While this improves the comparability in time series, it contributes its own sources of error, as summarized below.</p>
-<p>I take the Inter-annual Calibration Coefficients directly from the <a href="https://eogdata.mines.edu/dmsp/radcal_readme.txt">Global Radiance Calibrated Nighttime Lights Product Readme</a>:</p>
+<p>I take the Inter-annual Calibration Coefficients directly from the <a href="https://eogdata.mines.edu/dmsp/radcal_readme.txt">Global Radiance Calibrated Nighttime Lights Product Readme</a>; see rows annotated with “&lt;-.”</p>
 <pre><code>  NOTE: (1) This table is preliminary, and needs to be updated.
         (2) There is no data for &quot;F16_20051128-20061224_rad_v4&quot; for it being
             the reference dataset.
@@ -385,8 +385,8 @@ base gain setting of 55 dB of satellite F16. (page 1872)</p>
   F16_20100111-20101209_rad_v4     1   2.196   1.195  0.981 20848 &lt;-
   F16_20100111-20110731_rad_v4     1  -1.987   1.246  0.981 20848
   </code></pre>
-<p>Thus to make values comparable across years, I further transform the 2000 radiance values: <span class="math display">\[Y=Coeff_0+Coeff_1 * X = 3.658 + 0.710 * X\]</span></p>
-<p>where X is the vector of radiance values. Similarly for 2010: <span class="math display">\[Y=Coeff_0+Coeff_1 * X = 2.196 + 1.195 * X\]</span></p>
+<p>To make values comparable across years, I further transform the 2000 radiance values as follows, where X is the vector of radiance values: <span class="math display">\[Y=C_0+C_1 * X = 3.658 + 0.710 * X\]</span></p>
+<p>Similarly for 2010: <span class="math display">\[Y=C_0+C_1 * X = 2.196 + 1.195 * X\]</span></p>
 <p>Note the <span class="math inline">\(R^2\)</span> values above. This adjustment is introducing error.</p>
 <p><br></p>
 </div>
@@ -420,7 +420,7 @@ delimit urban regions due to the “blooming” effect.</p>
 <blockquote>
 <p>Because the DMSP-OLS does not carry an on-board calibration device for the visible band, it is not possible to track how actual radiance is being converted to DN even if the auto-adjust gain setting is fixed. Instead we rely on the preflight calibration made for each OLS instrument prior to launch. Therefore, even though the Radiance Calibrated products are made from data collected under much more controlled setting than the Stable Lights products, the radiance values should still be considered relative and not absolute. (page 1874)</p>
 </blockquote>
-<p>In this analysis I refer to these Radiance Calibrated values as “radiance” and “radiance values”</p>
+<p>In this analysis I refer to these Radiance Calibrated values as “radiance,” “radiance values,” and “light” corresponding to variables <code>light_avg</code> and the transformed <code>log_light_avg</code>.</p>
 </div>
 <div id="limitations-in-intercalibration" class="section level4" number="5.3.1.2">
 <h4><span class="header-section-number">5.3.1.2</span> Limitations in intercalibration</h4>
@@ -434,7 +434,7 @@ delimit urban regions due to the “blooming” effect.</p>
 <li>This table is preliminary, and needs to be updated.</li>
 </ol>
 </blockquote>
-<p>The readme includes the following:</p>
+<p>with these dates in the readme file:</p>
 <pre><code>Date: 01/15/2015
 Modified: 09/09/2020</code></pre>
 <p>Typical uncertainty of sensors noted in <span class="citation">(<a href="#ref-CHFWXB2013" role="doc-biblioref">Chander et al. 2013</a>)</span>:</p>
@@ -468,7 +468,7 @@ budget. (page 1061)</p>
 </div>
 <div id="census-data-and-state-and-county-geometry" class="section level3" number="5.3.2">
 <h3><span class="header-section-number">5.3.2</span> Census data and state and county geometry</h3>
-<p>This analysis used three sources of data:</p>
+<p>I employed three sources of demographic data:</p>
 <ol style="list-style-type: decimal">
 <li>US census 2000, which provided total population by county and median income by county.</li>
 <li>US census 2010, which provided total population by county. This decennial census did not provide median household income (in fact, the 2010 census did away with the “long form” that provided the data for the sf3 table).</li>
@@ -478,13 +478,13 @@ budget. (page 1061)</p>
 </div>
 <div id="population-and-population-density" class="section level3" number="5.3.3">
 <h3><span class="header-section-number">5.3.3</span> Population and population density</h3>
-<p>I used these county boundaries to calculate the area of each county and (combined with decennial census population), each county’s population density. I included land and water area when calculating total area, since my calculation of average light radiance per county used the same boundaries that included land and water within those boundaries</p>
-<p>I did not do anything to adjust for light blooming beyond whatever the EOG did in their Radiance Calibrated products. Instead I assume blooming artifacts are similar in the 2000 and 2010 products.</p>
-<p>On the coasts and in other high-traffic areas, census population (and therefore population density) may not capture vacationers and other itinerant people that contribute to population density, the capacity of the build environment, and (if my causal conjecture holds), the degree to which an area is built up and generated light. I assume any effect due to itinerant people is small enough (or consistent across the time interval) that it can be ignored.</p>
+<p>I used these county boundaries to calculate the area of each county and, combined with decennial census population, each county’s population density. I included land and water area when calculating total area, since my calculation of average light radiance per county used the same boundaries that included land and water within those boundaries</p>
+<p>I did not do anything to adjust for light blooming beyond whatever the EOG did in their Radiance Calibrated products. Instead I assume any remaining blooming artifacts are similar in the 2000 and 2010 products.</p>
+<p>On the coasts and in other high-traffic areas, census population (and therefore population density) may not capture vacationers and other itinerant people that contribute to population density, the capacity of the build environment, and (if my causal conjecture holds), the degree to which an area is built up and generates light. I assume any effect due to itinerant people is small enough (or consistent across the time interval) that it can be ignored.</p>
 </div>
 <div id="economic-development-gdp-business-cycle" class="section level3" number="5.3.4">
 <h3><span class="header-section-number">5.3.4</span> Economic development / GDP / business cycle</h3>
-<p>The US was in the middle of the Great Recession in 2010. Could this be a factor in the lower radiance levels that year compared to 2000? Starting in 2008, the recession depressed new investments, including building projects that would have created more nighttime light. This may have contributed to slower growth in radiance, however it’s unlikely to have caused light levels in 2010 to be <strong><em>lower</em></strong> than 2000. Consider: shopping malls and hotels may have had lower occupancy and fewer customers, but they would have left the lights on in their parking lots.</p>
+<p>The US was in the middle of the Great Recession in 2010. Could this be a factor in the lower radiance levels that year compared to 2000? Starting in 2008, the recession depressed new investments, including building projects that would have created more nighttime light.</p>
 <p><br></p>
 </div>
 </div>
