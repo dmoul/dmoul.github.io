@@ -8,8 +8,8 @@ fig:medincome-light-avg-scatterplot
 fig:medincome-light-avg-loglog-scatterplot
 fig:medincome-light-avg-facet-scatterplot
 fig:medincome-light-avg-loglog-facet-scatterplot
-fig:radiance-density-2000
 fig:radiance-ecdf-2000
+fig:radiance-density-2000
 fig:lm-r2-and-slope-estimate-by-state
 fig:lin1
 fig:lin2
@@ -48,7 +48,7 @@ exploratory-data-analysis
 map
 data-for-modeling
 predictors-and-data-transformations
-radiance-values-distribution-by-state
+radiance-distribution-by-state
 r2-and-linear-relationships-slope-estimates-by-state
 eda-summary-comments
 modeling-and-model-comparison

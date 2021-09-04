@@ -24,7 +24,7 @@
 <meta name="author" content="Daniel Moul" />
 
 
-<meta name="date" content="2021-09-02" />
+<meta name="date" content="2021-09-04" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -160,7 +160,7 @@ div.csl-indent {
       <nav role="navigation">
 
 <ul class="summary">
-<li><a href="https://dmoul.github.io/nightlight/introduction.html target="_blank">Exploring Nighttime Light</a></li>
+<li><a href="https://dmoul.github.io/nightlight/introduction.html" target="_blank">Exploring Nighttime Light</a></li>
 
 <li class="divider"></li>
 <li class="chapter" data-level="1" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
@@ -175,7 +175,7 @@ div.csl-indent {
 <li class="chapter" data-level="2.2" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#data-for-modeling"><i class="fa fa-check"></i><b>2.2</b> Data for modeling</a>
 <ul>
 <li class="chapter" data-level="2.2.1" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#predictors-and-data-transformations"><i class="fa fa-check"></i><b>2.2.1</b> Predictors and data transformations</a></li>
-<li class="chapter" data-level="2.2.2" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#radiance-values-distribution-by-state"><i class="fa fa-check"></i><b>2.2.2</b> Radiance values’ distribution by state</a></li>
+<li class="chapter" data-level="2.2.2" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#radiance-distribution-by-state"><i class="fa fa-check"></i><b>2.2.2</b> Radiance distribution by state</a></li>
 <li class="chapter" data-level="2.2.3" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#r2-and-linear-relationships-slope-estimates-by-state"><i class="fa fa-check"></i><b>2.2.3</b> <span class="math inline">\(R^2\)</span> and linear relationships: slope estimates by state</a></li>
 <li class="chapter" data-level="2.2.4" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#eda-summary-comments"><i class="fa fa-check"></i><b>2.2.4</b> EDA summary comments</a></li>
 </ul></li>
@@ -235,7 +235,7 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
-<li><a href="https://dmoul.github.io" target="_blank">By Daniel Moul</a></li>
+<li><a href="https://dmoul.github.io" "target=_blank">By Daniel Moul</a></li>
 
 </ul>
 
@@ -258,12 +258,12 @@ div.csl-indent {
 <h1 class="title">Exploring Nighttime Light in the U.S. Southeast</h1>
 <h2 class="subtitle"><em>Model specification and evaluation in the tidymodels framework</em></h2>
 <p class="author"><em>Daniel Moul</em></p>
-<p class="date"><em>2021-09-02</em></p>
+<p class="date"><em>2021-09-04</em></p>
 </div>
 <div id="introduction" class="section level1" number="1">
 <h1><span class="header-section-number">1</span> Introduction</h1>
 <p>Nighttime lights are an indicator of human presence and have been used for analyzing economic trends in GDP, population, electricity consumption, <span class="math inline">\(CO_2\)</span> emissions, and other dimensions of human activity and organization<span class="citation">(<a href="#ref-PZW2017" role="doc-biblioref">Proville 2017</a>)</span>.</p>
-<p>The <a href="https://payneinstitute.mines.edu/eog/">Earth Observation Group (EOG)</a>, now at the Colorado School of Mines, makes available <a href="https://eogdata.mines.edu/dmsp/downloadV4composites.html">average nighttime light products</a> covering much of the world, derived from data collected by the Defense Meteorological Satellite Program’s primary instrument, the Operational Linescan System (DMPS-OLS), employing Visible and Near-Infrared (VNIR) band sensors<span class="citation">(<a href="#ref-EBKKD1997" role="doc-biblioref">Elvidge 1997</a>)</span>. Data from this satellite series was collected 1992-2013. DMSP satellites are in sun-synchronized polar orbit at approximately 458 nautical miles<span class="citation">(<a href="#ref-DMSPUSAF2003" role="doc-biblioref"><span>“FACT SHEET: Defense Meteorological Satellite Program”</span> 2003</a>)</span>.</p>
+<p>The <a href="https://payneinstitute.mines.edu/eog/">Earth Observation Group (EOG)</a>, now at the Colorado School of Mines, makes available <a href="https://eogdata.mines.edu/dmsp/downloadV4composites.html">average nighttime light products</a> covering much of the world, derived from data collected by the Defense Meteorological Satellite Program’s primary instrument, the Operational Linescan System (DMSP-OLS), employing Visible and Near-Infrared (VNIR) band sensors<span class="citation">(<a href="#ref-EBKKD1997" role="doc-biblioref">Elvidge 1997</a>)</span>. Data from this satellite series was collected 1992-2013. DMSP satellites are in sun-synchronized polar orbit at approximately 458 nautical miles<span class="citation">(<a href="#ref-DMSPUSAF2003" role="doc-biblioref"><span>“FACT SHEET: Defense Meteorological Satellite Program”</span> 2003</a>)</span>.</p>
 <div class="figure">
 <img src="https://www.ospo.noaa.gov/graphics/DMSP_Satellite.jpg" alt="" />
 <p class="caption">DMSP Satellite image. Source: NOAA</p>
@@ -271,7 +271,7 @@ div.csl-indent {
 <p><br></p>
 <div id="questions" class="section level2" number="1.1">
 <h2><span class="header-section-number">1.1</span> Questions</h2>
-<p>Using the EOG’s average radiance products<span class="citation">(<a href="#ref-rs70201855" role="doc-biblioref">Hsu et al. 2015</a>)</span> for my part of the world:</p>
+<p>Using the EOG’s average radiance products<span class="citation">(<a href="#ref-rs70201855" role="doc-biblioref">Hsu et al. 2015</a>)</span> with focus on the southeastern United States (where I live):</p>
 <ol style="list-style-type: decimal">
 <li><p>With what accuracy can I associate average night radiance values with human presence?</p></li>
 <li><p>Using the models identified in (1), how well can I use average night radiance to predict the same dimension(s) of human presence 10 years later?</p></li>
@@ -285,16 +285,16 @@ div.csl-indent {
 <p>The files are cloud-free composites made using all the available archived DMSP-OLS smooth resolution data for calendar years. In cases where two satellites were collecting data - two composites were produced. The products are 30 arc second grids, spanning -180 to 180 degrees longitude and -65 to 75 degrees latitude.</p>
 </blockquote>
 <p>Specifically I will use Radiance Calibrated values rather than Digital Number (DN) values. See <a href="end-notes.html#radiance-data">Radiance data</a> and <a href="end-notes.html#intercalibration">Intercalibration</a>.</p></li>
-<li><p>Limit my focus to the southeastern states of the USA (where I live) and census data from the years 2000 and 2010. As indicators of “human presence” I use data from the US Census Bureau: (A) demographic information (population and median income) and (B) geographic information (legal state and county borders from the TIGER/Line Shapefiles database), all retrieved using the <code>tidycensus</code> and <code>tigris</code> R packages.</p></li>
+<li><p>Limit my focus to the southeastern states of the USA and census data from the years 2000 and 2010. As indicators of “human presence” I use data from the US Census Bureau: (A) demographic information (population and median income) and (B) geographic information (legal state and county borders from the TIGER/Line Shapefiles database), all retrieved using the <code>tidycensus</code> and <code>tigris</code> R packages.</p></li>
 <li><p>Associate each pixel (radiance value) in the GeoTIFF image with a county based on its position within county borders and calculate average light level per county. Similarly, calculate county land area based on county borders.</p></li>
 <li><p>Explore models with linear and non-linear associations among county average light levels and county-level demographic data, including transformations of the demographic data to improve linear relationships.</p></li>
 <li><p>Partition the data into two sets: (1) train-test set and (2) a holdout set for final model evaluation.</p></li>
-<li><p>Using the best model(s) identified in the prior step, evaluate model performance on 2010 census data and compare with 2000 census, using the EOG’s intercalibration coefficients to enable valid, multi-year comparisons of radiance levels.</p></li>
+<li><p>Using the best model(s) identified in the prior step, evaluate model performance on 2010 census data, using the EOG’s intercalibration coefficients to enable valid, multi-year comparisons of radiance levels.</p></li>
 </ol>
 </div>
 <div id="causal-assumptions" class="section level2" number="1.3">
 <h2><span class="header-section-number">1.3</span> Causal assumptions</h2>
-<p>In this endeavor, causal relationships are largely unknown and may be highly confounded. Unknown colliders may have large effects. I use only one or two predictor variables, and given the subject matter, face more than the usual limitations of observational studies.</p>
+<p>In this endeavor, causal relationships are largely unknown and may be highly confounded. Unknown colliders may have large effects. I use only one or two predictor variables, and given the subject matter, there are more than the usual limitations of observational studies.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="introduction.html#cb1-1" aria-hidden="true" tabindex="-1"></a>dag <span class="ot">&lt;-</span> <span class="fu">dagitty</span>(</span>
 <span id="cb1-2"><a href="introduction.html#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="st">&#39;dag{</span></span>
 <span id="cb1-3"><a href="introduction.html#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="st">  rad [response, pos=&quot;1,0&quot;]</span></span>

@@ -24,7 +24,7 @@
 <meta name="author" content="Daniel Moul" />
 
 
-<meta name="date" content="2021-09-02" />
+<meta name="date" content="2021-09-04" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -160,7 +160,7 @@ div.csl-indent {
       <nav role="navigation">
 
 <ul class="summary">
-<li><a href="https://dmoul.github.io/nightlight/introduction.html target="_blank">Exploring Nighttime Light</a></li>
+<li><a href="https://dmoul.github.io/nightlight/introduction.html" target="_blank">Exploring Nighttime Light</a></li>
 
 <li class="divider"></li>
 <li class="chapter" data-level="1" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
@@ -175,7 +175,7 @@ div.csl-indent {
 <li class="chapter" data-level="2.2" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#data-for-modeling"><i class="fa fa-check"></i><b>2.2</b> Data for modeling</a>
 <ul>
 <li class="chapter" data-level="2.2.1" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#predictors-and-data-transformations"><i class="fa fa-check"></i><b>2.2.1</b> Predictors and data transformations</a></li>
-<li class="chapter" data-level="2.2.2" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#radiance-values-distribution-by-state"><i class="fa fa-check"></i><b>2.2.2</b> Radiance values’ distribution by state</a></li>
+<li class="chapter" data-level="2.2.2" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#radiance-distribution-by-state"><i class="fa fa-check"></i><b>2.2.2</b> Radiance distribution by state</a></li>
 <li class="chapter" data-level="2.2.3" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#r2-and-linear-relationships-slope-estimates-by-state"><i class="fa fa-check"></i><b>2.2.3</b> <span class="math inline">\(R^2\)</span> and linear relationships: slope estimates by state</a></li>
 <li class="chapter" data-level="2.2.4" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#eda-summary-comments"><i class="fa fa-check"></i><b>2.2.4</b> EDA summary comments</a></li>
 </ul></li>
@@ -235,7 +235,7 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
-<li><a href="https://dmoul.github.io" target="_blank">By Daniel Moul</a></li>
+<li><a href="https://dmoul.github.io" "target=_blank">By Daniel Moul</a></li>
 
 </ul>
 
@@ -371,9 +371,9 @@ Figure 2.4: log_light_avg by log_pop_density (all states)
 <span id="cb9-11"><a href="exploratory-data-analysis.html#cb9-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;pop_density (log10 scale)&quot;</span>,</span>
 <span id="cb9-12"><a href="exploratory-data-analysis.html#cb9-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;light_avg (log10 scale)&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:pop-density-light-avg-loglog-facet-scatter"></span>
-<img src="02-eda_files/figure-html/pop-density-light-avg-loglog-facet-scatter-1.png" alt="log_light_avg by log_pop_density (faceted by state)" width="672" />
+<img src="02-eda_files/figure-html/pop-density-light-avg-loglog-facet-scatter-1.png" alt="log_pop_density by log_light_avg (faceted by state)" width="672" />
 <p class="caption">
-Figure 2.5: log_light_avg by log_pop_density (faceted by state)
+Figure 2.5: log_pop_density by log_light_avg (faceted by state)
 </p>
 </div>
 <p><br></p>
@@ -392,9 +392,9 @@ Figure 2.5: log_light_avg by log_pop_density (faceted by state)
 <span id="cb10-12"><a href="exploratory-data-analysis.html#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;medincome by light_avg&quot;</span>,</span>
 <span id="cb10-13"><a href="exploratory-data-analysis.html#cb10-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">glue</span>(<span class="st">&quot;correlation: {round(cor(d_df$pop_density, d_df$medincome), 2)}&quot;</span>))</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:medincome-light-avg-scatterplot"></span>
-<img src="02-eda_files/figure-html/medincome-light-avg-scatterplot-1.png" alt="light_avg by medincome (all states)" width="672" />
+<img src="02-eda_files/figure-html/medincome-light-avg-scatterplot-1.png" alt="medincome by light_avg (all states)" width="672" />
 <p class="caption">
-Figure 2.6: light_avg by medincome (all states)
+Figure 2.6: medincome by light_avg (all states)
 </p>
 </div>
 <p><br></p>
@@ -410,9 +410,9 @@ Figure 2.6: light_avg by medincome (all states)
 <span id="cb11-10"><a href="exploratory-data-analysis.html#cb11-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;medincome (log10 scale)&quot;</span>,</span>
 <span id="cb11-11"><a href="exploratory-data-analysis.html#cb11-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;light_avg (log10 scale)&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:medincome-light-avg-loglog-scatterplot"></span>
-<img src="02-eda_files/figure-html/medincome-light-avg-loglog-scatterplot-1.png" alt="log_light_avg by log_medincome (all states)" width="672" />
+<img src="02-eda_files/figure-html/medincome-light-avg-loglog-scatterplot-1.png" alt="log_medincome by log_light_avg (all states)" width="672" />
 <p class="caption">
-Figure 2.7: log_light_avg by log_medincome (all states)
+Figure 2.7: log_medincome by log_light_avg (all states)
 </p>
 </div>
 <p><br></p>
@@ -427,9 +427,9 @@ Figure 2.7: log_light_avg by log_medincome (all states)
 <span id="cb12-9"><a href="exploratory-data-analysis.html#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>state)<span class="sc">+</span></span>
 <span id="cb12-10"><a href="exploratory-data-analysis.html#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;light_avg by medincome&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:medincome-light-avg-facet-scatterplot"></span>
-<img src="02-eda_files/figure-html/medincome-light-avg-facet-scatterplot-1.png" alt="light_avg by medincome (faceted by state)" width="672" />
+<img src="02-eda_files/figure-html/medincome-light-avg-facet-scatterplot-1.png" alt="medincome by light_avg (faceted by state)" width="672" />
 <p class="caption">
-Figure 2.8: light_avg by medincome (faceted by state)
+Figure 2.8: medincome by light_avg (faceted by state)
 </p>
 </div>
 <p><br></p>
@@ -446,48 +446,49 @@ Figure 2.8: light_avg by medincome (faceted by state)
 <span id="cb13-11"><a href="exploratory-data-analysis.html#cb13-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;medincome (log10 scale)&quot;</span>,</span>
 <span id="cb13-12"><a href="exploratory-data-analysis.html#cb13-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;light_avg (log10 scale)&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:medincome-light-avg-loglog-facet-scatterplot"></span>
-<img src="02-eda_files/figure-html/medincome-light-avg-loglog-facet-scatterplot-1.png" alt="log_light_avg by log_medincome (faceted by state)" width="672" />
+<img src="02-eda_files/figure-html/medincome-light-avg-loglog-facet-scatterplot-1.png" alt="log_medincome by log_light_avg (faceted by state)" width="672" />
 <p class="caption">
-Figure 2.9: log_light_avg by log_medincome (faceted by state)
+Figure 2.9: log_medincome by log_light_avg (faceted by state)
 </p>
 </div>
 <p><br></p>
 <p><code>pop_density</code> and <code>medincome</code> are correlated (corr = 0.35) but less so for states with big urban areas (especially VA). Since they are correlated, and my goal is to check whether we can associate radiance levels with a demographic change, it’s best if I include only one models. Since <code>pop_density</code> ~ <code>light_avg</code> (corr = 0.94) has less variance than <code>pop_density</code> ~ <code>light_avg</code> (corr = 0.37).</p>
 <p><br></p>
 </div>
-<div id="radiance-values-distribution-by-state" class="section level3" number="2.2.2">
-<h3><span class="header-section-number">2.2.2</span> Radiance values’ distribution by state</h3>
-<p>Each pixel has a light radiance value. Below are radiance values by state in a density plot (Figure <a href="exploratory-data-analysis.html#fig:radiance-density-2000">2.10</a>) and an empirical cumulative distribution (Figure <a href="exploratory-data-analysis.html#fig:radiance-ecdf-2000">2.11</a>) . The distributions are similar in shape. The most noticeable difference is that the portion of zero values (completely black pixels) differs by state.</p>
+<div id="radiance-distribution-by-state" class="section level3" number="2.2.2">
+<h3><span class="header-section-number">2.2.2</span> Radiance distribution by state</h3>
+<p>Each pixel has a light radiance value. A plot of the <a href="https://en.wikipedia.org/wiki/Empirical_distribution_function">empirical cumulative distribution function</a> (Figure <a href="exploratory-data-analysis.html#fig:radiance-ecdf-2000">2.10</a> shows that the distributions are similar in shape. The most noticeable difference is that the portion of zero values (completely black pixels) differs by state.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="exploratory-data-analysis.html#cb14-1" aria-hidden="true" tabindex="-1"></a>county_light_sf <span class="sc">%&gt;%</span></span>
-<span id="cb14-2"><a href="exploratory-data-analysis.html#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">value =</span> value <span class="sc">+</span> <span class="fl">1e-6</span>,</span>
-<span id="cb14-3"><a href="exploratory-data-analysis.html#cb14-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">state =</span> <span class="fu">fct_reorder</span>(state, value, median)) <span class="sc">%&gt;%</span></span>
-<span id="cb14-4"><a href="exploratory-data-analysis.html#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(value, <span class="at">color =</span> state)) <span class="sc">+</span></span>
-<span id="cb14-5"><a href="exploratory-data-analysis.html#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">size =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb14-2"><a href="exploratory-data-analysis.html#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">state =</span> <span class="fu">fct_reorder</span>(state, value, median)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="exploratory-data-analysis.html#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(value, <span class="at">color =</span> state)) <span class="sc">+</span></span>
+<span id="cb14-4"><a href="exploratory-data-analysis.html#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_ecdf</span>(<span class="at">geom =</span> <span class="st">&quot;line&quot;</span>, <span class="at">pad =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb14-5"><a href="exploratory-data-analysis.html#cb14-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="fl">0.5</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
 <span id="cb14-6"><a href="exploratory-data-analysis.html#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>() <span class="sc">+</span></span>
-<span id="cb14-7"><a href="exploratory-data-analysis.html#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Radiance density&quot;</span>,</span>
-<span id="cb14-8"><a href="exploratory-data-analysis.html#cb14-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;light value (log10 scale)&quot;</span>,</span>
-<span id="cb14-9"><a href="exploratory-data-analysis.html#cb14-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;&quot;</span>)</span></code></pre></div>
-<div class="figure"><span style="display:block;" id="fig:radiance-density-2000"></span>
-<img src="02-eda_files/figure-html/radiance-density-2000-1.png" alt="Radiance density 2000" width="672" />
-<p class="caption">
-Figure 2.10: Radiance density 2000
-</p>
-</div>
-<p><br></p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="exploratory-data-analysis.html#cb15-1" aria-hidden="true" tabindex="-1"></a>county_light_sf <span class="sc">%&gt;%</span></span>
-<span id="cb15-2"><a href="exploratory-data-analysis.html#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">state =</span> <span class="fu">fct_reorder</span>(state, value, median)) <span class="sc">%&gt;%</span></span>
-<span id="cb15-3"><a href="exploratory-data-analysis.html#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(value, <span class="at">color =</span> state)) <span class="sc">+</span></span>
-<span id="cb15-4"><a href="exploratory-data-analysis.html#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_ecdf</span>(<span class="at">geom =</span> <span class="st">&quot;line&quot;</span>, <span class="at">pad =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb15-5"><a href="exploratory-data-analysis.html#cb15-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> <span class="fl">0.5</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
-<span id="cb15-6"><a href="exploratory-data-analysis.html#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>() <span class="sc">+</span></span>
-<span id="cb15-7"><a href="exploratory-data-analysis.html#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">label =</span> <span class="fu">percent_format</span>()) <span class="sc">+</span></span>
-<span id="cb15-8"><a href="exploratory-data-analysis.html#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Radiance ECD&quot;</span>,</span>
-<span id="cb15-9"><a href="exploratory-data-analysis.html#cb15-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;light value (log10 scale)&quot;</span>,</span>
-<span id="cb15-10"><a href="exploratory-data-analysis.html#cb15-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;&quot;</span>)</span></code></pre></div>
+<span id="cb14-7"><a href="exploratory-data-analysis.html#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">label =</span> <span class="fu">percent_format</span>()) <span class="sc">+</span></span>
+<span id="cb14-8"><a href="exploratory-data-analysis.html#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Radiance ECDF&quot;</span>,</span>
+<span id="cb14-9"><a href="exploratory-data-analysis.html#cb14-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;light value (log10 scale)&quot;</span>,</span>
+<span id="cb14-10"><a href="exploratory-data-analysis.html#cb14-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:radiance-ecdf-2000"></span>
 <img src="02-eda_files/figure-html/radiance-ecdf-2000-1.png" alt="Radiance empirical cumulative density 2000" width="672" />
 <p class="caption">
-Figure 2.11: Radiance empirical cumulative density 2000
+Figure 2.10: Radiance empirical cumulative density 2000
+</p>
+</div>
+<p><br></p>
+<p>The unusual shape of the <a href="https://www.data-to-viz.com/graph/density.html">density plot</a> (Figure <a href="exploratory-data-analysis.html#fig:radiance-density-2000">2.11</a>) shows each state has a lot of pixels with zero values, then almost no pixels with values less than about 5 (this is a log scale), then a large portion with values in approximately the 6-30 range.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="exploratory-data-analysis.html#cb15-1" aria-hidden="true" tabindex="-1"></a>county_light_sf <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href="exploratory-data-analysis.html#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">value =</span> value <span class="sc">+</span> <span class="fl">1e-6</span>,</span>
+<span id="cb15-3"><a href="exploratory-data-analysis.html#cb15-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">state =</span> <span class="fu">fct_reorder</span>(state, value, median)) <span class="sc">%&gt;%</span></span>
+<span id="cb15-4"><a href="exploratory-data-analysis.html#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(value, <span class="at">color =</span> state)) <span class="sc">+</span></span>
+<span id="cb15-5"><a href="exploratory-data-analysis.html#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">size =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb15-6"><a href="exploratory-data-analysis.html#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>() <span class="sc">+</span></span>
+<span id="cb15-7"><a href="exploratory-data-analysis.html#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Radiance density&quot;</span>,</span>
+<span id="cb15-8"><a href="exploratory-data-analysis.html#cb15-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">&quot;light value (log10 scale)&quot;</span>,</span>
+<span id="cb15-9"><a href="exploratory-data-analysis.html#cb15-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">&quot;&quot;</span>)</span></code></pre></div>
+<div class="figure"><span style="display:block;" id="fig:radiance-density-2000"></span>
+<img src="02-eda_files/figure-html/radiance-density-2000-1.png" alt="Radiance density 2000" width="672" />
+<p class="caption">
+Figure 2.11: Radiance density 2000
 </p>
 </div>
 <p><br></p>
@@ -527,16 +528,16 @@ Figure 2.11: Radiance empirical cumulative density 2000
 <span id="cb17-7"><a href="exploratory-data-analysis.html#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> metric, <span class="at">scales =</span> <span class="st">&quot;free_x&quot;</span>, <span class="at">nrow =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb17-8"><a href="exploratory-data-analysis.html#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;R^2 and estimated slope of</span><span class="sc">\n</span><span class="st">lm(log_pop_density ~ log_light_avg)&quot;</span>)</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:lm-r2-and-slope-estimate-by-state"></span>
-<img src="02-eda_files/figure-html/lm-r2-and-slope-estimate-by-state-1.png" alt="R^2 and estimated slope of lm(log_light_avg ~ log_pop_density)" width="672" />
+<img src="02-eda_files/figure-html/lm-r2-and-slope-estimate-by-state-1.png" alt="R-squared and estimated slope of lm(log_light_avg ~ log_pop_density)" width="672" />
 <p class="caption">
-Figure 2.12: R^2 and estimated slope of lm(log_light_avg ~ log_pop_density)
+Figure 2.12: R-squared and estimated slope of lm(log_light_avg ~ log_pop_density)
 </p>
 </div>
 <p><br></p>
 </div>
 <div id="eda-summary-comments" class="section level3" number="2.2.4">
 <h3><span class="header-section-number">2.2.4</span> EDA summary comments</h3>
-<p>The relationship between <span class="math inline">\(log_{10}(pop\_density)\)</span> and <span class="math inline">\(log_{10}(light\_avg)\)</span> in figures <a href="exploratory-data-analysis.html#fig:pop-density-light-avg-loglog-scatter">2.4</a> and <a href="exploratory-data-analysis.html#fig:pop-density-light-avg-loglog-facet-scatter">2.5</a>) isn’t quite linear, and there are differences by state. So I expect simple linear models to perform worse than more sophisticated ones. Nonetheless, I want to see how good linear models are, since they <em>are</em> simple and inexpensive.</p>
+<p>The relationship between <span class="math inline">\(log_{10}(pop\_density)\)</span> and <span class="math inline">\(log_{10}(light\_avg)\)</span> in figures <a href="exploratory-data-analysis.html#fig:pop-density-light-avg-loglog-scatter">2.4</a> and <a href="exploratory-data-analysis.html#fig:pop-density-light-avg-loglog-facet-scatter">2.5</a> isn’t quite linear, and there are differences by state. So I expect simple linear models to perform worse than more sophisticated ones. Nonetheless, I want to see how good linear models are, since they <em>are</em> simple and inexpensive.</p>
 
 <!-- 03-modeling.Rmd -->
 <!-- this is a child doc of index.Rmd -->

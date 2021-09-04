@@ -24,7 +24,7 @@
 <meta name="author" content="Daniel Moul" />
 
 
-<meta name="date" content="2021-09-02" />
+<meta name="date" content="2021-09-04" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -160,7 +160,7 @@ div.csl-indent {
       <nav role="navigation">
 
 <ul class="summary">
-<li><a href="https://dmoul.github.io/nightlight/introduction.html target="_blank">Exploring Nighttime Light</a></li>
+<li><a href="https://dmoul.github.io/nightlight/introduction.html" target="_blank">Exploring Nighttime Light</a></li>
 
 <li class="divider"></li>
 <li class="chapter" data-level="1" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a>
@@ -175,7 +175,7 @@ div.csl-indent {
 <li class="chapter" data-level="2.2" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#data-for-modeling"><i class="fa fa-check"></i><b>2.2</b> Data for modeling</a>
 <ul>
 <li class="chapter" data-level="2.2.1" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#predictors-and-data-transformations"><i class="fa fa-check"></i><b>2.2.1</b> Predictors and data transformations</a></li>
-<li class="chapter" data-level="2.2.2" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#radiance-values-distribution-by-state"><i class="fa fa-check"></i><b>2.2.2</b> Radiance values’ distribution by state</a></li>
+<li class="chapter" data-level="2.2.2" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#radiance-distribution-by-state"><i class="fa fa-check"></i><b>2.2.2</b> Radiance distribution by state</a></li>
 <li class="chapter" data-level="2.2.3" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#r2-and-linear-relationships-slope-estimates-by-state"><i class="fa fa-check"></i><b>2.2.3</b> <span class="math inline">\(R^2\)</span> and linear relationships: slope estimates by state</a></li>
 <li class="chapter" data-level="2.2.4" data-path="exploratory-data-analysis.html"><a href="exploratory-data-analysis.html#eda-summary-comments"><i class="fa fa-check"></i><b>2.2.4</b> EDA summary comments</a></li>
 </ul></li>
@@ -235,7 +235,7 @@ div.csl-indent {
 </ul></li>
 <li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>References</a></li>
 <li class="divider"></li>
-<li><a href="https://dmoul.github.io" target="_blank">By Daniel Moul</a></li>
+<li><a href="https://dmoul.github.io" "target=_blank">By Daniel Moul</a></li>
 
 </ul>
 
@@ -260,6 +260,7 @@ div.csl-indent {
 <blockquote>
 <p>The simpler models do better: lin3, pol1, and bs1 are essentially equal in performance while xg1 does worse and underestimates most radiance values.</p>
 </blockquote>
+<p>Let’s look closer at how population density and radiance levels changed between 2000 and 2010.</p>
 <div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="interpreting-the-results.html#cb54-1" aria-hidden="true" tabindex="-1"></a>d_df <span class="ot">&lt;-</span> <span class="fu">tar_read</span>(all_df) <span class="sc">%&gt;%</span></span>
 <span id="cb54-2"><a href="interpreting-the-results.html#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># drop a small number of data errors/artifacts</span></span>
 <span id="cb54-3"><a href="interpreting-the-results.html#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(light_avg <span class="sc">&gt;</span> <span class="fl">1e-5</span>) <span class="sc">%&gt;%</span></span>
@@ -732,16 +733,16 @@ div.csl-indent {
 <span id="cb58-22"><a href="interpreting-the-results.html#cb58-22" aria-hidden="true" tabindex="-1"></a>              <span class="at">method =</span> <span class="st">&quot;lm&quot;</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
 <span id="cb58-23"><a href="interpreting-the-results.html#cb58-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">end =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
 <span id="cb58-24"><a href="interpreting-the-results.html#cb58-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">&quot;rect&quot;</span>, <span class="at">xmin =</span> <span class="fl">0.25</span>, <span class="at">xmax =</span> <span class="fl">1.2</span>, <span class="at">ymin =</span> <span class="fl">0.25</span>, <span class="at">ymax =</span> <span class="fl">1.5</span>, <span class="at">alpha =</span> .<span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb58-25"><a href="interpreting-the-results.html#cb58-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">&quot;lm&quot;</span>)</span></code></pre></div>
+<span id="cb58-25"><a href="interpreting-the-results.html#cb58-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">subtitle =</span> <span class="st">&quot;Linear&quot;</span>)</span></code></pre></div>
 <p><br></p>
-<p>In the loess regression line I see the underlying reason that the models performed as they did … compare to Figures … <strong><em>TODO: confirm this</em></strong></p>
+<p>A shift in the underlying distributions is changing the regression lines.</p>
 <div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="interpreting-the-results.html#cb59-1" aria-hidden="true" tabindex="-1"></a>(p1 <span class="sc">+</span> p2) <span class="sc">+</span></span>
 <span id="cb59-2"><a href="interpreting-the-results.html#cb59-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_layout</span>(<span class="at">guides =</span> <span class="st">&#39;collect&#39;</span>) <span class="sc">+</span></span>
 <span id="cb59-3"><a href="interpreting-the-results.html#cb59-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">plot.margin =</span> <span class="fu">unit</span>(<span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">0</span>), <span class="st">&quot;mm&quot;</span>))</span></code></pre></div>
 <div class="figure"><span style="display:block;" id="fig:regression-line-compare-2000-2010"></span>
-<img src="04-interpretation_files/figure-html/regression-line-compare-2000-2010-1.png" alt="Comparing regression lines in 2000 and 2010 (loess and lm)" width="672" />
+<img src="04-interpretation_files/figure-html/regression-line-compare-2000-2010-1.png" alt="Comparing regression lines in 2000 and 2010 (loess and linear)" width="672" />
 <p class="caption">
-Figure 4.1: Comparing regression lines in 2000 and 2010 (loess and lm)
+Figure 4.1: Comparing regression lines in 2000 and 2010 (loess and linear)
 </p>
 </div>
 <p><br></p>
@@ -802,8 +803,7 @@ Figure 4.4: County population density 2000 and 2010
 </p>
 </div>
 <p><br></p>
-<p><strong><em>TODO: Decide whether to keep these last two plots.</em></strong></p>
-<p>Looking at percent changes in population density with pop_density_2000 on the x-axis, I see similar trends in each state:</p>
+<p>Looking at percent changes in population density 2000 to 2010 with pop_density_2000 on the x-axis, I see similar trends in each state:</p>
 <div class="sourceCode" id="cb63"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb63-1"><a href="interpreting-the-results.html#cb63-1" aria-hidden="true" tabindex="-1"></a>census_compare <span class="sc">%&gt;%</span></span>
 <span id="cb63-2"><a href="interpreting-the-results.html#cb63-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> pop_density_2000, <span class="at">y =</span> pct_pop_density_diff, <span class="at">color =</span> state)) <span class="sc">+</span> </span>
 <span id="cb63-3"><a href="interpreting-the-results.html#cb63-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.15</span>) <span class="sc">+</span></span>
@@ -822,7 +822,7 @@ Figure 4.5: Changes in population density 2000-2010
 </p>
 </div>
 <p><br></p>
-<p>As expected, the biggest percentage changes in radiance values occurred in the darkest counties (radiance &lt; 30), where a small change in radiance is a large percentage change.</p>
+<p>Below a radiance value of about 30, the percent difference in radiance between 2000 and 2010 seems nearly linear; above 30 there is little or no relationship.</p>
 <div class="sourceCode" id="cb64"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb64-1"><a href="interpreting-the-results.html#cb64-1" aria-hidden="true" tabindex="-1"></a>census_compare <span class="sc">%&gt;%</span></span>
 <span id="cb64-2"><a href="interpreting-the-results.html#cb64-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> light_avg_2000, <span class="at">y =</span> pct_light_diff, <span class="at">color =</span> state)) <span class="sc">+</span> </span>
 <span id="cb64-3"><a href="interpreting-the-results.html#cb64-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.15</span>) <span class="sc">+</span></span>
@@ -840,7 +840,7 @@ Figure 4.6: Changes in radiance 2000-2010
 </p>
 </div>
 <p><br></p>
-<p>The relationship between <code>pct_pop_density_diff</code> and <code>pct_light_diff</code> is <strong><em>TODO: add observation here or delete</em></strong></p>
+<p>Looking at the relationship between <code>pct_pop_density_diff</code> and <code>pct_light_diff</code>, once again I see the highest and lowest radiance values are remarkably less linear in relationship than the great majority of the values, which lay between them.</p>
 <div class="sourceCode" id="cb65"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb65-1"><a href="interpreting-the-results.html#cb65-1" aria-hidden="true" tabindex="-1"></a>census_compare <span class="sc">%&gt;%</span></span>
 <span id="cb65-2"><a href="interpreting-the-results.html#cb65-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(pct_light_diff, pct_pop_density_diff, <span class="at">color =</span> pop_density_2000, <span class="at">size =</span> pop_density_2000)) <span class="sc">+</span> </span>
 <span id="cb65-3"><a href="interpreting-the-results.html#cb65-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.25</span>) <span class="sc">+</span></span>
@@ -866,8 +866,8 @@ Figure 4.7: Comparing the percent difference in county radiance with percent dif
 </div>
 <div id="conclusion" class="section level2" number="4.2">
 <h2><span class="header-section-number">4.2</span> Conclusion</h2>
-<p><strong><em>TODO: add more here</em></strong></p>
-<p><br></p>
+<p>Since the underlying distributions shifted between 2000 and 2010, I am not surprised that xg1, the model most sensitive to the training data, performs worse on the 2010 data. I trained bs1 on 2000 data as well, however its spline knot parameter holds much less information and thus is less sensitive.</p>
+<p>If I were attempting original research or directing civil or governmental investments using the techniques employed here, how would I know the underlying distributions changed (or more specifically: changed enough to affect the accuracy of some of my models)? I would look for changes in the distribution of the data I could gather, then likely use an ensemble of models to make predictions.</p>
 
 <!-- 90-endnotes.Rmd -->
 <!-- this is a child doc of index.Rmd -->
