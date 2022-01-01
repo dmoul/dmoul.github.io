@@ -4,6 +4,8 @@
 
 <br>
 
+[Camping in NC at Federal Facilities 2009-2020](./nc-camping/nc-camping-writeup.html)
+
 [Exploring Nighttime Light in the U.S. Southeast: Model specification and evaluation in the tidymodels framework](./nightlight/introduction.html)
 
 [Some Voyages in the Age of Sail 1750-1815](./ageofsail/voyages.html)
