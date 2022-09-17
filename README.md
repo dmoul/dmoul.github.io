@@ -20,7 +20,7 @@
 
 [Cistercian and Franciscan monasteries in Europe that opened 1000-1600](./monasteries/monasteries.html)
 
-*Source files are at* [https://github.com/dmoul/dmoul.github.io](https://github.com/dmoul/dmoul.github.io)
+*Source files are at* [https://github.com/dmoul/dmoul.github.io](https://github.com/dmoul/dmoul.github.io) unless noted otherwise in the document
 
 <br>
 <br>
