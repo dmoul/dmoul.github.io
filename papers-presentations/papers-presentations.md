@@ -1,6 +1,6 @@
 ## My work life
 
-*I work at IBM in the role of a Program Director / Senior Product Manager for software tools used by engineers and developers to create the amazingly complex product-systems our societies rely on, including planes, trains, automobiles, space vehicles, military systems, as well as IT systems that enable smooth operation of our financial sector and government services. I speak for myself on this website, except in the papers and presentations below.*
+*I work at IBM in the role of a Program Director / Principal Product Manager for software tools used by engineers and developers to create the amazingly complex product, systems and systems-of-systems our societies rely on, including planes, trains, automobiles, space vehicles, military systems, and IT systems that enable smooth operation of our financial sector and government services. I speak for myself on this website, except in the papers and presentations below.*
 
 <br>
 
