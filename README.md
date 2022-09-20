@@ -6,7 +6,7 @@
 
 [American Whaling by the Numbers](./american-whaling-by-the-numbers/index.html)
 
-[Camping in NC at Federal Facilities 2009-2020](./nc-camping/nc-camping-writeup.html)
+[Camping in NC at Federal Facilities 2009-2020](./nc-camping/index.html)
 
 [Exploring Nighttime Light in the U.S. Southeast: Model specification and evaluation in the tidymodels framework](./nightlight/introduction.html)
 
