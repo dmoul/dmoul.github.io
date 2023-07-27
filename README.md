@@ -4,6 +4,8 @@
 
 <br>
 
+[Australian Mining: Production output, prices, and value 1922-2021](https://dmoul.github.io/australian-mining/)
+
 [American Whaling by the Numbers](./american-whaling-by-the-numbers/index.html)
 
 [Camping in NC at Federal Facilities 2009-2020](./nc-camping/index.html)
