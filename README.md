@@ -6,6 +6,8 @@
 
 [Australian Mining: Production output, prices, and value 1922-2021](https://dmoul.github.io/australian-mining/)
 
+[County Business Patterns in North Carolina 2001-2021](https://dmoul.github.io/county-business-patterns-nc/)
+
 [American Whaling by the Numbers](./american-whaling-by-the-numbers/index.html)
 
 [Camping in NC at Federal Facilities 2009-2020](./nc-camping/index.html)
