@@ -8,6 +8,8 @@
 
 [County Business Patterns in North Carolina 2001-2021](https://dmoul.github.io/county-business-patterns-nc/)
 
+[North Carolina trends: geography, population, income, and education](https://dmoul.github.io/nc-trends/)
+
 [American Whaling by the Numbers](./american-whaling-by-the-numbers/index.html)
 
 [Camping in NC at Federal Facilities 2009-2020](./nc-camping/index.html)
