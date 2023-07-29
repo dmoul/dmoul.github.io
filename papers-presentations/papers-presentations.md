@@ -6,7 +6,9 @@
 
 ## Selected papers and presentations
 
-*The following papers and presentations were written as part of my work, and IBM holds the copyright. I am thankful for the opportunities I have had to work with such high-caliber collaborators on many of them.*
+*The following papers and presentations were written as part of my work, and IBM or my co-author's organization holds the copyright. I am thankful for the opportunities I have had to work with such high-caliber collaborators on many of them.*
+
+[*Achieving agility and maximizing reuse of the Micro Vapor Cycle System Product Line with IBM Engineering Lifecycle Management*](./files/INCOSEIS-2023-Honeywell-MicroVCS-and-IBM ELM.pdf) by Christine Shea and Daniel Moul. Presented at the INCOSE International Symposium 2023. July 2023.
 
 [*Introducing IBM Engineering Lifecycle Management V7*](./files/IBM-ELM-V7.0-Persistent-Supercharging-Engineering-2020-03-26.pdf) by Daniel Moul. Public webcast hosted by Persistent Systems Ltd. March 2020. [Watch the replay](https://www.persistent.com/events/webinar-supercharging-elm/).
 
