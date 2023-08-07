@@ -20,9 +20,9 @@
 
 [Some Voyages in the Age of Sail 1750-1815](./ageofsail/voyages.html) January 2021
 
-[What is the average elevation above sea level of the US population?](./mean-uspop-elevation/mean-population-elevation.html) October 20220
+[What is the average elevation above sea level of the US population?](./mean-uspop-elevation/mean-population-elevation.html) October 2020
 
-[Weather at Raleigh-Durham International Airport (RDU) 2011-2020](./rdu-weather/rdu-weather.html) July 20220
+[Weather at Raleigh-Durham International Airport (RDU) 2011-2020](./rdu-weather/rdu-weather.html) July 2020
 
 [Cistercian and Franciscan monasteries in Europe that opened 1000-1600](./monasteries/monasteries.html) August 2020
 
