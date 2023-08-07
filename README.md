@@ -4,7 +4,7 @@
 
 <br>
 
-[Australian Mining: Production output, prices, and value 1922-2021](https://dmoul.github.io/australian-mining/) July 2023
+[Australian Mining: Production output, prices, and value 1922-2021](https://dmoul.github.io/australian-mining/) August 2023
 
 [County Business Patterns in North Carolina 2001-2021](https://dmoul.github.io/county-business-patterns-nc/) July 2023
 
