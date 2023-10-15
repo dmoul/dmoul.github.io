@@ -35,4 +35,6 @@ Source files are at [https://github.com/dmoul/dmoul.github.io](https://github.co
 
 [Work life, papers & presentations](./papers-presentations/papers-presentations.html)
 
+<a rel="me" href="https://fosstodon.org/@danielmoul">Mastodon</a>
+
 [LinkedIn](https://www.linkedin.com/in/danielmoul/)
