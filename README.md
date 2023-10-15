@@ -4,6 +4,8 @@
 
 <br>
 
+[Five decades of tornadoes in North Carolina and changes in the data generating processes that recorded them](https://dmoul.github.io/nc-tornadoes/notes.html) October 2023
+
 [Australian Mining: Production output, prices, and value 1922-2021](https://dmoul.github.io/australian-mining/) August 2023
 
 [County Business Patterns in North Carolina 2001-2021](https://dmoul.github.io/county-business-patterns-nc/) July 2023
