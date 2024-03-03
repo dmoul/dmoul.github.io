@@ -4,6 +4,10 @@
 
 <br>
 
+[US Peace Corps resignations](https://dmoul.github.io/peace-corps-resignations/) March 2024
+
+[The sad story of mark FY3210](https://dmoul.github.io/sad-story-mark-FY3210/) February 2024 (draft)
+
 [What can we learn from Finnish passenger vehicle data?](https://dmoul.github.io/finnish-vehicle-insights/) January 2024
 
 [Five decades of tornadoes in North Carolina and changes in the data generating processes that recorded them](https://dmoul.github.io/nc-tornadoes/) October 2023
