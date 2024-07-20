@@ -1,8 +1,10 @@
 ## Playground
 
-*Playing to learn ... and maybe help others learn*
+Listening to my own advice: *Be curious. Learn something.*
 
 <br>
+
+[North Carolina beach nourishment](https://dmoul.github.io/nc-beach-nourishment/) July 2024
 
 [US Peace Corps resignations](https://dmoul.github.io/peace-corps-resignations/) March 2024
 
