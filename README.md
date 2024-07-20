@@ -6,6 +6,8 @@ Listening to my own advice: *Be curious. Learn something.*
 
 [North Carolina beach nourishment](https://dmoul.github.io/nc-beach-nourishment/) July 2024
 
+[Perspectives of Fiji from open data sets](https://dmoul.github.io/fiji-perspectives/) June 2024
+
 [US Peace Corps resignations](https://dmoul.github.io/peace-corps-resignations/) March 2024
 
 [The sad story of mark FY3210](https://dmoul.github.io/sad-story-mark-FY3210/) February 2024 (draft)
