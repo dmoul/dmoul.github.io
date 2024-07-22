@@ -1,8 +1,0 @@
-### Possible improvements
-
-I could do some of the following:
-
-* Look at duration, distance, and time in port by company; currently I'm only looking at it by nationality
-* Look at areas for differences in average velocity or distribution of velocities
-* Look at differences in average duration or in opposite directions between the same ports
-* Look at changes in durations or routes from the early years to the later years, e.g., British and Dutch journeys from Jakarta to a UK or Dutch port, respectively
