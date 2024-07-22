@@ -38,7 +38,7 @@ Listening to my own advice: *Be curious. Learn something.*
 
 [Weather at Raleigh-Durham International Airport (RDU) 2011-2020](./rdu-weather/rdu-weather.html) July 2020
 
-Source files are at [https://github.com/dmoul/dmoul.github.io](https://github.com/dmoul/dmoul.github.io) or in their own public repo under https://github.com/dmoul
+Source files are at <https://github.com/dmoul/dmoul.github.io> or in their own public repo under <https://github.com/dmoul>
 
 <br>
 <br>
@@ -47,6 +47,6 @@ Source files are at [https://github.com/dmoul/dmoul.github.io](https://github.co
 
 [Work life, papers & presentations](./papers-presentations/papers-presentations.html)
 
-<a rel="me" href="https://fosstodon.org/@danielmoul">Mastodon</a>
+[Mastodon](https://fosstodon.org/@danielmoul)
 
 [LinkedIn](https://www.linkedin.com/in/danielmoul/)
