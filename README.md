@@ -28,7 +28,7 @@ Listening to my own advice: *Be curious. Learn something.*
 
 [Exploring Nighttime Light in the U.S. Southeast: Model specification and evaluation in the tidymodels framework](./nightlight/introduction.html) September 2021
 
-[Some Voyages in the Age of Sail 1750-1815](./ageofsail/voyages.html) January 2021
+[Some Voyages in the Age of Sail 1750-1815](https://dmoul.github.io/age-of-sailing/) January 2021 (updated July 2024)
 
 [Risks through the lens of the RISKS Forum](./risks-lens/the-lens.html) November 2020
 
