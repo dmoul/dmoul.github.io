@@ -1,12 +1,17 @@
 ## My work life
 
-*I work at IBM in the role of a Program Director / Principal Product Manager for software tools used by engineers and developers to create the amazingly complex products, systems and systems-of-systems our societies rely on, including planes, trains, automobiles, space vehicles, military systems, advanced medical devices and diagnostic tools, and IT systems that enable smooth operation of our financial sector and government services.*
+*I work at IBM in the role of a Program Director / Principal Product Manager for software tools used by engineers and developers to create the amazingly complex products, systems and systems-of-systems our societies rely on, including planes, trains, automobiles, space vehicles, military systems, advanced medical devices and diagnostic tools, civil engineering projects, and IT systems that enable smooth operation of our financial sector and government services.*
 
 <br>
 
 ## Selected papers and presentations
 
 *The following papers and presentations were written as part of my work, and IBM or my co-author's organization holds the copyright. I am thankful for the opportunities I have had to work with such high-caliber collaborators on many of them.*
+
+
+[AI in high-trust engineering domains](.files/AI-in-high-trust-engineering-IBM-TechXchange-Dallas-2025-10-29.pdf)
+
+* Introducing *IBM Engineering AI Hub* and the thinking behind it at a regional IBM TechXchange conference in Dallas Texas October 2025.
 
 [*Applying AI to Engineering: A perspective inspired by systems thinking*](./files/AI-in-Engineering-IBM-REConf-2024.pdf) by Daniel Moul. Presented at REConf the requirements engineering conference, Munich, Germany. April 2024.
 
@@ -16,7 +21,7 @@
 
 * *IBM Engineering (aka IBM Engineering Lifecycle Management) is the new name for the IBM Continuous Engineering Solution. With the new name comes a UI face lift and a strategic focus on insightful engineering at enterprise scale.*
 
-[*Reyond Requirements Engineering: Solving the really hard problems in engineering and development*](./files/Solving-the-hard-problems-2019-03.pdf) by Daniel Moul. REConf 2019 conference. March 2019.
+[*Beyond Requirements Engineering: Solving the really hard problems in engineering and development*](./files/Solving-the-hard-problems-2019-03.pdf) by Daniel Moul. REConf 2019 conference. March 2019.
 
 * *Requirements are only meaningful if they are defined and used within a development process – ideally one that guides teams to maximum impact and maximum efficiency. This statement has many implications for your development process and the many tools your developers and engineers use as they bring your development process to life. A foundational enabler is the ability to create a shared development context for your teams and evolving it in a controlled way: across multiple tools from multiple vendors, maintaining dependencies among the data in these tools, and with effective change management. This session will briefly survey ways this is typically addressed today with the various compromises that are inherent in these approaches, then explain the concepts and promise of “global configurations” in your engineering tool chain as enabled by OASIS OSLC Configuration Management and implemented by the IBM Continuous Engineering solution for software and systems engineering.*
 
@@ -62,7 +67,7 @@
 
 * *This session provides a framework for evaluating the best uses of text and various visual notations in the requirements process. Presenters highlight this in reference to IBM Rational Requirements Composer, application simulation tools such as iRise, and UML/SysML modeling.*
 
-[*Keeping Business Dreams From Becomming Software Delivery Nightmares*](./files/Biz-Dreams-IT-Nightmares-Webcast-2010-04-20.pdf) by Matt Holitza and Daniel Moul. IBM public webcast. 2010.
+[*Keeping Business Dreams From Becoming Software Delivery Nightmares*](./files/Biz-Dreams-IT-Nightmares-Webcast-2010-04-20.pdf) by Matt Holitza and Daniel Moul. IBM public webcast. 2010.
 
 * *IBM Rational Collaborative Lifecycle Management tools--coupled with good development practices--can help you achieve your business dreams and avoid IT delivery nightmares.*
 
@@ -78,7 +83,7 @@
 
 * *This session summarizes some principles for good requirements definition and management then explains how IBM Rational Requirements Composer helps teams to put them into practice.*
 
-[*Faster Appplication Change and Reuse with WebSphere Studio Asset Analyzer*](./files/Faster-application-change-and-reuse-redp4225-2008.pdf) by Daniel Moul and Paul Hensler. IBM Redpaper. 2008.
+[*Faster Application Change and Reuse with WebSphere Studio Asset Analyzer*](./files/Faster-application-change-and-reuse-redp4225-2008.pdf) by Daniel Moul and Paul Hensler. IBM Redpaper. 2008.
 
 * *Today’s enterprises could not exist without information technology. In fact, millions of lines of application code embody and enable business processes. These applications can be a source of competitive advantage as well as a brake on innovation. Existing systems have evolved over decades into massive sets of interrelated, complex combinations of computers, network equipment, middleware servers, storage systems, custom, and off-the-shelf software applications, as well as the data that these systems consume and generate. We examine the promise and the challenge of reuse and provide examples of using WebSphere Studio Asset Analyzer to cut through the complexity of application changes, with a focus on mainframe applications.*
     
