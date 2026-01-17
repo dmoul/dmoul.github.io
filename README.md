@@ -49,6 +49,8 @@ Source files are at <https://github.com/dmoul/dmoul.github.io> or in their own p
 
 [Work life, papers & presentations](./papers-presentations/papers-presentations.html)
 
-[Mastodon](https://fosstodon.org/@danielmoul)
+Bluesky: [@danielmoul.bsky.social](https://bsky.app/profile/did:plc:crdyi7lxgqzj3ekkmuz6icmx)
+
+Mastodon: [@danielmoul](https://fosstodon.org/@danielmoul)
 
 [LinkedIn](https://www.linkedin.com/in/danielmoul/)
