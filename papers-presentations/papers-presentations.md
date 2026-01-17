@@ -9,11 +9,9 @@
 *The following papers and presentations were written as part of my work, and IBM or my co-author's organization holds the copyright. I am thankful for the opportunities I have had to work with such high-caliber collaborators on many of them.*
 
 
-[AI in high-trust engineering domains](.files/AI-in-high-trust-engineering-IBM-TechXchange-Dallas-2025-10-29.pdf)
+[AI in high-trust engineering domains](./files/AI-in-high-trust-engineering-IBM-TechXchange-Dallas-2025-10-29.pdf). Introduced *IBM Engineering AI Hub* and the thinking behind it at a regional IBM TechXchange conference. Dallas, Texas. October 2025.
 
-* Introducing *IBM Engineering AI Hub* and the thinking behind it at a regional IBM TechXchange conference in Dallas Texas October 2025.
-
-[*Applying AI to Engineering: A perspective inspired by systems thinking*](./files/AI-in-Engineering-IBM-REConf-2024.pdf) by Daniel Moul. Presented at REConf the requirements engineering conference, Munich, Germany. April 2024.
+[*Applying AI to Engineering: A perspective inspired by systems thinking*](./files/AI-in-Engineering-IBM-REConf-2024.pdf) by Daniel Moul. Presented at REConf the requirements engineering conference. Munich, Germany. April 2024.
 
 [*Achieving agility and maximizing reuse of the Micro Vapor Cycle System Product Line with IBM Engineering Lifecycle Management*](./files/INCOSEIS-2023-Honeywell-MicroVCS-and-IBM-ELM.pdf) by Christine Shea and Daniel Moul. Presented at the INCOSE International Symposium 2023. July 2023.
 
