@@ -4,6 +4,8 @@ Listening to my own advice: *Be curious. Learn something.*
 
 <br>
 
+[EV Charging in the USA](https://dmoul.github.io/ev-charging/) March 2026
+
 [A Look at US dams](https://dmoul.github.io/us-dams/) January 2026
 
 [Perspectives of Fiji from open data sets](https://dmoul.github.io/fiji-perspectives/) September 2024
